@@ -139,14 +139,15 @@ final class MechanicalPartNormalizer
      */
     public function parseMetricDesignation(string $designation): array
     {
-        if (preg_match('/\b(M\s*\d+(?:[.,]\d+)?(?:\s*[x×]\s*\d+(?:[.,]\d+)?)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)\b/i',
+        $designation = str_replace(['×', ','], ['x', '.'], $designation);
+        if (preg_match('/\b(M\s*\d+(?:\.\d+)?(?:\s*x\s*\d+(?:\.\d+)?)?)\s*x\s*(\d+(?:\.\d+)?)\b/i',
             $designation, $matches) !== 1) {
             return ['thread' => null, 'length' => null];
         }
 
         return [
-            'thread' => strtoupper((string) preg_replace('/\s+/', '', str_replace(',', '.', $matches[1]))),
-            'length' => (float) str_replace(',', '.', $matches[2]),
+            'thread' => strtoupper((string) preg_replace('/\s+/', '', $matches[1])),
+            'length' => (float) $matches[2],
         ];
     }
 
