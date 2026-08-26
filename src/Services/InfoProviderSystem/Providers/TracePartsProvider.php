@@ -288,12 +288,12 @@ final class TracePartsProvider implements InfoProviderInterface
     /**
      * @param array<int, array<string, mixed>> $formats
      */
-    private function cadFormatsNote(array $formats): ?string
+    private function cadFormatsNote(array $formats): string
     {
         $names = array_values(array_filter(array_map(
             static fn (array $format): ?string => isset($format['cadFormatName']) ? (string) $format['cadFormatName'] : null,
             $formats
-        )));
+        ), static fn (?string $name): bool => $name !== null && $name !== ''));
         if ($names === []) {
             return 'Powered by TraceParts. CAD generation was not requested.';
         }

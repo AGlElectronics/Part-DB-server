@@ -109,7 +109,8 @@ final class StandardPartsCatalog
         }
 
         $length = $lengthValue === '-' ? null : (float) $lengthValue;
-        if ($length !== null && !in_array($length, $part['lengths'], false)) {
+        $supportedLengths = array_map(static fn (int|float $value): float => (float) $value, $part['lengths']);
+        if ($length !== null && !in_array($length, $supportedLengths, true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported length in standard part "%s".', $id));
         }
 

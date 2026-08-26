@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Parts\Category;
-use App\Repository\Parts\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -57,7 +56,6 @@ final class InstallMechanicalLibraryCommand extends Command
         }
 
         $created = [];
-        /** @var CategoryRepository $categoryRepository */
         $categoryRepository = $this->entityManager->getRepository(Category::class);
         foreach ($taxonomy['paths'] as $path) {
             foreach ($categoryRepository->getNewEntityFromPath($path) as $category) {
