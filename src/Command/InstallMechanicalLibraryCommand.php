@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Entity\Parts\Category;
 use App\Repository\Parts\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -32,7 +33,6 @@ final class InstallMechanicalLibraryCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly CategoryRepository $categoryRepository,
         #[Autowire('%kernel.project_dir%/resources/mechanical/taxonomy.json')]
         private readonly string $taxonomyPath,
     ) {
@@ -57,8 +57,10 @@ final class InstallMechanicalLibraryCommand extends Command
         }
 
         $created = [];
+        /** @var CategoryRepository $categoryRepository */
+        $categoryRepository = $this->entityManager->getRepository(Category::class);
         foreach ($taxonomy['paths'] as $path) {
-            foreach ($this->categoryRepository->getNewEntityFromPath($path) as $category) {
+            foreach ($categoryRepository->getNewEntityFromPath($path) as $category) {
                 if ($category->getID() === null) {
                     $created[spl_object_id($category)] = $category;
                 }
