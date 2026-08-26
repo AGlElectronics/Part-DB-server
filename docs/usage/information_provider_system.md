@@ -105,6 +105,20 @@ The following providers are currently available and shipped with Part-DB:
 
 (All trademarks are property of their respective owners. Part-DB is not affiliated with any of the companies.)
 
+### Standard mechanical parts
+
+The Standard mechanical parts provider searches a bundled, offline subset of the BOLTS standards library. It requires
+no API key and returns normalized fastener categories and mechanical parameters. See the
+[mechanical parts library]({% link usage/mechanical_parts_library.md %}) for taxonomy installation, supported fields,
+licensing, and supplier adapter guidance.
+
+### TraceParts
+
+The TraceParts provider performs exact manufacturer part-number lookups using the documented TraceParts API. It requires
+an API key, tenant UID, catalog label, and explicit confirmation that your TraceParts agreement permits catalog
+syndication into Part-DB. It remains disabled unless all four are configured. See the
+[mechanical parts library]({% link usage/mechanical_parts_library.md %}) for configuration and usage restrictions.
+
 ### Generic Web URL Provider
 The Generic Web URL Provider can extract part information from any webpage that contains structured data in the form of
 [Schema.org](https://schema.org/) format. Many e-commerce websites use this format to provide detailed product information

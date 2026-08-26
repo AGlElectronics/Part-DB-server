@@ -31,6 +31,9 @@ use App\Services\InfoProviderSystem\DTOs\PartDetailDTO;
 use App\Services\InfoProviderSystem\DTOs\PriceDTO;
 use App\Services\InfoProviderSystem\DTOs\PurchaseInfoDTO;
 use App\Services\InfoProviderSystem\DTOtoEntityConverter;
+use App\Services\InfoProviderSystem\Providers\StandardPartsProvider;
+use App\Entity\Parts\Category;
+use Doctrine\ORM\EntityManagerInterface;
 use PhpParser\Node\Param;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -215,5 +218,30 @@ final class DTOtoEntityConverterTest extends WebTestCase
 
         $datasheet = $entity->getAttachments()[5];
         $this->assertSame('Duplicate (3)', $datasheet->getName());
+    }
+
+    public function testConvertMechanicalStandardPart(): void
+    {
+        $container = self::getContainer();
+        $entityManager = $container->get(EntityManagerInterface::class);
+        $categoryRepository = $entityManager->getRepository(Category::class);
+        $categories = $categoryRepository->getNewEntityFromPath(
+            'Mechanical -> Fasteners -> Bolts & Screws -> Socket Head Cap Screws'
+        );
+        foreach ($categories as $category) {
+            if ($category->getID() === null) {
+                $entityManager->persist($category);
+            }
+        }
+        $entityManager->flush();
+
+        $provider = $container->get(StandardPartsProvider::class);
+        $dto = $provider->getDetails('iso-4762:M6:20');
+        $part = $this->service->convertPart($dto);
+
+        $this->assertSame('Socket Head Cap Screws', $part->getCategory()->getName());
+        $this->assertNull($part->getFootprint());
+        $this->assertSame('ISO 4762', $part->getParameters()[1]->getValueText());
+        $this->assertSame('Mechanical parameters', $part->getParameters()[1]->getGroup());
     }
 }
