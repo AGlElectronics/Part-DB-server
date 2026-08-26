@@ -1,0 +1,114 @@
+{
+  "source": {
+    "name": "BOLTS - Open Library of Technical Specifications",
+    "url": "https://github.com/boltsparts/boltsparts",
+    "revision": "5c83300a57761f70db87f50c9a1f647c7278a4c2",
+    "license": "LGPL-2.1-or-later"
+  },
+  "parts": [
+    {
+      "id": "iso-4762",
+      "name": "Hexagon socket head cap screw",
+      "description": "Metric hexagon socket head cap screw",
+      "standard": "ISO 4762",
+      "aliases": ["DIN 912"],
+      "hardware_type": "Socket head cap screw",
+      "head_style": "Socket head cap",
+      "drive": "Internal hex",
+      "sizes": {"M2": 0.4, "M2.5": 0.45, "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0},
+      "lengths": [6, 8, 10, 12, 16, 20, 25, 30, 35, 40, 50, 60]
+    },
+    {
+      "id": "iso-10642",
+      "name": "Hexagon socket countersunk head screw",
+      "description": "Metric countersunk screw with internal hex drive",
+      "standard": "ISO 10642",
+      "aliases": ["DIN 7991"],
+      "hardware_type": "Countersunk socket screw",
+      "head_style": "Countersunk",
+      "drive": "Internal hex",
+      "sizes": {"M2": 0.4, "M2.5": 0.45, "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75},
+      "lengths": [6, 8, 10, 12, 16, 20, 25, 30, 35, 40, 50]
+    },
+    {
+      "id": "iso-4017",
+      "name": "Hexagon head screw",
+      "description": "Metric fully threaded hexagon head screw",
+      "standard": "ISO 4017",
+      "aliases": ["DIN 933"],
+      "hardware_type": "Hexagon head screw",
+      "head_style": "Hexagon",
+      "drive": "External hex",
+      "sizes": {"M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0, "M20": 2.5},
+      "lengths": [6, 8, 10, 12, 16, 20, 25, 30, 35, 40, 50, 60, 70, 80]
+    },
+    {
+      "id": "iso-4014",
+      "name": "Hexagon head bolt",
+      "description": "Metric partially threaded hexagon head bolt",
+      "standard": "ISO 4014",
+      "aliases": ["DIN 931"],
+      "hardware_type": "Hexagon head bolt",
+      "head_style": "Hexagon",
+      "drive": "External hex",
+      "sizes": {"M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0, "M20": 2.5, "M24": 3.0},
+      "lengths": [20, 25, 30, 35, 40, 50, 60, 70, 80, 100, 120]
+    },
+    {
+      "id": "iso-4026",
+      "name": "Hexagon socket set screw with flat point",
+      "description": "Metric headless set screw with flat point",
+      "standard": "ISO 4026",
+      "aliases": ["DIN 913"],
+      "hardware_type": "Flat point set screw",
+      "head_style": "Headless",
+      "drive": "Internal hex",
+      "sizes": {"M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0},
+      "lengths": [4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 40, 50]
+    },
+    {
+      "id": "iso-4032",
+      "name": "Hexagon nut",
+      "description": "Metric regular hexagon nut",
+      "standard": "ISO 4032",
+      "aliases": ["DIN 934"],
+      "hardware_type": "Hexagon nut",
+      "drive": "External hex",
+      "sizes": {"M2": 0.4, "M2.5": 0.45, "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0, "M20": 2.5, "M24": 3.0},
+      "lengths": []
+    },
+    {
+      "id": "iso-4035",
+      "name": "Thin hexagon nut",
+      "description": "Metric thin hexagon nut",
+      "standard": "ISO 4035",
+      "aliases": ["DIN 439"],
+      "hardware_type": "Thin hexagon nut",
+      "drive": "External hex",
+      "sizes": {"M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0},
+      "lengths": []
+    },
+    {
+      "id": "iso-7089",
+      "name": "Plain washer",
+      "description": "Normal-series metric plain washer",
+      "standard": "ISO 7089",
+      "aliases": ["DIN 125 A"],
+      "hardware_type": "Plain washer",
+      "sizes": {"M2": 0.4, "M2.5": 0.45, "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0, "M20": 2.5, "M24": 3.0},
+      "lengths": []
+    },
+    {
+      "id": "din-603",
+      "name": "Carriage bolt",
+      "description": "Round head square neck bolt",
+      "standard": "DIN 603",
+      "aliases": ["ISO 8677"],
+      "hardware_type": "Carriage bolt",
+      "head_style": "Round",
+      "drive": "Square neck",
+      "sizes": {"M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75, "M16": 2.0},
+      "lengths": [16, 20, 25, 30, 35, 40, 50, 60, 70, 80, 100, 120]
+    }
+  ]
+}
