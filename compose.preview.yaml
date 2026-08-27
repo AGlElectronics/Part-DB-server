@@ -1,0 +1,36 @@
+name: partdb-mechanical-preview
+
+services:
+  partdb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: partdb-mechanical-preview:local
+    container_name: partdb-mechanical-preview
+    ports:
+      - "${PARTDB_PORT:-8080}:80"
+    environment:
+      APP_ENV: docker
+      APP_DEBUG: "0"
+      APP_SECRET: "${APP_SECRET:-mechanical-preview-change-me}"
+      DATABASE_URL: "sqlite:///%kernel.project_dir%/uploads/app.db"
+      DB_AUTOMIGRATE: "true"
+      DEFAULT_LANG: "${DEFAULT_LANG:-en}"
+      DEFAULT_TIMEZONE: "${DEFAULT_TIMEZONE:-UTC}"
+      BASE_CURRENCY: "${BASE_CURRENCY:-EUR}"
+      INSTANCE_NAME: "Mechanical Parts Preview"
+      CHECK_FOR_UPDATES: "0"
+      ALLOW_ATTACHMENT_DOWNLOADS: "0"
+    volumes:
+      - partdb_mechanical_preview_data:/var/www/html/uploads
+    command:
+      - /bin/sh
+      - -lc
+      - >-
+        sudo -E -u www-data php bin/console partdb:mechanical-library:install --no-interaction
+        && exec apache2-foreground
+    restart: unless-stopped
+
+volumes:
+  partdb_mechanical_preview_data:
+    name: partdb_mechanical_preview_data

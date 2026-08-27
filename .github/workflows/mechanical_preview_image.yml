@@ -1,0 +1,106 @@
+name: Mechanical Preview Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - cursor/mechanical-parts-library-6567
+    paths:
+      - ".github/workflows/mechanical_preview_image.yml"
+      - ".docker/**"
+      - "assets/**"
+      - "bin/**"
+      - "config/**"
+      - "migrations/**"
+      - "public/**"
+      - "resources/**"
+      - "src/**"
+      - "templates/**"
+      - "translations/**"
+      - ".env"
+      - ".env.docker"
+      - "composer.json"
+      - "composer.lock"
+      - "Dockerfile"
+      - "package.json"
+      - "symfony.lock"
+      - "webpack.config.mjs"
+      - "yarn.lock"
+  pull_request:
+    paths:
+      - ".docker/**"
+      - "assets/**"
+      - "bin/**"
+      - "config/**"
+      - "migrations/**"
+      - "public/**"
+      - "resources/**"
+      - "src/**"
+      - "templates/**"
+      - "translations/**"
+      - "composer.json"
+      - "composer.lock"
+      - "Dockerfile"
+      - "package.json"
+      - "symfony.lock"
+      - "webpack.config.mjs"
+      - "yarn.lock"
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: mechanical-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build preview image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/aglelectronics/part-db-server
+          tags: |
+            type=raw,value=mechanical-preview,enable=${{ github.ref == 'refs/heads/cursor/mechanical-parts-library-6567' }}
+            type=edge,branch=master
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=Part-DB Mechanical Preview
+            org.opencontainers.image.description=Part-DB preview with the mechanical parts library
+            org.opencontainers.image.licenses=AGPL-3.0-or-later
+
+      - name: Build and publish multi-architecture image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=mechanical-preview
+          cache-to: type=gha,mode=max,scope=mechanical-preview
+          provenance: mode=max
+          sbom: true

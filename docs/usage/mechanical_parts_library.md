@@ -23,6 +23,35 @@ The command only creates missing categories. It is safe to run again after an
 upgrade and does not rename or remove existing categories. Use `--dry-run` to
 show how many categories would be created.
 
+## Run the preview with Docker Desktop
+
+From the repository root, build and start an isolated local preview:
+
+```bash
+docker compose -f compose.preview.yaml up --build -d
+docker compose -f compose.preview.yaml logs -f partdb
+```
+
+Open <http://localhost:8080>. On the first start, the migration output in the
+container log prints the generated `admin` password. The Compose stack
+automatically installs the mechanical category hierarchy after migrations.
+
+The preview stores its database and uploads in the dedicated
+`partdb_mechanical_preview_data` volume, so it does not modify another Part-DB
+installation. Stop it without deleting data:
+
+```bash
+docker compose -f compose.preview.yaml down
+```
+
+To completely reset the preview and generate a new database:
+
+```bash
+docker compose -f compose.preview.yaml down --volumes
+```
+
+Set `PARTDB_PORT` before starting Compose if port 8080 is already occupied.
+
 The primary hierarchy describes the kind of part, for example:
 
 ```text
