@@ -14945,5 +14945,59 @@ Buerklin-API Authentication server:
         <target>OAuth2 client updated successfully!</target>
       </segment>
     </unit>
+    <unit id="mechanical.traceparts.label" name="settings.ips.traceparts">
+      <segment state="translated">
+        <source>settings.ips.traceparts</source>
+        <target>TraceParts</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.help" name="settings.ips.traceparts.help">
+      <segment state="translated">
+        <source>settings.ips.traceparts.help</source>
+        <target>Exact part-number lookup for manufacturer CAD catalogs. Enable only when your TraceParts agreement permits catalog syndication into Part-DB.</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.api_key" name="settings.ips.traceparts.api_key">
+      <segment state="translated">
+        <source>settings.ips.traceparts.api_key</source>
+        <target>API key</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.tenant_uid" name="settings.ips.traceparts.tenant_uid">
+      <segment state="translated">
+        <source>settings.ips.traceparts.tenant_uid</source>
+        <target>Tenant UID</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.catalog" name="settings.ips.traceparts.catalog">
+      <segment state="translated">
+        <source>settings.ips.traceparts.catalog</source>
+        <target>Catalog label</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.catalog_help" name="settings.ips.traceparts.catalog.help">
+      <segment state="translated">
+        <source>settings.ips.traceparts.catalog.help</source>
+        <target>The catalog label expected by TraceParts' part-number availability endpoint.</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.language" name="settings.ips.traceparts.language">
+      <segment state="translated">
+        <source>settings.ips.traceparts.language</source>
+        <target>Metadata language</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.approved" name="settings.ips.traceparts.approved">
+      <segment state="translated">
+        <source>settings.ips.traceparts.approved</source>
+        <target>Catalog syndication is approved</target>
+      </segment>
+    </unit>
+    <unit id="mechanical.traceparts.approved_help" name="settings.ips.traceparts.approved.help">
+      <segment state="translated">
+        <source>settings.ips.traceparts.approved.help</source>
+        <target>Confirm that TraceParts has granted permission for this use. Their standard terms restrict storing catalog data without prior written consent.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
