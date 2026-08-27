@@ -51,6 +51,8 @@ docker compose -f compose.preview.yaml down --volumes
 ```
 
 Set `PARTDB_PORT` before starting Compose if port 8080 is already occupied.
+The GHCR preview workflow is manual-only; use it when a revision is ready to
+share rather than for normal local iteration.
 
 The primary hierarchy describes the kind of part, for example:
 
