@@ -28,6 +28,7 @@ use App\Entity\Parts\Category;
 use App\Entity\Parts\Footprint;
 use App\Entity\Parts\Manufacturer;
 use App\Entity\Parts\Part;
+use App\Entity\Parts\PartLot;
 use App\Entity\Parts\StorageLocation;
 use App\Entity\Parts\Supplier;
 use App\Entity\UserSystem\User;
@@ -76,6 +77,60 @@ final class PartControllerTest extends WebTestCase
         $client->request('GET', "/en/part/{$part->getId()}/info/{$timestamp}");
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    public function testAddAndWithdrawStockFromPartInfoModal(): void
+    {
+        $client = static::createClient();
+        $this->loginAsUser($client, 'admin');
+
+        $entityManager = $client->getContainer()->get('doctrine')->getManager();
+        $part = $entityManager->getRepository(Part::class)->find(1);
+
+        if (!$part) {
+            $this->markTestSkipped('Test part with ID 1 not found in fixtures');
+        }
+
+        $lot = new PartLot();
+        $lot->setAmount(5);
+        $part->addPartLot($lot);
+        $entityManager->persist($lot);
+        $entityManager->flush();
+        $lotId = $lot->getID();
+
+        $crawler = $client->request('GET', '/en/part/' . $part->getId());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertSelectorExists('#withdraw-modal #withdraw-modal-move-to[disabled]');
+
+        $form = $crawler->filter('#withdraw-modal form')->form([
+            'lot_id' => (string) $lotId,
+            'action' => 'add',
+            'amount' => '1',
+            'comment' => 'Controller test: add stock',
+        ]);
+        $client->submit($form);
+
+        $this->assertResponseRedirects();
+        $entityManager = $client->getContainer()->get('doctrine')->getManager();
+        $lot = $entityManager->getRepository(PartLot::class)->find($lotId);
+        $this->assertNotNull($lot);
+        $this->assertSame(6.0, $lot->getAmount());
+
+        $crawler = $client->followRedirect();
+        $form = $crawler->filter('#withdraw-modal form')->form([
+            'lot_id' => (string) $lotId,
+            'action' => 'withdraw',
+            'amount' => '1',
+            'comment' => 'Controller test: withdraw stock',
+        ]);
+        $client->submit($form);
+
+        $this->assertResponseRedirects();
+        $entityManager = $client->getContainer()->get('doctrine')->getManager();
+        $lot = $entityManager->getRepository(PartLot::class)->find($lotId);
+        $this->assertNotNull($lot);
+        $this->assertSame(5.0, $lot->getAmount());
     }
 
     public function testEditPart(): void
