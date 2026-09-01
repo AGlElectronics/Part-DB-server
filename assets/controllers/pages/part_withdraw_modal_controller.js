@@ -43,13 +43,16 @@ export default class extends Controller
                 break;
         }
 
-        //Hide the move to lot select, if the action is not move (and unhide it, if it is)
+        //Hide and disable the move target if the action is not move. Disabled controls do not
+        //participate in browser validation, so their required state cannot block add/withdraw.
         const moveToLotSelect = this.element.querySelector('#withdraw-modal-move-to');
         const newLotRadio = this.element.querySelector('input[name="target_id"][value="new"]');
         if (action === 'move') {
             moveToLotSelect.classList.remove('d-none');
+            moveToLotSelect.disabled = false;
         } else {
             moveToLotSelect.classList.add('d-none');
+            moveToLotSelect.disabled = true;
         }
 
         //The target_id radios are only relevant (and must only be required) when the move-to section is shown,
@@ -71,6 +74,15 @@ export default class extends Controller
         if (newLotRadio) {
             newLotRadio.checked = false;
             this._toggleNewLotLocation(newLotRadio);
+        }
+
+        if (action === 'move' && !Array.from(moveToLotOptions).some(option => option.checked && !option.disabled)) {
+            const firstAvailableTarget = Array.from(moveToLotOptions).find(option =>
+                !option.disabled && option.getAttribute('value') !== lotID
+            );
+            if (firstAvailableTarget) {
+                firstAvailableTarget.checked = true;
+            }
         }
 
         //For adding parts there is no limit on the amount to add
