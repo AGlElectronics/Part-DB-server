@@ -1,22 +1,143 @@
-name: Mechanical Preview Image
+name: Mechanical Preview Release
 
 on:
   push:
     branches:
       - cursor/mechanical-stock-release-d305
   workflow_dispatch:
+    inputs:
+      version:
+        description: Image version tag
+        required: true
+        default: mechanical-v1.2.1
+        type: string
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: mechanical-preview-${{ github.ref }}
+  group: mechanical-preview-${{ github.ref }}-${{ inputs.version || 'mechanical-v1.2.1' }}
   cancel-in-progress: true
 
+env:
+  IMAGE_VERSION: ${{ inputs.version || 'mechanical-v1.2.1' }}
+
 jobs:
+  validate-version:
+    name: Validate release version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate image version
+        run: |
+          if [[ ! "$IMAGE_VERSION" =~ ^mechanical-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must match mechanical-vMAJOR.MINOR.PATCH"
+            exit 1
+          fi
+
+  tests:
+    name: Tests and frontend build
+    needs: validate-version
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      CHECK_FOR_UPDATES: "0"
+      SYMFONY_DEPRECATIONS_HELPER: disabled
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+          ini-values: xdebug.max_nesting_level=1000
+          extensions: mbstring, intl, gd, xsl, gmp, bcmath, :php-psr
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/composer/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: yarn
+
+      - name: Install frontend dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build production frontend
+        run: yarn build
+
+      - name: Generate test OAuth keys
+        run: php bin/console --env test partdb:oauth:generate-keys --no-interaction
+
+      - name: Run database migrations
+        run: php bin/console --env test doctrine:migrations:migrate --no-interaction
+
+      - name: Load test fixtures
+        run: php bin/console --env test partdb:fixtures:load --no-interaction
+
+      - name: Run PHPUnit
+        run: php bin/phpunit
+
+  static-analysis:
+    name: Static analysis and lint
+    needs: validate-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+          ini-values: xdebug.max_nesting_level=1000
+          extensions: mbstring, intl, gd, xsl, gmp, bcmath, :php-psr
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/composer/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Lint YAML configuration
+        run: php bin/console lint:yaml config --parse-tags
+
+      - name: Lint Twig templates
+        run: php bin/console lint:twig templates --env=prod
+
+      - name: Lint dependency injection container
+        run: php bin/console lint:container --env=test
+
+      - name: Validate Doctrine mapping
+        run: php bin/console doctrine:schema:validate --skip-sync --no-interaction
+
+      - name: Check dependencies for vulnerabilities
+        uses: symfonycorp/security-checker-action@v5
+
+      - name: Run PHPStan
+        run: composer phpstan
+
   build:
-    name: Build preview image
+    name: Build and publish image
+    needs:
+      - tests
+      - static-analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,14 +162,14 @@ jobs:
         with:
           images: ghcr.io/aglelectronics/part-db-server
           tags: |
-            type=raw,value=mechanical-v1.2.1
+            type=raw,value=${{ env.IMAGE_VERSION }}
             type=raw,value=mechanical-preview
             type=sha,prefix=sha-
           labels: |
             org.opencontainers.image.title=Part-DB Mechanical Preview
             org.opencontainers.image.description=Part-DB preview with the mechanical parts library
             org.opencontainers.image.licenses=AGPL-3.0-or-later
-            org.opencontainers.image.version=mechanical-v1.2.1
+            org.opencontainers.image.version=${{ env.IMAGE_VERSION }}
 
       - name: Build and publish multi-architecture image
         uses: docker/build-push-action@v7
