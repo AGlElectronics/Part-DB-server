@@ -1,6 +1,9 @@
 name: Mechanical Preview Image
 
 on:
+  push:
+    branches:
+      - cursor/mechanical-stock-release-d305
   workflow_dispatch:
 
 permissions:
@@ -38,12 +41,14 @@ jobs:
         with:
           images: ghcr.io/aglelectronics/part-db-server
           tags: |
+            type=raw,value=mechanical-v1.2.1
             type=raw,value=mechanical-preview
             type=sha,prefix=sha-
           labels: |
             org.opencontainers.image.title=Part-DB Mechanical Preview
             org.opencontainers.image.description=Part-DB preview with the mechanical parts library
             org.opencontainers.image.licenses=AGPL-3.0-or-later
+            org.opencontainers.image.version=mechanical-v1.2.1
 
       - name: Build and publish multi-architecture image
         uses: docker/build-push-action@v7
