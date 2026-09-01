@@ -37,12 +37,15 @@ export default class extends Controller
                 break;
         }
 
-        //Hide the move to lot select, if the action is not move (and unhide it, if it is)
+        //Hide and disable the move target if the action is not move. Disabled controls do not
+        //participate in browser validation, so their required state cannot block add/withdraw.
         const moveToLotSelect = this.element.querySelector('#withdraw-modal-move-to');
         if (action === 'move') {
             moveToLotSelect.classList.remove('d-none');
+            moveToLotSelect.disabled = false;
         } else {
             moveToLotSelect.classList.add('d-none');
+            moveToLotSelect.disabled = true;
         }
 
         //First unhide all move to lot options and then hide the currently selected lot
@@ -51,9 +54,18 @@ export default class extends Controller
         moveToLotOptions.forEach(option => {
             if (option.getAttribute('value') === lotID) {
                 option.parentElement.classList.add('d-none');
-                option.selected = false;
+                option.checked = false;
             }
         });
+
+        if (action === 'move' && !Array.from(moveToLotOptions).some(option => option.checked && !option.disabled)) {
+            const firstAvailableTarget = Array.from(moveToLotOptions).find(option =>
+                !option.disabled && option.getAttribute('value') !== lotID
+            );
+            if (firstAvailableTarget) {
+                firstAvailableTarget.checked = true;
+            }
+        }
 
         //For adding parts there is no limit on the amount to add
         if (action == 'add') {

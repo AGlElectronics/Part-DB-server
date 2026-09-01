@@ -26,7 +26,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-2 d-none" id="withdraw-modal-move-to">
+                    <fieldset class="row mb-2 d-none" id="withdraw-modal-move-to" disabled>
                         <label class="col-form-label {{ col_label }}">{% trans %}part.info.withdraw_modal.move_to{% endtrans %}</label>
                         <div class="{{ col_input }}">
                             {% for lots in part.partLots|filter(l => l.instockUnknown == false) %}
@@ -39,7 +39,7 @@
                                 </div>
                             {% endfor %}
                         </div>
-                    </div>
+                    </fieldset>
 
                     <div class="row mb-2">
                         <label class="col-form-label {{ col_label }}">
