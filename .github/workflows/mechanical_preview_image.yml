@@ -9,7 +9,7 @@ on:
       version:
         description: Image version tag
         required: true
-        default: mechanical-v1.2.1
+        default: mechanical-v1.2.2
         type: string
 
 permissions:
@@ -17,11 +17,11 @@ permissions:
   packages: write
 
 concurrency:
-  group: mechanical-preview-${{ github.ref }}-${{ inputs.version || 'mechanical-v1.2.1' }}
+  group: mechanical-preview-${{ github.ref }}-${{ inputs.version || 'mechanical-v1.2.2' }}
   cancel-in-progress: true
 
 env:
-  IMAGE_VERSION: ${{ inputs.version || 'mechanical-v1.2.1' }}
+  IMAGE_VERSION: ${{ inputs.version || 'mechanical-v1.2.2' }}
 
 jobs:
   validate-version:
