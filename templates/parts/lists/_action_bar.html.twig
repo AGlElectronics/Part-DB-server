@@ -2,5 +2,11 @@
     <div class="col">
         <a href="{{ path('part_new', url_options) }}" class="btn btn-success float-start {% if not is_granted("@parts.create") or (entity is defined and entity.notSelectable) %}disabled{% endif %}"><i class="fas fa-plus-square fa-fw"></i>
             {% trans%}part.create.btn{% endtrans %}</a>
+        {% if is_granted('@info_providers.create_parts') %}
+            <a href="{{ path('info_providers_search') }}" class="btn btn-info float-start ms-2" data-testid="create-part-from-provider">
+                <i class="fa-solid fa-cloud-arrow-down fa-fw"></i>
+                {% trans %}info_providers.search.title{% endtrans %}
+            </a>
+        {% endif %}
     </div>
 </div>

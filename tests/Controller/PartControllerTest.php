@@ -62,6 +62,17 @@ final class PartControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
+    public function testPartListShowsCreateFromProviderButton(): void
+    {
+        $client = static::createClient();
+        $this->loginAsUser($client, 'admin');
+
+        $client->request('GET', '/en/parts');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertSelectorExists('[data-testid="create-part-from-provider"]');
+    }
+
     public function testShowPartWithTimestamp(): void
     {
         $client = static::createClient();
