@@ -174,7 +174,7 @@ class GetAttachmentContentProcessorTest extends WebTestCase
     {
         $attachment = $this->createInternalAttachment('too_big.txt', str_repeat('a', 128));
 
-        $oversizedProcessor = new readonly class(
+        $oversizedProcessor = new class(
             $this->em,
             self::getContainer()->get(\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface::class),
             self::getContainer()->get(AttachmentManager::class),
