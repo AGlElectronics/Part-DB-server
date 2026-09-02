@@ -45,9 +45,15 @@
                         {% if show_parts_create_dropdown %}
                             <a class="nav-link dropdown-toggle d-inline-block ps-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
                             <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('part_new') }}" data-testid="create-new-part">
+                                        <i class="fa-fw fa-solid fa-plus-square"></i>
+                                        {% trans %}part.create.btn{% endtrans %}
+                                    </a>
+                                </li>
                                 {% if is_granted('@info_providers.create_parts') %}
                                     <li>
-                                        <a class="dropdown-item" href="{{ path('info_providers_search') }}">
+                                        <a class="dropdown-item" href="{{ path('info_providers_search') }}" data-testid="create-part-from-provider">
                                             <i class="fa-fw fa-solid fa-cloud-arrow-down"></i>
                                             {% trans %}info_providers.search.title{% endtrans %}
                                         </a>

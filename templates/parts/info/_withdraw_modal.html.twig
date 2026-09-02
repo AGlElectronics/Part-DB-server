@@ -1,4 +1,7 @@
 <div class="modal fade" id="withdraw-modal" tabindex="-1" aria-labelledby="withdraw-modal-title" aria-hidden="true" {{ stimulus_controller('pages/part_withdraw_modal') }}>
+    {% if move_new_lot_form is not null %}
+        {% form_theme move_new_lot_form 'form/extended_bootstrap_layout.html.twig' %}
+    {% endif %}
     <form method="post" action="{{ path('part_add_withdraw', {"id": part.id}) }}">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -26,7 +29,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-2 d-none" id="withdraw-modal-move-to">
+                    <fieldset class="row mb-2 d-none" id="withdraw-modal-move-to" disabled>
                         <label class="col-form-label {{ col_label }}">{% trans %}part.info.withdraw_modal.move_to{% endtrans %}</label>
                         <div class="{{ col_input }}">
                             {% for lots in part.partLots|filter(l => l.instockUnknown == false) %}
@@ -38,8 +41,19 @@
                                     </label>
                                 </div>
                             {% endfor %}
+                            {% if move_new_lot_form is not null %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="target_id" value="new" id="modal_target_radio_new" required>
+                                    <label class="form-check-label" for="modal_target_radio_new">
+                                        {% trans %}part_lot.create{% endtrans %}
+                                    </label>
+                                </div>
+                                <div class="mt-2 d-none" id="withdraw-modal-new-lot-location">
+                                    {{ form_row(move_new_lot_form.storage_location) }}
+                                </div>
+                            {% endif %}
                         </div>
-                    </div>
+                    </fieldset>
 
                     <div class="row mb-2">
                         <label class="col-form-label {{ col_label }}">
