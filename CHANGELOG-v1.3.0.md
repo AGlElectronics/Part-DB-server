@@ -4,6 +4,8 @@
 **Upstream Part-DB:** `2.16.0` → official **`2.17.0`** (includes `2.16.1`)  
 **Image:** `ghcr.io/aglelectronics/part-db-server:mechanical-v1.3.0`  
 **Also tagged:** `ghcr.io/aglelectronics/part-db-server:mechanical-preview`  
+**Digest:** `sha256:62f6956673f2dd0ee0f6e6b59cb1d09fc6934121eac9ac64115f8b41c37ea3b8`  
+**Image size:** 610 MB  
 **Date:** 2026-09-09  
 **Local preview:** http://localhost:8080 (Docker Desktop, Compose file `compose.preview.yaml`)
 
