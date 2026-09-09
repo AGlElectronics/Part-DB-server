@@ -11,17 +11,22 @@ information-provider model used for electronic components. Mechanical
 properties are stored as parameters, so this feature does not require a
 database migration.
 
-## Install the category hierarchy
+## Create your category hierarchy
 
-Install the bundled category hierarchy once:
+The mechanical library does not create categories automatically. Create the
+categories that fit your own inventory in Part-DB's category editor. A common
+starting point is:
 
-```bash
-php bin/console partdb:mechanical-library:install
+```text
+Mechanical
+└── Fasteners
+    └── Bolts & Screws
+        └── Socket Head Cap Screws
 ```
 
-The command only creates missing categories. It is safe to run again after an
-upgrade and does not rename or remove existing categories. Use `--dry-run` to
-show how many categories would be created.
+DIN, ISO, EN, and ASME designations work best as parameters rather than
+parallel category trees. This prevents one `DIN 912` / `ISO 4762` screw from
+needing duplicate category entries.
 
 ## Run the preview with Docker Desktop
 
@@ -33,8 +38,7 @@ docker compose -f compose.preview.yaml logs -f partdb
 ```
 
 Open <http://localhost:8080>. On the first start, the migration output in the
-container log prints the generated `admin` password. The Compose stack
-automatically installs the mechanical category hierarchy after migrations.
+container log prints the generated `admin` password.
 
 The preview stores its database and uploads in the dedicated
 `partdb_mechanical_preview_data` volume, so it does not modify another Part-DB
@@ -54,19 +58,6 @@ Set `PARTDB_PORT` before starting Compose if port 8080 is already occupied.
 The GHCR preview workflow is manual-only; use it when a revision is ready to
 share rather than for normal local iteration.
 
-The primary hierarchy describes the kind of part, for example:
-
-```text
-Mechanical
-└── Fasteners
-    └── Bolts & Screws
-        └── Socket Head Cap Screws
-```
-
-DIN, ISO, EN, and ASME designations are parameters rather than parallel
-category trees. This prevents one `DIN 912` / `ISO 4762` screw from needing
-duplicate category entries.
-
 ## Standard mechanical parts provider
 
 The **Standard mechanical parts** provider is always available and works
@@ -81,7 +72,8 @@ DIN 912 M6 x 20
 The result imports the canonical standard, equivalent standards, hardware
 type, head and drive styles, thread designation, nominal diameter, coarse
 pitch, and length. It deliberately does not guess a material, finish, property
-class, or hardness.
+class, or hardness. It suggests a matching category path but does not create
+that category; the user remains in control of the category hierarchy.
 
 The source revision, license, and warranty notice are recorded in
 `resources/mechanical/bolts/ATTRIBUTION.md`. Standard metadata is a convenient

@@ -1,11 +1,25 @@
 name: partdb-mechanical-preview
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: partdb-mechanical-preview-postgres
+    environment:
+      POSTGRES_DB: partdb
+      POSTGRES_USER: partdb
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-partdb-preview}"
+    volumes:
+      - partdb_mechanical_preview_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U partdb -d partdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
   partdb:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: partdb-mechanical-preview:local
+    image: ghcr.io/aglelectronics/part-db-server:mechanical-v1.2.0
+    pull_policy: always
     container_name: partdb-mechanical-preview
     ports:
       - "${PARTDB_PORT:-8080}:80"
@@ -13,7 +27,7 @@ services:
       APP_ENV: docker
       APP_DEBUG: "0"
       APP_SECRET: "${APP_SECRET:-mechanical-preview-change-me}"
-      DATABASE_URL: "sqlite:///%kernel.project_dir%/uploads/app.db"
+      DATABASE_URL: "postgresql://partdb:${POSTGRES_PASSWORD:-partdb-preview}@postgres:5432/partdb?serverVersion=16&charset=utf8"
       DB_AUTOMIGRATE: "true"
       DEFAULT_LANG: "${DEFAULT_LANG:-en}"
       DEFAULT_TIMEZONE: "${DEFAULT_TIMEZONE:-UTC}"
@@ -23,14 +37,13 @@ services:
       ALLOW_ATTACHMENT_DOWNLOADS: "0"
     volumes:
       - partdb_mechanical_preview_data:/var/www/html/uploads
-    command:
-      - /bin/sh
-      - -lc
-      - >-
-        sudo -E -u www-data php bin/console partdb:mechanical-library:install --no-interaction
-        && exec apache2-foreground
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   partdb_mechanical_preview_data:
     name: partdb_mechanical_preview_data
+  partdb_mechanical_preview_postgres:
+    name: partdb_mechanical_preview_postgres

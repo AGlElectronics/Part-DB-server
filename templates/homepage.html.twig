@@ -12,15 +12,9 @@
 
 {% block item_banner %}
     <div class="rounded p-4 bg-body-secondary">
-        <h1 class="display-3">{{ vars.partdb_title() }}</h1>
-        {% if settings_instance('customization').showVersionOnHomepage %}
-            <h4>
-                {% trans %}version.caption{% endtrans %}: {{ shivas_app_version }}
-                {% if git_branch is not empty or git_commit is not empty %}
-                    ({{ git_branch ?? '' }}/{{ git_commit ?? '' }})
-                {% endif %}
-            </h4>
-        {% endif %}
+        <h1 class="display-3 mb-2">4QT Part database</h1>
+        <p class="lead mb-1">For small electrical and mechanical parts</p>
+        <small class="text-body-secondary">Version v1.2.0</small>
         {% if banner is not empty %}
             <hr>
             <div class="latex" data-controller="common--latex">
@@ -53,22 +47,6 @@
 {% endblock %}
 
 {% block item_license %}
-    <div class="card border-primary">
-        <div class="card-header bg-primary text-white">
-            <h4><i class="fa fa-book fa-fw" aria-hidden="true"></i> {% trans %}homepage.license{% endtrans %}</h4>
-        </div>
-        <div class="card-body">
-            <p>Part-DB, Copyright &copy; 2019 - {{ "now" | date("Y") }} of <strong>
-                    <a class="link-external" rel="noopener" target="_blank" href="https://github.com/jbtronics/">Jan Böhmer</a>
-                </strong>. <br> Part-DB is published under the <strong>GNU Affero General Public License v3.0 (or later)</strong>, so it comes with <strong>ABSOLUTELY NO WARRANTY</strong>.
-                This is free software, and you are welcome to redistribute it under certain conditions.
-                Click <a href="https://raw.githubusercontent.com/Part-DB/Part-DB-server/master/LICENSE" class="link-external" rel="noopener" target="_blank">here</a> for details.<br>
-            </p>
-            <strong><i class="fab fa-github fa-fw"></i> {% trans %}homepage.github.caption{% endtrans %}:</strong> {% trans with {'%href%': 'https://github.com/Part-DB/Part-DB-server'}%}homepage.github.text{% endtrans %}<br>
-            <strong><i class="fas fa-question fa-fw"></i> {% trans %}homepage.help.caption{% endtrans %}:</strong> {% trans with {'%href%': 'https://docs.part-db.de/'}%}homepage.help.text{% endtrans %}<br>
-            <strong><i class="fas fa-comments fa-fw"></i> {% trans %}homepage.forum.caption{% endtrans %}:</strong> {% trans with {'%href%': 'https://github.com/Part-DB/Part-DB-server/discussions'}%}homepage.forum.text{% endtrans %}<br>
-        </div>
-    </div>
 {% endblock %}
 
 {% block item_last_activity %}
