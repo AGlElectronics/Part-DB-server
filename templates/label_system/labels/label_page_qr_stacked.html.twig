@@ -1,0 +1,12 @@
+<div class="stacked-label">
+    <div class="stacked-column">
+        <div class="stacked-barcode">
+            <a href="{{ element.barcode_content }}">
+                <img class="qr stacked-qr" src="{{ element.barcode | data_uri(mime='image/svg+xml') }}" alt="">
+            </a>
+        </div>
+        <div class="stacked-text">
+            {{ element.lines | raw }}
+        </div>
+    </div>
+</div>

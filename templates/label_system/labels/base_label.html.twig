@@ -21,6 +21,8 @@
         <div class="page-inner">
             {% if options.barcodeType.none %}
                 {% include "label_system/labels/label_page_none.html.twig" %}
+            {% elseif options.barcodeType.is2D() and 'label-layout-stacked' in options.additionalCss %}
+                {% include "label_system/labels/label_page_qr_stacked.html.twig" %}
             {% elseif options.barcodeType.is2D() %}
                 {% include "label_system/labels/label_page_qr.html.twig" %}
             {% elseif options.barcodeType.is1D() %}

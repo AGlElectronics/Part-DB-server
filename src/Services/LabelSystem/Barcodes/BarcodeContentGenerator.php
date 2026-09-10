@@ -45,8 +45,8 @@ use App\Entity\Base\AbstractDBElement;
 use App\Entity\Parts\Part;
 use App\Entity\Parts\PartLot;
 use App\Entity\Parts\StorageLocation;
+use App\Services\System\TrustedUrlGenerator;
 use InvalidArgumentException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @see \App\Tests\Services\LabelSystem\Barcodes\BarcodeContentGeneratorTest
@@ -65,12 +65,14 @@ final class BarcodeContentGenerator
         StorageLocation::class => 'location',
     ];
 
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly TrustedUrlGenerator $urlGenerator)
     {
     }
 
     /**
      * Generates a fixed URL to the given Element that can be embedded in a 2D code (e.g. QR code).
+     * Uses TrustedUrlGenerator so labels encode DEFAULT_URI (e.g. https://parts.4qt.org/)
+     * when TRUSTED_HOSTS is unset, instead of the current request host.
      */
     public function getURLContent(AbstractDBElement $target): string
     {
@@ -80,7 +82,7 @@ final class BarcodeContentGenerator
             'type' => $type,
             'id' => $target->getID() ?? 0,
             '_locale' => null,
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        ]);
     }
 
     /**

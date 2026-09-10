@@ -86,5 +86,7 @@ final class BarcodeContentGeneratorTest extends KernelTestCase
         $this->assertStringStartsWith('http', $url);
 
         $this->assertStringEndsWith($expected, $url);
+        // Without TRUSTED_HOSTS, QR content must use DEFAULT_URI instead of the current request host.
+        $this->assertStringContainsString('partdb.changeme.invalid', $url);
     }
 }
