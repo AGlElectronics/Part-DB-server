@@ -24,4 +24,47 @@ export default class extends Controller
     download(event) {
         this.element.href = document.getElementById('pdf_preview').data
     }
+
+    print(event) {
+        event.preventDefault();
+
+        const preview = document.getElementById('pdf_preview');
+        const dataUri = preview?.getAttribute('data') ?? preview?.data;
+        if (!dataUri) {
+            return;
+        }
+
+        const blob = this.dataUriToBlob(dataUri);
+        const url = URL.createObjectURL(blob);
+        const iframe = document.createElement('iframe');
+        iframe.title = 'Print label';
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        iframe.src = url;
+        iframe.addEventListener('load', () => {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            window.setTimeout(() => {
+                iframe.remove();
+                URL.revokeObjectURL(url);
+            }, 60000);
+        });
+        document.body.appendChild(iframe);
+    }
+
+    dataUriToBlob(dataUri) {
+        const comma = dataUri.indexOf(',');
+        const header = dataUri.slice(0, Math.max(comma, 0));
+        const body = comma >= 0 ? dataUri.slice(comma + 1) : dataUri;
+        const isBase64 = /;base64/i.test(header);
+        const bytes = isBase64
+            ? Uint8Array.from(atob(body), (character) => character.charCodeAt(0))
+            : new TextEncoder().encode(decodeURIComponent(body));
+
+        return new Blob([bytes], {type: 'application/pdf'});
+    }
 }

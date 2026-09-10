@@ -125,9 +125,15 @@
     {% if pdf_data %}
         <div class="row">
             <div class="{{ col_input }} {{ offset_label }}">
-                <a data-turbo="false" class="btn btn-secondary" href="#" {{ stimulus_controller('pages/label_download_btn')}} {{ stimulus_action('pages/label_download_btn', 'download')}} download="{{ filename ?? '' }}">
-                    {% trans %}label_generator.download{% endtrans %}
-                </a>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-success" {{ stimulus_controller('pages/label_download_btn') }} {{ stimulus_action('pages/label_download_btn', 'print') }}>
+                        <i class="fas fa-print fa-fw"></i>
+                        {% trans %}label_generator.print{% endtrans %}
+                    </button>
+                    <a data-turbo="false" class="btn btn-secondary" href="#" {{ stimulus_controller('pages/label_download_btn')}} {{ stimulus_action('pages/label_download_btn', 'download')}} download="{{ filename ?? '' }}">
+                        {% trans %}label_generator.download{% endtrans %}
+                    </a>
+                </div>
             </div>
         </div>
     {% endif %}

@@ -884,6 +884,12 @@ Subelemente werden beim Löschen nach oben verschoben.</target>
         <target>Download</target>
       </segment>
     </unit>
+    <unit id="label_generator.print" name="label_generator.print">
+      <segment state="translated">
+        <source>label_generator.print</source>
+        <target>Drucken</target>
+      </segment>
+    </unit>
     <unit id="QW8xrZR" name="label_generator.label_btn">
       <segment state="translated">
         <source>label_generator.label_btn</source>
