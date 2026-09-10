@@ -20,7 +20,7 @@ use App\Entity\LabelSystem\LabelOptions;
 use App\Entity\LabelSystem\LabelProcessMode;
 use App\Entity\LabelSystem\LabelProfile;
 use App\Entity\LabelSystem\LabelSupportedElement;
-use App\Repository\LabelProfileRepository;
+use App\Entity\LabelSystem\LabelProfile;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -41,7 +41,6 @@ final class InstallP700LabelProfilesCommand extends Command
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly LabelProfileRepository $labelProfileRepository,
     ) {
         parent::__construct();
     }
@@ -164,7 +163,7 @@ CSS;
 
     private function findProfile(string $name): ?LabelProfile
     {
-        return $this->labelProfileRepository->findOneBy([
+        return $this->entityManager->getRepository(LabelProfile::class)->findOneBy([
             'name' => $name,
             'options.supported_element' => LabelSupportedElement::PART,
         ]);
