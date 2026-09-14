@@ -7,7 +7,7 @@
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published
  *  by the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+    10| *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace App\Services\InfoProviderSystem\Providers;
 
-use App\Services\InfoProviderSystem\Catalogs\LappRegularCatalog;
-use App\Settings\InfoProviderSystem\LappSettings;
+use App\Services\InfoProviderSystem\Catalogs\LappHalogenFreeCatalog;
+use App\Settings\InfoProviderSystem\LappHalogenFreeSettings;
 
-class LappProvider extends AbstractLappProvider
+class LappHalogenFreeProvider extends AbstractLappProvider
 {
-    public const PROVIDER_KEY = 'lapp';
+    public const PROVIDER_KEY = 'lapp_halogen_free';
 
-    public function __construct(LappRegularCatalog $catalog, LappSettings $settings)
+    public function __construct(LappHalogenFreeCatalog $catalog, LappHalogenFreeSettings $settings)
     {
-        parent::__construct($catalog, $settings, LappSettings::class);
+        parent::__construct($catalog, $settings, LappHalogenFreeSettings::class);
     }
 
     public function getProviderKey(): string
@@ -42,11 +42,11 @@ class LappProvider extends AbstractLappProvider
 
     protected function getProviderName(): string
     {
-        return 'LAPP';
+        return 'LAPP Halogen-free';
     }
 
     protected function getProviderDescription(): string
     {
-        return 'Bundled LAPP industrial / installation cable catalog (ÖLFLEX HEAT 125 single cores). Separate from the halogen-free HAR and automotive catalogs.';
+        return 'Bundled LAPP standard halogen-free HAR catalog (H05Z-K 90°C, H07Z-K 90°C, H07Z1-K Type 2). Separate from the ÖLFLEX HEAT 125 and automotive catalogs.';
     }
 }

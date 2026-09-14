@@ -139,6 +139,24 @@ abstract class AbstractLappProvider implements InfoProviderInterface
 
     /**
      * @param  array<string, mixed>  $article
+     */
+    private static function buildOuterDiameterParameter(array $article, string $group): ParameterDTO
+    {
+        if (isset($article['outer_diameter_min_mm'], $article['outer_diameter_max_mm'])) {
+            return new ParameterDTO(
+                name: 'Outer diameter',
+                value_min: (float) $article['outer_diameter_min_mm'],
+                value_max: (float) $article['outer_diameter_max_mm'],
+                unit: 'mm',
+                group: $group,
+            );
+        }
+
+        return ParameterDTO::parseValueField('Outer diameter', (float) $article['outer_diameter_mm'], unit: 'mm', group: $group);
+    }
+
+    /**
+     * @param  array<string, mixed>  $article
      * @param  array<string, mixed>  $family
      * @param  array<string, mixed>  $color
      * @return ParameterDTO[]
@@ -156,7 +174,7 @@ abstract class AbstractLappProvider implements InfoProviderInterface
                 symbol: (string) $color['iec'],
                 group: $group,
             ),
-            ParameterDTO::parseValueField('Outer diameter', (float) $article['outer_diameter_mm'], unit: 'mm', group: $group),
+            self::buildOuterDiameterParameter($article, $group),
             new ParameterDTO(name: 'Nominal voltage', value_text: (string) $family['voltage'], group: $group),
             new ParameterDTO(
                 name: 'Operating temperature',
@@ -168,7 +186,7 @@ abstract class AbstractLappProvider implements InfoProviderInterface
             ParameterDTO::parseValueField('Copper index', (float) $article['copper_index_kg_km'], unit: 'kg/km', group: $group),
             new ParameterDTO(
                 name: 'Packaging',
-                value_text: sprintf('%s m %s', LappCatalog::formatCrossSection($article['length_m']), $article['packaging']),
+                value_text: LappCatalog::formatPackaging($article),
                 group: $group,
             ),
             new ParameterDTO(name: 'Type', value_text: (string) $family['type'], group: $group),

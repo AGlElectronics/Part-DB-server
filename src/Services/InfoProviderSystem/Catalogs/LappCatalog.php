@@ -45,9 +45,11 @@ use App\Services\InfoProviderSystem\DTOs\ManufacturerProfileDTO;
  *     article_number: string,
  *     cross_section_mm2: int|float,
  *     outer_diameter_mm: int|float,
+ *     outer_diameter_min_mm?: int|float,
+ *     outer_diameter_max_mm?: int|float,
  *     color: string,
  *     packaging: string,
- *     length_m: int|float,
+ *     length_m?: int|float|null,
  *     copper_index_kg_km: int|float,
  *     weight_kg_km: int|float
  * }
@@ -119,7 +121,11 @@ abstract class LappCatalog
             }
             $haystack = $entry['search'];
             foreach ($tokens as $token) {
-                if ($token === '' || !str_contains($haystack, $token)) {
+                if ($token === '') {
+                    continue 2;
+                }
+                $pattern = '/\b' . preg_quote($token, '/') . '\b/u';
+                if (preg_match($pattern, $haystack) !== 1) {
                     continue 2;
                 }
             }
@@ -134,6 +140,20 @@ abstract class LappCatalog
         $this->ensureLoaded();
 
         return count($this->articles);
+    }
+
+    /**
+     * @param  array<string, mixed>  $article
+     */
+    public static function formatPackaging(array $article): string
+    {
+        $packaging = (string) ($article['packaging'] ?? '');
+        $length = $article['length_m'] ?? null;
+        if ($length === null || $length === '') {
+            return $packaging;
+        }
+
+        return sprintf('%s m %s', self::formatCrossSection($length), $packaging);
     }
 
     public static function formatCrossSection(int|float $value): string
@@ -160,8 +180,12 @@ abstract class LappCatalog
             $color['en']
         );
 
-        if (($article['packaging'] ?? '') === 'box') {
-            $designation .= sprintf(' %s m box', self::formatCrossSection($article['length_m']));
+        $packaging = (string) ($article['packaging'] ?? '');
+        $length = $article['length_m'] ?? null;
+        if ($length !== null && in_array($packaging, ['box', 'spool'], true)) {
+            $designation .= sprintf(' %s m %s', self::formatCrossSection($length), $packaging);
+        } elseif ($packaging === 'drum') {
+            $designation .= ' drum';
         }
 
         return $designation;
@@ -176,15 +200,16 @@ abstract class LappCatalog
         $color = $entry['color'];
         $mm2 = self::formatCrossSection($article['cross_section_mm2']);
 
+        $packaging = self::formatPackaging($article);
+
         return sprintf(
-            '%s, %s mm², %s / %s / %s, %s m %s',
+            '%s, %s mm², %s / %s / %s, %s',
             $entry['family']['description'],
             $mm2,
             $color['iec'],
             $color['en'],
             $color['de'],
-            self::formatCrossSection($article['length_m']),
-            $article['packaging']
+            $packaging
         );
     }
 
@@ -263,7 +288,8 @@ abstract class LappCatalog
             $mm2,
             str_replace('.', ',', $mm2),
             $article['packaging'],
-            (string) $article['length_m'],
+            self::formatPackaging($article),
+            isset($article['length_m']) ? (string) $article['length_m'] : '',
             $this->applicationLabel,
         ];
         foreach ($entry['family']['search_aliases'] as $alias) {

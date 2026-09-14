@@ -47,6 +47,6 @@ class LappAutomotiveProvider extends AbstractLappProvider
 
     protected function getProviderDescription(): string
     {
-        return 'Bundled LAPP automotive cable catalog. Separate from the industrial ÖLFLEX catalog.';
+        return 'Bundled LAPP automotive cable catalog. Separate from the industrial ÖLFLEX and halogen-free HAR catalogs.';
     }
 }

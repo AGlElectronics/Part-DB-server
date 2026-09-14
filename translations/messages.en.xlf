@@ -10392,7 +10392,19 @@ Please note, that you can not impersonate a disabled user. If you try you will g
     <unit id="lAppHlp" name="settings.ips.lapp.help">
       <segment state="translated">
         <source>settings.ips.lapp.help</source>
-        <target>Local catalog of LAPP industrial / installation cables (ÖLFLEX HEAT 125). Separate from the automotive catalog. No live API.</target>
+        <target>Local catalog of LAPP industrial / installation cables (ÖLFLEX HEAT 125). Separate from the halogen-free HAR and automotive catalogs. No live API.</target>
+      </segment>
+    </unit>
+    <unit id="lAppHfP" name="settings.ips.lapp_halogen_free">
+      <segment state="translated">
+        <source>settings.ips.lapp_halogen_free</source>
+        <target>LAPP Halogen-free</target>
+      </segment>
+    </unit>
+    <unit id="lAppHfH" name="settings.ips.lapp_halogen_free.help">
+      <segment state="translated">
+        <source>settings.ips.lapp_halogen_free.help</source>
+        <target>Local catalog of standard halogen-free HAR single cores (H05Z-K, H07Z-K, H07Z1-K). Separate from the ÖLFLEX HEAT 125 and automotive catalogs. No live API.</target>
       </segment>
     </unit>
     <unit id="lAppAuP" name="settings.ips.lapp_automotive">
@@ -10404,7 +10416,7 @@ Please note, that you can not impersonate a disabled user. If you try you will g
     <unit id="lAppAuH" name="settings.ips.lapp_automotive.help">
       <segment state="translated">
         <source>settings.ips.lapp_automotive.help</source>
-        <target>Local catalog of LAPP automotive cables. Separate from the industrial ÖLFLEX catalog. No live API.</target>
+        <target>Local catalog of LAPP automotive cables. Separate from the industrial ÖLFLEX and halogen-free HAR catalogs. No live API.</target>
       </segment>
     </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">

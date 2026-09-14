@@ -125,5 +125,28 @@
       "violet",
       "violett"
     ]
+  },
+  "pink": {
+    "iec": "PK",
+    "en": "pink",
+    "de": "rosa",
+    "aliases": [
+      "PK",
+      "pink",
+      "rosa"
+    ]
+  },
+  "blue-white": {
+    "iec": "BUWH",
+    "en": "blue/white",
+    "de": "blau/weiß",
+    "aliases": [
+      "BUWH",
+      "BU/WH",
+      "blue/white",
+      "blue-white",
+      "blau/weiß",
+      "blau/weiss"
+    ]
   }
 }

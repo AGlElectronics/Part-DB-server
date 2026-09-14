@@ -123,6 +123,12 @@ final class LappProviderTest extends TestCase
         $this->assertSame('industrial regular', $application->value_text);
     }
 
+    public function testDoesNotReturnHalogenFreeArticles(): void
+    {
+        $this->assertSame([], $this->provider->searchByKeyword('4725011'));
+        $this->assertSame([], $this->provider->searchByKeyword('H07Z1-K Type 2'));
+    }
+
     public function testGetDetailsUnknownId(): void
     {
         $this->expectException(\RuntimeException::class);

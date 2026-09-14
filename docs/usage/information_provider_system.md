@@ -333,25 +333,30 @@ Once you have the API key, you can configure the Canopy provider in Part-DB usin
 
 ### LAPP
 
-There are two separate LAPP catalog providers, each with its own article database:
+There are three separate LAPP catalog providers, each with its own article database:
 
 * **LAPP** (`lapp`): industrial / installation cables (currently ÖLFLEX HEAT 125 single cores)
+* **LAPP Halogen-free** (`lapp_halogen_free`): standard HAR halogen-free single cores (H05Z-K 90°C, H07Z-K 90°C,
+  H07Z1-K Type 2). This is not the automotive catalog.
 * **LAPP Automotive** (`lapp_automotive`): automotive cables (separate catalog; add family JSON under
   `src/Services/InfoProviderSystem/Resources/lapp/automotive/`)
 
-Neither provider calls a live LAPP API. After enabling **LAPP**, you can search article numbers (`1249107`),
-family names (`HEAT 125`, `H07Z-K`), or colors (`BK`, `black`, `schwarz`) and create parts from the results.
-Industrial hits use category `Cables -> Single core`. Automotive hits use `Cables -> Automotive`.
+Neither provider calls a live LAPP API. After enabling a catalog, you can search article numbers (`1249107`,
+`4725011`), family names (`HEAT 125`, `H05Z-K`, `H07Z1-K`), or colors (`BK`, `black`, `schwarz`) and create parts
+from the results. Industrial hits use category `Cables -> Single core`. Halogen-free hits use
+`Cables -> Halogen-free`. Automotive hits use `Cables -> Automotive`.
 Those categories are applied only if they already exist in your database.
 
 Created parts use the LAPP article number as the part name and the designation (for example
-`ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)`) as the manufacturer part number. Stock is measured in `Meter`.
+`ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)` or `H05Z-K 90°C 0.5 mm² BK (black)`) as the manufacturer part number.
+Stock is measured in `Meter`.
 The first created LAPP part also fills the manufacturer record (website, address, alternative names) if those fields
 are still empty.
 
 The following env configuration options are available:
 
 * `PROVIDER_LAPP_ENABLED`: Set this to `1` to enable the industrial LAPP catalog (optional, default: `0`)
+* `PROVIDER_LAPP_HALOGEN_FREE_ENABLED`: Set this to `1` to enable the standard halogen-free HAR catalog (optional, default: `0`)
 * `PROVIDER_LAPP_AUTOMOTIVE_ENABLED`: Set this to `1` to enable the automotive LAPP catalog (optional, default: `0`)
 
 ### Custom providers

@@ -65,6 +65,8 @@ final class LappAutomotiveProviderTest extends TestCase
         $this->assertSame('automotive', $this->catalog->getApplicationLabel());
         $this->assertSame([], $this->provider->searchByKeyword('1249107'));
         $this->assertSame([], $this->provider->searchByKeyword('HEAT 125'));
+        $this->assertSame([], $this->provider->searchByKeyword('4725011'));
+        $this->assertSame([], $this->provider->searchByKeyword('H05Z-K'));
     }
 
     public function testGetDetailsUnknownId(): void
