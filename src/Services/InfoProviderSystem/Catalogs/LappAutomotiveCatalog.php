@@ -25,7 +25,7 @@ namespace App\Services\InfoProviderSystem\Catalogs;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Automotive LAPP catalog. Drop additional family JSON files in Resources/lapp/automotive/.
+ * Automotive LAPP catalog (ÖLFLEX HEAT 125 single cores).
  */
 final class LappAutomotiveCatalog extends LappCatalog
 {

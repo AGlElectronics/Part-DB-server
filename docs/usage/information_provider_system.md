@@ -335,16 +335,16 @@ Once you have the API key, you can configure the Canopy provider in Part-DB usin
 
 There are three separate LAPP catalog providers, each with its own article database:
 
-* **LAPP** (`lapp`): industrial / installation cables (currently ÖLFLEX HEAT 125 single cores)
+* **LAPP** (`lapp`): industrial / installation cables (empty for now; add family JSON under
+  `src/Services/InfoProviderSystem/Resources/lapp/regular/`)
 * **LAPP Halogen-free** (`lapp_halogen_free`): standard HAR halogen-free single cores (H05Z-K 90°C, H07Z-K 90°C,
   H07Z1-K Type 2). This is not the automotive catalog.
-* **LAPP Automotive** (`lapp_automotive`): automotive cables (separate catalog; add family JSON under
-  `src/Services/InfoProviderSystem/Resources/lapp/automotive/`)
+* **LAPP Automotive** (`lapp_automotive`): automotive cables (currently ÖLFLEX HEAT 125 single cores)
 
 Neither provider calls a live LAPP API. After enabling a catalog, you can search article numbers (`1249107`,
 `4725011`), family names (`HEAT 125`, `H05Z-K`, `H07Z1-K`), or colors (`BK`, `black`, `schwarz`) and create parts
 from the results. Industrial hits use category `Cables -> Single core`. Halogen-free hits use
-`Cables -> Halogen-free`. Automotive hits use `Cables -> Automotive`.
+`Cables -> Halogen-free`. Automotive hits (including HEAT 125) use `Cables -> Automotive`.
 Those categories are applied only if they already exist in your database.
 
 Created parts use the LAPP article number as the part name and the designation (for example

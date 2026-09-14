@@ -47,6 +47,6 @@ class LappHalogenFreeProvider extends AbstractLappProvider
 
     protected function getProviderDescription(): string
     {
-        return 'Bundled LAPP standard halogen-free HAR catalog (H05Z-K 90°C, H07Z-K 90°C, H07Z1-K Type 2). Separate from the ÖLFLEX HEAT 125 and automotive catalogs.';
+        return 'Bundled LAPP standard halogen-free HAR catalog (H05Z-K 90°C, H07Z-K 90°C, H07Z1-K Type 2). Separate from the automotive ÖLFLEX HEAT 125 catalog.';
     }
 }

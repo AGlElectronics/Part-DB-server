@@ -25,7 +25,7 @@ namespace App\Services\InfoProviderSystem\Catalogs;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Industrial / installation ÖLFLEX catalog (HEAT 125 single cores).
+ * Industrial / installation LAPP catalog. Drop additional family JSON files in Resources/lapp/regular/.
  */
 final class LappRegularCatalog extends LappCatalog
 {

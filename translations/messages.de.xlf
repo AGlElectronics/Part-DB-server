@@ -10391,7 +10391,7 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
     <unit id="lAppHlp" name="settings.ips.lapp.help">
       <segment state="translated">
         <source>settings.ips.lapp.help</source>
-        <target>Lokaler Katalog für industrielle LAPP-Leitungen (ÖLFLEX HEAT 125). Getrennt vom halogenfreien HAR- und Automotive-Katalog. Kein Live-API-Zugriff.</target>
+        <target>Lokaler Katalog für industrielle LAPP-Leitungen. Getrennt vom halogenfreien HAR- und Automotive-ÖLFLEX HEAT 125-Katalog. Kein Live-API-Zugriff.</target>
       </segment>
     </unit>
     <unit id="lAppHfP" name="settings.ips.lapp_halogen_free">
@@ -10403,7 +10403,7 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
     <unit id="lAppHfH" name="settings.ips.lapp_halogen_free.help">
       <segment state="translated">
         <source>settings.ips.lapp_halogen_free.help</source>
-        <target>Lokaler Katalog für standardmäßige halogenfreie HAR-Adern (H05Z-K, H07Z-K, H07Z1-K). Getrennt vom ÖLFLEX HEAT 125- und Automotive-Katalog. Kein Live-API-Zugriff.</target>
+        <target>Lokaler Katalog für standardmäßige halogenfreie HAR-Adern (H05Z-K, H07Z-K, H07Z1-K). Getrennt vom Automotive-ÖLFLEX HEAT 125-Katalog. Kein Live-API-Zugriff.</target>
       </segment>
     </unit>
     <unit id="lAppAuP" name="settings.ips.lapp_automotive">
@@ -10415,7 +10415,7 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
     <unit id="lAppAuH" name="settings.ips.lapp_automotive.help">
       <segment state="translated">
         <source>settings.ips.lapp_automotive.help</source>
-        <target>Lokaler Katalog für LAPP-Automotive-Leitungen. Getrennt vom industriellen ÖLFLEX- und halogenfreien HAR-Katalog. Kein Live-API-Zugriff.</target>
+        <target>Lokaler Katalog für LAPP-Automotive-Leitungen (ÖLFLEX HEAT 125). Getrennt vom industriellen und halogenfreien HAR-Katalog. Kein Live-API-Zugriff.</target>
       </segment>
     </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
