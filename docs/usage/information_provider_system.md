@@ -401,7 +401,7 @@ Those categories are applied only if they already exist in your database.
 
 Created parts use the LAPP article number as the part name and the designation (for example
 `ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)` or `H05Z-K 90°C 0.5 mm² BK (black)`) as the manufacturer part number.
-Stock is measured in `Meter`.
+Stock is measured in `Spool`.
 The first created LAPP part also fills the manufacturer record (website, address, alternative names) if those fields
 are still empty.
 

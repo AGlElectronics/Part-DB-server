@@ -177,8 +177,12 @@ final class DTOtoEntityConverter
         if ($dto->part_unit) {
             $partUnit = $this->getOrCreateEntityNonNull(MeasurementUnit::class, $dto->part_unit);
             if ($partUnit instanceof MeasurementUnit && $partUnit->getID() === null && ($partUnit->getUnit() === null || $partUnit->getUnit() === '')) {
-                $partUnit->setUnit('m');
-                $partUnit->setIsInteger(false);
+                if (strcasecmp($partUnit->getName(), 'Meter') === 0) {
+                    $partUnit->setUnit('m');
+                    $partUnit->setIsInteger(false);
+                } elseif (strcasecmp($partUnit->getName(), 'Spool') === 0) {
+                    $partUnit->setIsInteger(true);
+                }
             }
             $entity->setPartUnit($partUnit instanceof MeasurementUnit ? $partUnit : null);
         }

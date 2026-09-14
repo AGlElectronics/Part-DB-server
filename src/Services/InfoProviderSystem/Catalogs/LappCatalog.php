@@ -57,7 +57,7 @@ use App\Services\InfoProviderSystem\DTOs\ManufacturerProfileDTO;
  */
 abstract class LappCatalog
 {
-    public const PART_UNIT = 'Meter';
+    public const PART_UNIT = 'Spool';
 
     /** @var array<string, CatalogEntry>|null */
     private ?array $articles = null;

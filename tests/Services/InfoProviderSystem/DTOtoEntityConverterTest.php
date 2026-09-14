@@ -264,16 +264,15 @@ final class DTOtoEntityConverterTest extends WebTestCase
             description: 'UL single core',
             manufacturer: 'LAPP',
             mpn: 'ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)',
-            part_unit: 'Meter',
+            part_unit: 'Spool',
             manufacturer_profile: $profile,
         );
 
         $entity = $this->service->convertPart($dto);
 
         $this->assertInstanceOf(MeasurementUnit::class, $entity->getPartUnit());
-        $this->assertSame('Meter', $entity->getPartUnit()->getName());
-        $this->assertSame('m', $entity->getPartUnit()->getUnit());
-        $this->assertFalse($entity->getPartUnit()->isInteger());
+        $this->assertSame('Spool', $entity->getPartUnit()->getName());
+        $this->assertTrue($entity->getPartUnit()->isInteger());
 
         $manufacturer = $entity->getManufacturer();
         $this->assertSame('LAPP', $manufacturer->getName());
