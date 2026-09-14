@@ -20,33 +20,26 @@
 
 declare(strict_types=1);
 
+namespace App\Services\InfoProviderSystem\Catalogs;
 
-namespace App\Services\InfoProviderSystem\Providers;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-use App\Services\InfoProviderSystem\Catalogs\LappRegularCatalog;
-use App\Settings\InfoProviderSystem\LappSettings;
-
-class LappProvider extends AbstractLappProvider
+/**
+ * Industrial / installation ÖLFLEX catalog (HEAT 125 single cores).
+ */
+final class LappRegularCatalog extends LappCatalog
 {
-    public const PROVIDER_KEY = 'lapp';
-
-    public function __construct(LappRegularCatalog $catalog, LappSettings $settings)
-    {
-        parent::__construct($catalog, $settings, LappSettings::class);
-    }
-
-    public function getProviderKey(): string
-    {
-        return self::PROVIDER_KEY;
-    }
-
-    protected function getProviderName(): string
-    {
-        return 'LAPP';
-    }
-
-    protected function getProviderDescription(): string
-    {
-        return 'Bundled LAPP industrial / installation cable catalog (ÖLFLEX HEAT 125 single cores).';
+    public function __construct(
+        #[Autowire('%kernel.project_dir%/src/Services/InfoProviderSystem/Resources/lapp/regular')]
+        string $catalogDirectory = __DIR__ . '/../Resources/lapp/regular',
+        #[Autowire('%kernel.project_dir%/src/Services/InfoProviderSystem/Resources/lapp/shared')]
+        string $sharedDirectory = __DIR__ . '/../Resources/lapp/shared',
+    ) {
+        parent::__construct(
+            catalogDirectory: $catalogDirectory,
+            sharedDirectory: $sharedDirectory,
+            applicationLabel: 'industrial regular',
+            defaultCategory: 'Cables -> Single core',
+        );
     }
 }

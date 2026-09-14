@@ -23,10 +23,9 @@ declare(strict_types=1);
 namespace App\Services\InfoProviderSystem\Catalogs;
 
 use App\Services\InfoProviderSystem\DTOs\ManufacturerProfileDTO;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Loads the bundled LAPP ÖLFLEX catalog JSON and provides article lookup/search.
+ * Loads one bundled LAPP catalog (regular or automotive) from JSON.
  *
  * @phpstan-type ColorInfo array{iec: string, en: string, de: string, aliases: list<string>}
  * @phpstan-type FamilyInfo array{
@@ -54,7 +53,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * }
  * @phpstan-type CatalogEntry array{article: ArticleInfo, family: FamilyInfo, color: ColorInfo, search: string, designation: string, description: string}
  */
-final class LappCatalog
+abstract class LappCatalog
 {
     public const PART_UNIT = 'Meter';
 
@@ -64,9 +63,16 @@ final class LappCatalog
     private ?ManufacturerProfileDTO $manufacturerProfile = null;
 
     public function __construct(
-        #[Autowire('%kernel.project_dir%/src/Services/InfoProviderSystem/Resources/lapp')]
-        private readonly string $catalogDirectory = __DIR__ . '/../Resources/lapp',
+        private readonly string $catalogDirectory,
+        private readonly string $sharedDirectory,
+        private readonly string $applicationLabel,
+        private readonly string $defaultCategory,
     ) {
+    }
+
+    public function getApplicationLabel(): string
+    {
+        return $this->applicationLabel;
     }
 
     public function getManufacturerProfile(): ManufacturerProfileDTO
@@ -189,7 +195,7 @@ final class LappCatalog
         }
 
         $this->articles = [];
-        $manufacturer = $this->readJson('manufacturer.json');
+        $manufacturer = $this->readSharedJson('manufacturer.json');
         $this->manufacturerProfile = new ManufacturerProfileDTO(
             name: (string) $manufacturer['name'],
             alternative_names: array_values(array_map('strval', $manufacturer['alternative_names'] ?? [])),
@@ -199,15 +205,15 @@ final class LappCatalog
         );
 
         /** @var array<string, ColorInfo> $colors */
-        $colors = $this->readJson('colors.json');
+        $colors = $this->readSharedJson('colors.json');
 
-        foreach (glob($this->catalogDirectory . '/olflex-*.json') ?: [] as $familyFile) {
-            $family = $this->readJson(basename($familyFile));
+        foreach (glob($this->catalogDirectory . '/*.json') ?: [] as $familyFile) {
+            $family = $this->readJsonFile($familyFile);
             $familyInfo = [
                 'id' => (string) $family['id'],
                 'name' => (string) $family['name'],
                 'description' => (string) $family['description'],
-                'category' => (string) $family['category'],
+                'category' => (string) ($family['category'] ?? $this->defaultCategory),
                 'product_url' => (string) $family['product_url'],
                 'search_aliases' => array_values(array_map('strval', $family['search_aliases'] ?? [])),
                 'type' => (string) $family['type'],
@@ -258,6 +264,7 @@ final class LappCatalog
             str_replace('.', ',', $mm2),
             $article['packaging'],
             (string) $article['length_m'],
+            $this->applicationLabel,
         ];
         foreach ($entry['family']['search_aliases'] as $alias) {
             $parts[] = $alias;
@@ -272,9 +279,16 @@ final class LappCatalog
     /**
      * @return array<string, mixed>
      */
-    private function readJson(string $filename): array
+    private function readSharedJson(string $filename): array
     {
-        $path = $this->catalogDirectory . '/' . $filename;
+        return $this->readJsonFile($this->sharedDirectory . '/' . $filename);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function readJsonFile(string $path): array
+    {
         if (!is_file($path)) {
             throw new \RuntimeException('Missing LAPP catalog file: ' . $path);
         }

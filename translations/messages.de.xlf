@@ -10391,7 +10391,19 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
     <unit id="lAppHlp" name="settings.ips.lapp.help">
       <segment state="translated">
         <source>settings.ips.lapp.help</source>
-        <target>Lokaler Katalog für LAPP-ÖLFLEX-Leitungen (HEAT 125 Adern). Kein Live-API-Zugriff; die Daten stammen aus LAPP-Produktinformationsblättern.</target>
+        <target>Lokaler Katalog für industrielle LAPP-Leitungen (ÖLFLEX HEAT 125). Getrennt vom Automotive-Katalog. Kein Live-API-Zugriff.</target>
+      </segment>
+    </unit>
+    <unit id="lAppAuP" name="settings.ips.lapp_automotive">
+      <segment state="translated">
+        <source>settings.ips.lapp_automotive</source>
+        <target>LAPP Automotive</target>
+      </segment>
+    </unit>
+    <unit id="lAppAuH" name="settings.ips.lapp_automotive.help">
+      <segment state="translated">
+        <source>settings.ips.lapp_automotive.help</source>
+        <target>Lokaler Katalog für LAPP-Automotive-Leitungen. Getrennt vom industriellen ÖLFLEX-Katalog. Kein Live-API-Zugriff.</target>
       </segment>
     </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">

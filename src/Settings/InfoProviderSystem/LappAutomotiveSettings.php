@@ -21,32 +21,19 @@
 declare(strict_types=1);
 
 
-namespace App\Services\InfoProviderSystem\Providers;
+namespace App\Settings\InfoProviderSystem;
 
-use App\Services\InfoProviderSystem\Catalogs\LappRegularCatalog;
-use App\Settings\InfoProviderSystem\LappSettings;
+use App\Settings\SettingsIcon;
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Symfony\Component\Translation\TranslatableMessage as TM;
 
-class LappProvider extends AbstractLappProvider
+#[Settings(label: new TM("settings.ips.lapp_automotive"), description: new TM("settings.ips.lapp_automotive.help"))]
+#[SettingsIcon("fa-plug")]
+class LappAutomotiveSettings
 {
-    public const PROVIDER_KEY = 'lapp';
-
-    public function __construct(LappRegularCatalog $catalog, LappSettings $settings)
-    {
-        parent::__construct($catalog, $settings, LappSettings::class);
-    }
-
-    public function getProviderKey(): string
-    {
-        return self::PROVIDER_KEY;
-    }
-
-    protected function getProviderName(): string
-    {
-        return 'LAPP';
-    }
-
-    protected function getProviderDescription(): string
-    {
-        return 'Bundled LAPP industrial / installation cable catalog (ÖLFLEX HEAT 125 single cores).';
-    }
+    #[SettingsParameter(label: new TM("settings.ips.lcsc.enabled"),
+        envVar: "bool:PROVIDER_LAPP_AUTOMOTIVE_ENABLED", envVarMode: EnvVarMode::OVERWRITE)]
+    public bool $enabled = false;
 }

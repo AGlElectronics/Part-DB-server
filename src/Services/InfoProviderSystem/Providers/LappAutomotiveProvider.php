@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace App\Services\InfoProviderSystem\Providers;
 
-use App\Services\InfoProviderSystem\Catalogs\LappRegularCatalog;
-use App\Settings\InfoProviderSystem\LappSettings;
+use App\Services\InfoProviderSystem\Catalogs\LappAutomotiveCatalog;
+use App\Settings\InfoProviderSystem\LappAutomotiveSettings;
 
-class LappProvider extends AbstractLappProvider
+class LappAutomotiveProvider extends AbstractLappProvider
 {
-    public const PROVIDER_KEY = 'lapp';
+    public const PROVIDER_KEY = 'lapp_automotive';
 
-    public function __construct(LappRegularCatalog $catalog, LappSettings $settings)
+    public function __construct(LappAutomotiveCatalog $catalog, LappAutomotiveSettings $settings)
     {
-        parent::__construct($catalog, $settings, LappSettings::class);
+        parent::__construct($catalog, $settings, LappAutomotiveSettings::class);
     }
 
     public function getProviderKey(): string
@@ -42,11 +42,11 @@ class LappProvider extends AbstractLappProvider
 
     protected function getProviderName(): string
     {
-        return 'LAPP';
+        return 'LAPP Automotive';
     }
 
     protected function getProviderDescription(): string
     {
-        return 'Bundled LAPP industrial / installation cable catalog (ÖLFLEX HEAT 125 single cores).';
+        return 'Bundled LAPP automotive cable catalog. Separate from the industrial ÖLFLEX catalog.';
     }
 }

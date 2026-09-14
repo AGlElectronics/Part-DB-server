@@ -85,4 +85,7 @@ class InfoProviderSettings
     #[EmbeddedSettings]
     public ?LappSettings $lapp = null;
 
+    #[EmbeddedSettings]
+    public ?LappAutomotiveSettings $lappAutomotive = null;
+
 }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\Tests\Services\InfoProviderSystem\Providers;
 
 use App\Services\InfoProviderSystem\Catalogs\LappCatalog;
+use App\Services\InfoProviderSystem\Catalogs\LappRegularCatalog;
 use App\Services\InfoProviderSystem\DTOs\ParameterDTO;
 use App\Services\InfoProviderSystem\DTOs\ProviderInfoDTO;
 use App\Services\InfoProviderSystem\Providers\LappProvider;
@@ -40,7 +41,7 @@ final class LappProviderTest extends TestCase
     {
         $this->settings = SettingsTestHelper::createSettingsDummy(LappSettings::class);
         $this->settings->enabled = true;
-        $this->provider = new LappProvider(new LappCatalog(), $this->settings);
+        $this->provider = new LappProvider(new LappRegularCatalog(), $this->settings);
     }
 
     public function testGetProviderInfo(): void
@@ -50,6 +51,7 @@ final class LappProviderTest extends TestCase
         $this->assertInstanceOf(ProviderInfoDTO::class, $info);
         $this->assertSame('lapp', $info->key);
         $this->assertSame('LAPP', $info->name);
+        $this->assertStringContainsString('industrial', $info->description ?? '');
         $this->assertSame('https://www.lapp.com/', $info->url);
         $this->assertContains(ProviderCapabilities::BASIC, $info->capabilities);
         $this->assertContains(ProviderCapabilities::PARAMETERS, $info->capabilities);
@@ -115,6 +117,10 @@ final class LappProviderTest extends TestCase
         $this->assertNotNull($color);
         $this->assertSame('BK (black)', $color->value_text);
         $this->assertSame('BK', $color->symbol);
+
+        $application = $this->findParameter($detail->parameters ?? [], 'Application');
+        $this->assertNotNull($application);
+        $this->assertSame('industrial regular', $application->value_text);
     }
 
     public function testGetDetailsUnknownId(): void

@@ -10392,7 +10392,19 @@ Please note, that you can not impersonate a disabled user. If you try you will g
     <unit id="lAppHlp" name="settings.ips.lapp.help">
       <segment state="translated">
         <source>settings.ips.lapp.help</source>
-        <target>Local catalog of LAPP ÖLFLEX cables (HEAT 125 single cores). No live API; data is taken from LAPP product information sheets.</target>
+        <target>Local catalog of LAPP industrial / installation cables (ÖLFLEX HEAT 125). Separate from the automotive catalog. No live API.</target>
+      </segment>
+    </unit>
+    <unit id="lAppAuP" name="settings.ips.lapp_automotive">
+      <segment state="translated">
+        <source>settings.ips.lapp_automotive</source>
+        <target>LAPP Automotive</target>
+      </segment>
+    </unit>
+    <unit id="lAppAuH" name="settings.ips.lapp_automotive.help">
+      <segment state="translated">
+        <source>settings.ips.lapp_automotive.help</source>
+        <target>Local catalog of LAPP automotive cables. Separate from the industrial ÖLFLEX catalog. No live API.</target>
       </segment>
     </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
