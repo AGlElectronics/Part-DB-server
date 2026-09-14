@@ -107,7 +107,8 @@ final class LappCatalog
         $tokens = preg_split('/\s+/u', mb_strtolower($keyword)) ?: [];
         $others = [];
         foreach ($this->articles as $key => $entry) {
-            if ($key === $normalized) {
+            // JSON article numbers are numeric strings; PHP may cast them to int array keys.
+            if (strtoupper((string) $key) === $normalized) {
                 continue;
             }
             $haystack = $entry['search'];

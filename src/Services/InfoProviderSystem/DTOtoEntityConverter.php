@@ -314,7 +314,10 @@ final class DTOtoEntityConverter
      */
     private function mergeAlternativeNames(AbstractStructuralDBElement $entity, array $names): void
     {
-        $existing = array_filter(array_map(static fn (string $name): string => trim($name), explode(',', $entity->getAlternativeNames() ?? '')));
+        $existing = array_values(array_filter(
+            array_map(static fn (string $name): string => trim($name), explode(',', $entity->getAlternativeNames() ?? '')),
+            static fn (string $name): bool => $name !== ''
+        ));
         $merged = $existing;
 
         foreach ($names as $name) {
