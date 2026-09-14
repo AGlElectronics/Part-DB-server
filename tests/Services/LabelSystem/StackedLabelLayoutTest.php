@@ -39,6 +39,7 @@ final class StackedLabelLayoutTest extends KernelTestCase
         $html = $this->service->getLabelHTML($this->options(withStackedMarker: true), [$this->part()]);
 
         $this->assertStringContainsString('stacked-label', $html);
+        $this->assertStringContainsString('table-layout: fixed', $html);
         $this->assertStringContainsString('stacked-name', $html);
         $this->assertStringContainsString('DIN 912 M6 x 20', $html);
         $this->assertStringContainsString('Socket head cap screw', $html);

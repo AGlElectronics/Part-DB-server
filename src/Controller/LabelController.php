@@ -50,13 +50,16 @@ use App\Exceptions\TwigModeException;
 use App\Form\LabelSystem\LabelDialogType;
 use App\Repository\DBElementRepository;
 use App\Services\ElementTypeNameGenerator;
+use App\Services\LabelSystem\BpacPrintJobFactory;
 use App\Services\LabelSystem\LabelGenerator;
+use App\Services\LabelSystem\PtouchCsvExporter;
 use App\Services\Misc\RangeParser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -65,7 +68,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class LabelController extends AbstractController
 {
     public function __construct(protected LabelGenerator $labelGenerator, protected EntityManagerInterface $em, protected ElementTypeNameGenerator $elementTypeNameGenerator, protected RangeParser $rangeParser, protected TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly PtouchCsvExporter $ptouchCsvExporter,
+        private readonly BpacPrintJobFactory $bpacPrintJobFactory,
     )
     {
     }
@@ -110,6 +115,9 @@ class LabelController extends AbstractController
         $form_options = $form['options']->getData();
 
         $pdf_data = null;
+        $html_preview = null;
+        $ptouch_csv = null;
+        $bpac_job = null;
         $filename = 'invalid.pdf';
 
         if (($form->isSubmitted() && $form->isValid()) || ($generate && !$form->isSubmitted() && $profile instanceof LabelProfile)) {
@@ -183,8 +191,17 @@ class LabelController extends AbstractController
             }
 
             if ($targets !== []) {
+                $bpac_job = $this->bpacPrintJobFactory->create(
+                    $targets,
+                    $form_options->getWidth(),
+                    $form_options->getHeight(),
+                );
+                if (count($targets) > 1) {
+                    $ptouch_csv = $this->ptouchCsvExporter->export($targets);
+                }
                 try {
                     $pdf_data = $this->labelGenerator->generateLabel($form_options, $targets);
+                    $html_preview = $this->labelGenerator->getHTML($form_options, $targets);
                     $filename = $this->getLabelName($targets[0], $profile);
                 } catch (TwigModeException $exception) {
                     $form->get('options')->get('lines')->addError(new FormError($exception->getSafeMessage()));
@@ -202,13 +219,140 @@ class LabelController extends AbstractController
             }
         }
 
+        if ($request->query->getBoolean('download') && is_string($pdf_data)) {
+            $response = new Response($pdf_data);
+            $response->headers->set('Content-Type', 'application/pdf');
+            $response->headers->set(
+                'Content-Disposition',
+                $response->headers->makeDisposition(
+                    ResponseHeaderBag::DISPOSITION_INLINE,
+                    $filename,
+                    'label.pdf',
+                )
+            );
+
+            return $response;
+        }
+
         render:
         return $this->render('label_system/dialog.html.twig', [
             'form' => $form,
             'pdf_data' => $pdf_data,
+            'html_preview' => $html_preview,
+            'ptouch_csv' => $ptouch_csv,
+            'bpac_job' => $bpac_job,
+            'bpac_protocol' => is_array($bpac_job) ? $this->bpacPrintJobFactory->toProtocolUrl($bpac_job) : null,
+            'bpac_fits_protocol' => is_array($bpac_job) && $this->bpacPrintJobFactory->fitsProtocol($bpac_job),
+            'label_width' => $form_options->getWidth(),
+            'label_height' => $form_options->getHeight(),
             'filename' => $filename,
             'profile' => $profile,
         ]);
+    }
+
+    #[Route(path: '/bpac', name: 'label_bpac_launch')]
+    #[Route(path: '/{profile}/bpac', name: 'label_bpac_launch_profile')]
+    public function bpacLaunch(Request $request, ?LabelProfile $profile = null): Response
+    {
+        $this->denyAccessUnlessGranted('@labels.create_labels');
+
+        if ($profile instanceof LabelProfile) {
+            $this->denyAccessUnlessGranted('read', $profile);
+        }
+
+        $target_type = $request->query->getEnum('target_type', LabelSupportedElement::class, LabelSupportedElement::PART);
+        $target_id = (string) $request->query->get('target_id', '');
+        $targets = $this->findObjects($target_type, $target_id);
+
+        foreach ($targets as $target) {
+            $this->denyAccessUnlessGranted('read', $target);
+        }
+
+        if ($targets === []) {
+            throw $this->createNotFoundException();
+        }
+
+        $options = $profile instanceof LabelProfile ? $profile->getOptions() : new LabelOptions();
+        $width = $request->query->get('width', $options->getWidth());
+        $height = $request->query->get('height', $options->getHeight());
+        $job = $this->bpacPrintJobFactory->create($targets, (float) $width, (float) $height);
+
+        return $this->render('label_system/bpac_launch.html.twig', [
+            'job' => $job,
+            'job_json' => $this->bpacPrintJobFactory->toJson($job),
+            'protocol_url' => $this->bpacPrintJobFactory->toProtocolUrl($job),
+            'fits_protocol' => $this->bpacPrintJobFactory->fitsProtocol($job),
+            'profile' => $profile,
+            'label_width' => (float) $width,
+            'label_height' => (float) $height,
+        ]);
+    }
+
+    #[Route(path: '/bpac.ptjob', name: 'label_bpac_job')]
+    public function bpacJob(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('@labels.create_labels');
+
+        $target_type = $request->query->getEnum('target_type', LabelSupportedElement::class, LabelSupportedElement::PART);
+        $target_id = (string) $request->query->get('target_id', '');
+        $targets = $this->findObjects($target_type, $target_id);
+
+        foreach ($targets as $target) {
+            $this->denyAccessUnlessGranted('read', $target);
+        }
+
+        if ($targets === []) {
+            throw $this->createNotFoundException();
+        }
+
+        $width = (float) $request->query->get('width', 30);
+        $height = (float) $request->query->get('height', 18);
+        $job = $this->bpacPrintJobFactory->create($targets, $width, $height);
+        $json = $this->bpacPrintJobFactory->toJson($job);
+
+        $response = new Response($json);
+        $response->headers->set('Content-Type', 'application/json; charset=UTF-8');
+        $response->headers->set(
+            'Content-Disposition',
+            $response->headers->makeDisposition(
+                ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                'partdb-ptouch.ptjob',
+                'partdb-ptouch.ptjob',
+            )
+        );
+
+        return $response;
+    }
+
+    #[Route(path: '/ptouch.csv', name: 'label_ptouch_csv')]
+    public function ptouchCsv(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('@labels.create_labels');
+
+        $target_type = $request->query->getEnum('target_type', LabelSupportedElement::class, LabelSupportedElement::PART);
+        $target_id = (string) $request->query->get('target_id', '');
+        $targets = $this->findObjects($target_type, $target_id);
+
+        foreach ($targets as $target) {
+            $this->denyAccessUnlessGranted('read', $target);
+        }
+
+        if ($targets === []) {
+            throw $this->createNotFoundException();
+        }
+
+        $response = new Response($this->ptouchCsvExporter->export($targets));
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set(
+            'Content-Disposition',
+            $response->headers->makeDisposition(
+                ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                'partdb-ptouch-labels.csv',
+                'partdb-ptouch-labels.csv',
+            )
+        );
+
+        return $response;
     }
 
     protected function getLabelName(AbstractDBElement $element, ?LabelProfile $profile = null): string

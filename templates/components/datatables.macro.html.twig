@@ -57,6 +57,8 @@
                     <optgroup label="{% trans %}part_list.action.group.labels{% endtrans %}">
                         <option {% if not is_granted('@labels.create_labels') %}disabled{% endif %} value="generate_label_lot" data-url="{{  path('select_label_profiles_lot')}}">{% trans %}part_list.action.projects.generate_label_lot{% endtrans %}</option>
                         <option {% if not is_granted('@labels.create_labels') %}disabled{% endif %} value="generate_label" data-url="{{  path('select_label_profiles')}}">{% trans %}part_list.action.projects.generate_label{% endtrans %}</option>
+                        <option {% if not is_granted('@labels.create_labels') %}disabled{% endif %} value="print_bpac" data-turbo="false">{% trans %}part_list.action.print_bpac{% endtrans %}</option>
+                        <option {% if not is_granted('@labels.create_labels') %}disabled{% endif %} value="export_ptouch_csv" data-turbo="false">{% trans %}part_list.action.export_ptouch_csv{% endtrans %}</option>
                     </optgroup>
                     <optgroup label="{% trans %}part_list.action.group.projects{% endtrans %}">
                         <option {% if not is_granted('@projects.read') %}disabled{% endif %} value="add_to_project" data-url="{{  path('select_project')}}">{% trans %}part_list.action.projects.add_to_project{% endtrans %}</option>

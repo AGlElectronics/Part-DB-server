@@ -11,7 +11,7 @@
                 {% set profiles = [] %}
             {% endif %}
             {% for profile in profiles %}
-                <a class="dropdown-item" href="{{ path('label_dialog_profile', {'profile': profile.id, 'target_type': type, 'target_id': id, 'generate': true}) }}">{{ profile.name }}</a>
+                <a class="dropdown-item" data-turbo="false" href="{{ path('label_bpac_launch_profile', {'profile': profile.id, 'target_type': type, 'target_id': id}) }}">{{ profile.name }}</a>
             {% endfor %}
             {% if profiles is not empty and is_granted('@labels.edit_options') %}
                 <div class="dropdown-divider"></div>

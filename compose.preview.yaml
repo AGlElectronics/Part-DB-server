@@ -33,7 +33,7 @@ services:
       DEFAULT_TIMEZONE: "${DEFAULT_TIMEZONE:-UTC}"
       BASE_CURRENCY: "${BASE_CURRENCY:-EUR}"
       INSTANCE_NAME: "Mechanical Parts Preview"
-      DEFAULT_URI: "${DEFAULT_URI:-https://parts.4qt.org/}"
+      DEFAULT_URI: "https://parts.4qt.org/"
       CHECK_FOR_UPDATES: "0"
       ALLOW_ATTACHMENT_DOWNLOADS: "0"
     volumes:

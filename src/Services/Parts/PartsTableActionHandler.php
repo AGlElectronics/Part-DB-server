@@ -96,6 +96,30 @@ implode(',', array_map(static fn (PartLot $lot) => $lot->getID(), $part->getPart
             );
         }
 
+        if ($action === 'print_bpac') {
+            $targets = implode(',', array_map(static fn (Part $part) => $part->getID(), $selected_parts));
+
+            return new RedirectResponse(
+                $this->urlGenerator->generate('label_bpac_launch', [
+                    'target_type' => 'part',
+                    'target_id' => $targets,
+                    'width' => 30,
+                    'height' => 18,
+                ])
+            );
+        }
+
+        if ($action === 'export_ptouch_csv') {
+            $targets = implode(',', array_map(static fn (Part $part) => $part->getID(), $selected_parts));
+
+            return new RedirectResponse(
+                $this->urlGenerator->generate('label_ptouch_csv', [
+                    'target_type' => 'part',
+                    'target_id' => $targets,
+                ])
+            );
+        }
+
         //When action starts with "export_" we have to redirect to the export controller
         $matches = [];
         if (preg_match('/^export_(json|yaml|xml|csv|xlsx)$/', $action, $matches)) {

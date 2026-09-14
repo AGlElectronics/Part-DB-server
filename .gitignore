@@ -59,6 +59,9 @@ CLAUDE.md
 .codex
 migrations/.codex
 docker-data/
+tools/bpac-bridge/bin/
+tools/bpac-bridge/obj/
+tools/bpac-bridge/publish/
 scripts/
 db/
 docker-compose.yaml

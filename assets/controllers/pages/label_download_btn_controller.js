@@ -28,6 +28,24 @@ export default class extends Controller
     print(event) {
         event.preventDefault();
 
+        const frame = document.getElementById('label_html_preview');
+        if (frame?.contentWindow) {
+            const doPrint = () => {
+                frame.contentWindow.focus();
+                frame.contentWindow.print();
+            };
+            try {
+                if (frame.contentDocument?.readyState === 'complete') {
+                    doPrint();
+                    return;
+                }
+            } catch {
+                // Fall through to the load listener if the iframe is not readable yet.
+            }
+            frame.addEventListener('load', doPrint, {once: true});
+            return;
+        }
+
         const preview = document.getElementById('pdf_preview');
         const dataUri = preview?.getAttribute('data') ?? preview?.data;
         if (!dataUri) {

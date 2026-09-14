@@ -83,6 +83,17 @@ You can use the "Placeholders" dropdown in the content editor, to automatically 
 | `[[LAST_MODIFIED]]`    | The datetime when the element was last modified | 2/26/16, 5:38 PM       |
 | `[[CREATION_DATE]]`    | The datetime when the element was created       | 2/26/16, 5:38 PM       |
 
+## Brother PT-P700 (b-PAC / P-touch bridge)
+
+Chrome cannot force the Brother driver's tape length, so a 30 mm label often comes out around 80 mm.
+Install the local Windows helper in `tools/bpac-bridge` (`PartDbBpacBridge.exe --install`).
+Part-DB then opens a `partdb-bpac:` print job with the width and height from the label dialog.
+
+Editor Lite must be off on the printer. The PT-P700 cannot cut shorter than 24.5 mm.
+
+Single parts: use **Generate label** on the part page and pick a P700 profile.
+Several parts: table action **Print to P-touch (30×18 mm)**, or generate labels and click **Print to P-touch**.
+
 ## Twig mode
 
 If you select "Twig" in parser mode under advanced settings, you can input a twig template in the lines field (activate

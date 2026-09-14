@@ -122,28 +122,68 @@
 
 
     {{ form_end(form) }}
-    {% if pdf_data %}
+    {% if bpac_job or ptouch_csv or pdf_data %}
         <div class="row">
             <div class="{{ col_input }} {{ offset_label }}">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-success" {{ stimulus_controller('pages/label_download_btn') }} {{ stimulus_action('pages/label_download_btn', 'print') }}>
-                        <i class="fas fa-print fa-fw"></i>
-                        {% trans %}label_generator.print{% endtrans %}
-                    </button>
-                    <a data-turbo="false" class="btn btn-secondary" href="#" {{ stimulus_controller('pages/label_download_btn')}} {{ stimulus_action('pages/label_download_btn', 'download')}} download="{{ filename ?? '' }}">
-                        {% trans %}label_generator.download{% endtrans %}
-                    </a>
+                    {% if bpac_job %}
+                        {% if bpac_fits_protocol %}
+                            <a data-turbo="false" class="btn btn-success" href="{{ bpac_protocol }}">
+                                <i class="fa-solid fa-print fa-fw"></i>
+                                {% trans %}label_generator.bpac_print{% endtrans %}
+                            </a>
+                        {% else %}
+                            <a data-turbo="false" class="btn btn-success" href="{{ 'data:application/json;charset=utf-8,' ~ (bpac_job|json_encode|url_encode) }}" download="partdb-ptouch.ptjob">
+                                <i class="fa-solid fa-print fa-fw"></i>
+                                {% trans %}label_generator.bpac_print{% endtrans %}
+                            </a>
+                        {% endif %}
+                        <script type="application/json" id="bpac_print_job">{{ bpac_job|json_encode|raw }}</script>
+                    {% endif %}
+                    {% if ptouch_csv %}
+                        <a data-turbo="false" class="btn btn-outline-secondary" href="{{ ptouch_csv | data_uri(mime='text/csv') }}" download="partdb-ptouch-labels.csv">
+                            <i class="fa-solid fa-file-csv fa-fw"></i>
+                            {% trans %}label_generator.ptouch_csv{% endtrans %}
+                        </a>
+                    {% endif %}
+                    {% if pdf_data %}
+                        <a data-turbo="false" class="btn btn-outline-secondary" href="#" {{ stimulus_controller('pages/label_download_btn')}} {{ stimulus_action('pages/label_download_btn', 'download')}} download="{{ filename ?? '' }}">
+                            <i class="fas fa-download fa-fw"></i>
+                            {% trans %}label_generator.download{% endtrans %}
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary" {{ stimulus_controller('pages/label_download_btn') }} {{ stimulus_action('pages/label_download_btn', 'print') }}>
+                            <i class="fas fa-file-pdf fa-fw"></i>
+                            {% trans %}label_generator.print{% endtrans %}
+                        </button>
+                    {% endif %}
                 </div>
+                {% if bpac_job %}
+                    <div class="form-text">{% trans %}label_generator.bpac_print.hint{% endtrans %}</div>
+                {% elseif ptouch_csv %}
+                    <div class="form-text">{% trans %}label_generator.ptouch_csv.hint{% endtrans %}</div>
+                {% elseif pdf_data %}
+                    <div class="form-text">{% trans %}label_generator.print.hint{% endtrans %}</div>
+                {% endif %}
             </div>
         </div>
+        {% if pdf_data %}
+            {# Hidden PDF object is only used by the download button. Cursor's browser cannot preview PDFs. #}
+            <object id="pdf_preview" class="d-none" data="{{ pdf_data | data_uri(mime='application/pdf') }}"></object>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block additional_content %}
-    {% if pdf_data %}
-        <div class="card mt-2 p-1 border-secondary" style="resize: vertical; overflow: scroll; height: 280px">
-            <object id="pdf_preview"  data="{{ pdf_data | data_uri(mime='application/pdf') }}" style="height: inherit">
-            </object>
+    {% if html_preview %}
+        {% set preview_scale = 4 %}
+        <div class="card mt-2 p-2 border-secondary">
+            <div class="label-html-preview-frame" style="width: {{ label_width * preview_scale }}mm; height: {{ label_height * preview_scale }}mm; overflow: hidden; background: #fff; border: 1px solid var(--bs-border-color);">
+                <iframe id="label_html_preview"
+                        title="{% trans %}label_generator.preview{% endtrans %}"
+                        srcdoc="{{ html_preview|e('html_attr') }}"
+                        style="width: {{ label_width }}mm; height: {{ label_height }}mm; border: 0; transform: scale({{ preview_scale }}); transform-origin: top left; background: #fff;"
+                ></iframe>
+            </div>
         </div>
     {% endif %}
 {% endblock %}

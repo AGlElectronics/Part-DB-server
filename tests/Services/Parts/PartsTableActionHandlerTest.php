@@ -84,6 +84,37 @@ final class PartsTableActionHandlerTest extends WebTestCase
         $this->assertStringContainsString('ids=', $result->getTargetUrl());
     }
 
+    public function testPrintBpacRedirectsToBridgeLaunch(): void
+    {
+        $part1 = $this->createMock(Part::class);
+        $part1->method('getId')->willReturn(4);
+        $part2 = $this->createMock(Part::class);
+        $part2->method('getId')->willReturn(7);
+
+        $result = $this->service->handleAction('print_bpac', [$part1, $part2], null, '/test');
+
+        $this->assertInstanceOf(RedirectResponse::class, $result);
+        $this->assertStringContainsString('/label/bpac', $result->getTargetUrl());
+        $this->assertStringContainsString('target_id=4,7', $result->getTargetUrl());
+        $this->assertStringContainsString('width=30', $result->getTargetUrl());
+        $this->assertStringContainsString('height=18', $result->getTargetUrl());
+    }
+
+    public function testExportPtouchCsvRedirectsToLabelCsv(): void
+    {
+        $part1 = $this->createMock(Part::class);
+        $part1->method('getId')->willReturn(4);
+        $part2 = $this->createMock(Part::class);
+        $part2->method('getId')->willReturn(7);
+
+        $result = $this->service->handleAction('export_ptouch_csv', [$part1, $part2], null, '/test');
+
+        $this->assertInstanceOf(RedirectResponse::class, $result);
+        $this->assertStringContainsString('ptouch.csv', $result->getTargetUrl());
+        $this->assertStringContainsString('target_id=4,7', $result->getTargetUrl());
+        $this->assertStringContainsString('target_type=part', $result->getTargetUrl());
+    }
+
     public function testUnknownActionWithEmptyPartsReturnsNull(): void
     {
         // The unknown-action switch only runs inside the foreach loop, so an

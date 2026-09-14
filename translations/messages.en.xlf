@@ -891,6 +891,60 @@ Sub elements will be moved upwards.</target>
         <target>Print</target>
       </segment>
     </unit>
+    <unit id="label_generator.print.hint" name="label_generator.print.hint">
+      <segment state="translated">
+        <source>label_generator.print.hint</source>
+        <target>Choose the Brother PT-P700, matching 18 or 24 mm tape, and 100% / actual size.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_print" name="label_generator.bpac_print">
+      <segment state="translated">
+        <source>label_generator.bpac_print</source>
+        <target>Print to P-touch</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_print.hint" name="label_generator.bpac_print.hint">
+      <segment state="translated">
+        <source>label_generator.bpac_print.hint</source>
+        <target>Uses the local Part-DB P-touch bridge so the printed tape length matches the size set above. Install PartDbBpacBridge.exe once, and turn Editor Lite off on the PT-P700.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_job" name="label_generator.bpac_job">
+      <segment state="translated">
+        <source>label_generator.bpac_job</source>
+        <target>Download print job</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_launch.summary" name="label_generator.bpac_launch.summary">
+      <segment state="translated">
+        <source>label_generator.bpac_launch.summary</source>
+        <target>Sending %labels% label(s) at %width% × %height% mm to the P-touch bridge.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_launch.download_hint" name="label_generator.bpac_launch.download_hint">
+      <segment state="translated">
+        <source>label_generator.bpac_launch.download_hint</source>
+        <target>This job is too large for a one-click link. Download the .ptjob file and open it with PartDbBpacBridge.exe.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.ptouch_csv" name="label_generator.ptouch_csv">
+      <segment state="translated">
+        <source>label_generator.ptouch_csv</source>
+        <target>P-touch CSV</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.ptouch_csv.hint" name="label_generator.ptouch_csv.hint">
+      <segment state="translated">
+        <source>label_generator.ptouch_csv.hint</source>
+        <target>The browser cannot open P-touch Editor. This CSV is for bulk jobs: in P-touch Editor use File → Database → Connect, tick “Header row contains field names”, merge qr_url as a QR Code and name/description as text, then print all records.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.preview" name="label_generator.preview">
+      <segment state="translated">
+        <source>label_generator.preview</source>
+        <target>Label preview</target>
+      </segment>
+    </unit>
     <unit id="QW8xrZR" name="label_generator.label_btn">
       <segment state="translated">
         <source>label_generator.label_btn</source>
@@ -7531,6 +7585,18 @@ Element 1 -&gt; Element 1.2</target>
       <segment state="translated">
         <source>part_list.action.generate_label.empty</source>
         <target>Empty label</target>
+      </segment>
+    </unit>
+    <unit id="part_list.action.print_bpac" name="part_list.action.print_bpac">
+      <segment state="translated">
+        <source>part_list.action.print_bpac</source>
+        <target>Print to P-touch (30×18 mm)</target>
+      </segment>
+    </unit>
+    <unit id="part_list.action.export_ptouch_csv" name="part_list.action.export_ptouch_csv">
+      <segment state="translated">
+        <source>part_list.action.export_ptouch_csv</source>
+        <target>P-touch CSV (bulk labels)</target>
       </segment>
     </unit>
     <unit id="CY5MYnx" name="project.info.builds.label">

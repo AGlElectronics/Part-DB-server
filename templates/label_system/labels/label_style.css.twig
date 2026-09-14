@@ -56,42 +56,39 @@ hr {
 
 .stacked-label {
     width: 100%;
-    height: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
     text-align: center;
-}
-
-.stacked-column {
-    display: inline-block;
-    max-width: 100%;
-    vertical-align: top;
 }
 
 .stacked-barcode {
-    width: 100%;
     text-align: center;
+    padding: 0;
+    vertical-align: middle;
 }
 
 .stacked-qr {
     display: block;
     margin: 0 auto;
     max-width: 100%;
-    width: auto;
     height: auto;
 }
 
 .stacked-text {
     width: 100%;
-    overflow: hidden;
-    text-align: center;
+    padding: 0;
     line-height: 1.05;
 }
 
 .stacked-text .stacked-name,
 .stacked-text .stacked-desc {
+    display: block;
     overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
     width: 100%;
     margin: 0;
+    text-align: center;
 }
 
 .stacked-name {

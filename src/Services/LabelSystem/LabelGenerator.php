@@ -62,6 +62,19 @@ final class LabelGenerator
      */
     public function generateLabel(LabelOptions $options, object|array $elements): string
     {
+        $dompdf = $this->dompdfFactory->create();
+        $dompdf->setPaper($this->mmToPointsArray($options->getWidth(), $options->getHeight()));
+        $dompdf->loadHtml($this->getHTML($options, $elements));
+        $dompdf->render();
+
+        return $dompdf->output() ?? throw new \RuntimeException('Could not generate label!');
+    }
+
+    /**
+     * @param  object|object[]  $elements
+     */
+    public function getHTML(LabelOptions $options, object|array $elements): string
+    {
         if (!is_array($elements)) {
             $elements = [$elements];
         }
@@ -72,12 +85,7 @@ final class LabelGenerator
             }
         }
 
-        $dompdf = $this->dompdfFactory->create();
-        $dompdf->setPaper($this->mmToPointsArray($options->getWidth(), $options->getHeight()));
-        $dompdf->loadHtml($this->labelHTMLGenerator->getLabelHTML($options, $elements));
-        $dompdf->render();
-
-        return $dompdf->output() ?? throw new \RuntimeException('Could not generate label!');
+        return $this->labelHTMLGenerator->getLabelHTML($options, $elements);
     }
 
     /**

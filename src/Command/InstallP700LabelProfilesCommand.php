@@ -102,11 +102,12 @@ final class InstallP700LabelProfilesCommand extends Command
                 'width' => 30.0,
                 'height' => 18.0,
                 'additional_css' => $this->additionalCss(
-                    maxQrHeight: '10mm',
-                    maxQrWidth: '16mm',
-                    nameSize: '6pt',
-                    descSize: '5pt',
-                    pageMargin: '0.6mm',
+                    width: 30.0,
+                    height: 18.0,
+                    maxQrHeight: '11mm',
+                    nameSize: '6.5pt',
+                    descSize: '5.5pt',
+                    pageMargin: '0.5mm',
                 ),
                 'comment' => 'Brother P-touch P700 18mm TZe tape. QR opens the part on parts.4qt.org.',
             ],
@@ -115,11 +116,12 @@ final class InstallP700LabelProfilesCommand extends Command
                 'width' => 30.0,
                 'height' => 24.0,
                 'additional_css' => $this->additionalCss(
-                    maxQrHeight: '14mm',
-                    maxQrWidth: '22mm',
+                    width: 30.0,
+                    height: 24.0,
+                    maxQrHeight: '15mm',
                     nameSize: '8pt',
                     descSize: '6.5pt',
-                    pageMargin: '0.8mm',
+                    pageMargin: '0.6mm',
                 ),
                 'comment' => 'Brother P-touch P700 24mm TZe tape. QR opens the part on parts.4qt.org.',
             ],
@@ -127,16 +129,18 @@ final class InstallP700LabelProfilesCommand extends Command
     }
 
     private function additionalCss(
+        float $width,
+        float $height,
         string $maxQrHeight,
-        string $maxQrWidth,
         string $nameSize,
         string $descSize,
         string $pageMargin,
     ): string {
         return <<<CSS
 /* label-layout-stacked */
-@page { margin: {$pageMargin}; }
-.stacked-qr { max-height: {$maxQrHeight}; max-width: {$maxQrWidth}; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+@page { size: {$width}mm {$height}mm; margin: {$pageMargin}; }
+.stacked-qr { height: {$maxQrHeight}; max-height: {$maxQrHeight}; }
 .stacked-name { font-size: {$nameSize}; }
 .stacked-desc { font-size: {$descSize}; }
 CSS;

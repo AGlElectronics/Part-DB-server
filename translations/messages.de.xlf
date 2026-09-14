@@ -890,6 +890,60 @@ Subelemente werden beim Löschen nach oben verschoben.</target>
         <target>Drucken</target>
       </segment>
     </unit>
+    <unit id="label_generator.print.hint" name="label_generator.print.hint">
+      <segment state="translated">
+        <source>label_generator.print.hint</source>
+        <target>Drucker Brother PT-P700 wählen, passendes 18- oder 24-mm-Band, 100 % / tatsächliche Größe.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_print" name="label_generator.bpac_print">
+      <segment state="translated">
+        <source>label_generator.bpac_print</source>
+        <target>Auf P-touch drucken</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_print.hint" name="label_generator.bpac_print.hint">
+      <segment state="translated">
+        <source>label_generator.bpac_print.hint</source>
+        <target>Nutzt die lokale Part-DB-P-touch-Brücke, damit die Bandlänge der oben eingestellten Größe entspricht. PartDbBpacBridge.exe einmal installieren und Editor Lite am PT-P700 ausschalten.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_job" name="label_generator.bpac_job">
+      <segment state="translated">
+        <source>label_generator.bpac_job</source>
+        <target>Druckauftrag herunterladen</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_launch.summary" name="label_generator.bpac_launch.summary">
+      <segment state="translated">
+        <source>label_generator.bpac_launch.summary</source>
+        <target>Sende %labels% Etikett(en) mit %width% × %height% mm an die P-touch-Brücke.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.bpac_launch.download_hint" name="label_generator.bpac_launch.download_hint">
+      <segment state="translated">
+        <source>label_generator.bpac_launch.download_hint</source>
+        <target>Dieser Auftrag ist zu groß für einen Klick-Link. Die .ptjob-Datei herunterladen und mit PartDbBpacBridge.exe öffnen.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.ptouch_csv" name="label_generator.ptouch_csv">
+      <segment state="translated">
+        <source>label_generator.ptouch_csv</source>
+        <target>P-touch-CSV</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.ptouch_csv.hint" name="label_generator.ptouch_csv.hint">
+      <segment state="translated">
+        <source>label_generator.ptouch_csv.hint</source>
+        <target>Der Browser kann P-touch Editor nicht starten. Diese CSV ist für Stapeldruck: in P-touch Editor Datei → Datenbank → Verbinden, „Kopfzeile enthält Feldnamen“ aktivieren, qr_url als QR-Code und name/description als Text mergen, dann alle Datensätze drucken.</target>
+      </segment>
+    </unit>
+    <unit id="label_generator.preview" name="label_generator.preview">
+      <segment state="translated">
+        <source>label_generator.preview</source>
+        <target>Etikettenvorschau</target>
+      </segment>
+    </unit>
     <unit id="QW8xrZR" name="label_generator.label_btn">
       <segment state="translated">
         <source>label_generator.label_btn</source>
@@ -7530,6 +7584,18 @@ Element 1 -&gt; Element 1.2</target>
       <segment state="translated">
         <source>part_list.action.generate_label.empty</source>
         <target>Leeres Label</target>
+      </segment>
+    </unit>
+    <unit id="part_list.action.print_bpac" name="part_list.action.print_bpac">
+      <segment state="translated">
+        <source>part_list.action.print_bpac</source>
+        <target>Auf P-touch drucken (30×18 mm)</target>
+      </segment>
+    </unit>
+    <unit id="part_list.action.export_ptouch_csv" name="part_list.action.export_ptouch_csv">
+      <segment state="translated">
+        <source>part_list.action.export_ptouch_csv</source>
+        <target>P-touch-CSV (Stapeletiketten)</target>
       </segment>
     </unit>
     <unit id="CY5MYnx" name="project.info.builds.label">
