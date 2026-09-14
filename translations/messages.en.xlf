@@ -2327,6 +2327,12 @@ If you have done this incorrectly or if a computer is no longer trusted, you can
         <target>Scanner</target>
       </segment>
     </unit>
+    <unit id="kN4cFpR" name="navbar.create_from_provider">
+      <segment state="translated">
+        <source>navbar.create_from_provider</source>
+        <target>Create from provider</target>
+      </segment>
+    </unit>
     <unit id="_735QZl" name="user.loggedin.label">
       <segment state="translated">
         <source>user.loggedin.label</source>

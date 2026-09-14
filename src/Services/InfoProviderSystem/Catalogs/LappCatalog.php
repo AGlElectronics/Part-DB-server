@@ -112,7 +112,7 @@ abstract class LappCatalog
             $exact[] = $this->articles[$normalized];
         }
 
-        $tokens = preg_split('/\s+/u', mb_strtolower($keyword)) ?: [];
+        $tokens = self::expandSearchTokens(preg_split('/\s+/u', mb_strtolower($keyword)) ?: []);
         $others = [];
         foreach ($this->articles as $key => $entry) {
             // JSON article numbers are numeric strings; PHP may cast them to int array keys.
@@ -140,6 +140,43 @@ abstract class LappCatalog
         $this->ensureLoaded();
 
         return count($this->articles);
+    }
+
+    /**
+     * @param  list<string>  $tokens
+     * @return list<string>
+     */
+    private static function expandSearchTokens(array $tokens): array
+    {
+        $expanded = [];
+        $count = count($tokens);
+        for ($i = 0; $i < $count; $i++) {
+            $token = $tokens[$i];
+            if ($token === '') {
+                continue;
+            }
+            if (preg_match('/^(\d+(?:[.,]\d+)?)(?:mm2|mm²|mm)$/u', $token, $matches) === 1) {
+                $formatted = self::formatCrossSection((float) str_replace(',', '.', $matches[1]));
+                $expanded[] = $formatted . 'mm2';
+                continue;
+            }
+            $next = $tokens[$i + 1] ?? '';
+            if (preg_match('/^\d+(?:[.,]\d+)?$/u', $token) === 1
+                && in_array($next, ['mm2', 'mm²', 'mm'], true)
+            ) {
+                $formatted = self::formatCrossSection((float) str_replace(',', '.', $token));
+                $expanded[] = $formatted . 'mm2';
+                $i++;
+                continue;
+            }
+            if ($token === 'mm²') {
+                $expanded[] = 'mm2';
+                continue;
+            }
+            $expanded[] = $token;
+        }
+
+        return $expanded;
     }
 
     /**
@@ -287,6 +324,11 @@ abstract class LappCatalog
             $entry['description'],
             $mm2,
             str_replace('.', ',', $mm2),
+            $mm2 . 'mm2',
+            $mm2 . 'mm²',
+            $mm2 . ' mm2',
+            'mm2',
+            'mm²',
             $article['packaging'],
             self::formatPackaging($article),
             isset($article['length_m']) ? (string) $article['length_m'] : '',

@@ -92,6 +92,20 @@ final class LappAutomotiveProviderTest extends TestCase
         $this->assertSame('1249107', $results[0]->provider_id);
     }
 
+    public function testSearchByCompactCrossSectionAndColor(): void
+    {
+        $results = $this->provider->searchByKeyword('1mm2 white');
+
+        $this->assertNotEmpty($results);
+        $ids = array_map(static fn ($result) => $result->provider_id, $results);
+        $this->assertContains('1234105', $ids);
+        $this->assertNotContains('1235105', $ids, '1mm2 must not match 1.5 mm²');
+        foreach ($results as $result) {
+            $this->assertStringContainsString('1 mm²', $result->mpn);
+            $this->assertStringNotContainsString('1.5 mm²', $result->mpn);
+        }
+    }
+
     public function testGetDetails(): void
     {
         $detail = $this->provider->getDetails('1249107');

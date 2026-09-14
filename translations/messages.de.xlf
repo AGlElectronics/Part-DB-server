@@ -2326,6 +2326,12 @@ Wenn Sie dies fehlerhafterweise gemacht haben oder ein Computer nicht mehr vertr
         <target>Scanner</target>
       </segment>
     </unit>
+    <unit id="kN4cFpR" name="navbar.create_from_provider">
+      <segment state="translated">
+        <source>navbar.create_from_provider</source>
+        <target>Aus Informationsquelle</target>
+      </segment>
+    </unit>
     <unit id="_735QZl" name="user.loggedin.label">
       <segment state="translated">
         <source>user.loggedin.label</source>
