@@ -331,7 +331,21 @@ Once you have the API key, you can configure the Canopy provider in Part-DB usin
 
 * `PROVIDER_CANOPY_API_KEY`: The API key you got from Canopy (mandatory)
 
+### LAPP
 
+The LAPP provider uses a bundled catalog of ÖLFLEX HEAT 125 single-core cables (article numbers from LAPP product
+information sheets). It does not call a live LAPP API. After enabling it, you can search article numbers (`1249107`),
+family names (`HEAT 125`, `H07Z-K`), or colors (`BK`, `black`, `schwarz`) and create parts from the results.
+
+Created parts use the LAPP article number as the part name and the designation (for example
+`ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)`) as the manufacturer part number. Stock is measured in `Meter`.
+The category `Cables -> Single core` is applied only if that category (or path) already exists in your database.
+The first created LAPP part also fills the manufacturer record (website, address, alternative names) if those fields
+are still empty.
+
+The following env configuration options are available:
+
+* `PROVIDER_LAPP_ENABLED`: Set this to `1` to enable the LAPP catalog provider (optional, default: `0`)
 
 ### Custom providers
 

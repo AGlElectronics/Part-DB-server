@@ -1,0 +1,784 @@
+{
+  "id": "olflex-heat-125-sc-450-750",
+  "name": "ÖLFLEX HEAT 125 SC 450/750 V",
+  "description": "H07Z-K single core",
+  "category": "Cables -> Single core",
+  "product_url": "https://www.lapp.com/en/de/p/604898",
+  "search_aliases": [
+    "SC",
+    "HEAT 125",
+    "ÖLFLEX",
+    "OLFLEX",
+    "H07Z-K",
+    "H07ZK",
+    "450/750",
+    "450-750"
+  ],
+  "type": "H07Z-K",
+  "voltage": "450/750 V",
+  "temperature_min_c": -55,
+  "temperature_max_c": 125,
+  "cores": 1,
+  "articles": [
+    {
+      "article_number": "1235000",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235001",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235002",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235003",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "brown",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235005",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235006",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "green",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235007",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "violet",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235009",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "orange",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235104",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "red",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235105",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "white",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235106",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "grey",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235114",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "dark-blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235003K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "brown",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235001K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "black",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235106K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "grey",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235002K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "blue",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235000K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "green-yellow",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235009K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "orange",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235114K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "dark-blue",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235105K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "white",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1235104K",
+      "cross_section_mm2": 1.5,
+      "outer_diameter_mm": 3,
+      "color": "red",
+      "packaging": "box",
+      "length_m": 2000,
+      "copper_index_kg_km": 14.4,
+      "weight_kg_km": 21
+    },
+    {
+      "article_number": "1236000",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236001",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236002",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236003",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "brown",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236005",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236006",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "green",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236007",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "violet",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236009",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "orange",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236104",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "red",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236105",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "white",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236106",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "grey",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236114",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "dark-blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1236001K",
+      "cross_section_mm2": 2.5,
+      "outer_diameter_mm": 3.6,
+      "color": "black",
+      "packaging": "box",
+      "length_m": 1200,
+      "copper_index_kg_km": 24,
+      "weight_kg_km": 33
+    },
+    {
+      "article_number": "1237000",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237001",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237002",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237003",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "brown",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237009",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "orange",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237104",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "red",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237105",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "white",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237106",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "grey",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1237114",
+      "cross_section_mm2": 4,
+      "outer_diameter_mm": 4.3,
+      "color": "dark-blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 38.4,
+      "weight_kg_km": 49
+    },
+    {
+      "article_number": "1238000",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1238001",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1238002",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1238003",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "brown",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1238104",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "red",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1238106",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "grey",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1238114",
+      "cross_section_mm2": 6,
+      "outer_diameter_mm": 4.8,
+      "color": "dark-blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 57.6,
+      "weight_kg_km": 67
+    },
+    {
+      "article_number": "1239000",
+      "cross_section_mm2": 10,
+      "outer_diameter_mm": 6.2,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 96,
+      "weight_kg_km": 112
+    },
+    {
+      "article_number": "1239001",
+      "cross_section_mm2": 10,
+      "outer_diameter_mm": 6.2,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 96,
+      "weight_kg_km": 112
+    },
+    {
+      "article_number": "1239002",
+      "cross_section_mm2": 10,
+      "outer_diameter_mm": 6.2,
+      "color": "blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 96,
+      "weight_kg_km": 112
+    },
+    {
+      "article_number": "1239003",
+      "cross_section_mm2": 10,
+      "outer_diameter_mm": 6.2,
+      "color": "brown",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 96,
+      "weight_kg_km": 112
+    },
+    {
+      "article_number": "1239104",
+      "cross_section_mm2": 10,
+      "outer_diameter_mm": 6.2,
+      "color": "red",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 96,
+      "weight_kg_km": 112
+    },
+    {
+      "article_number": "1240000",
+      "cross_section_mm2": 16,
+      "outer_diameter_mm": 7.2,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 153.6,
+      "weight_kg_km": 172
+    },
+    {
+      "article_number": "1240001",
+      "cross_section_mm2": 16,
+      "outer_diameter_mm": 7.2,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 153.6,
+      "weight_kg_km": 172
+    },
+    {
+      "article_number": "1240002",
+      "cross_section_mm2": 16,
+      "outer_diameter_mm": 7.2,
+      "color": "blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 153.6,
+      "weight_kg_km": 172
+    },
+    {
+      "article_number": "1240003",
+      "cross_section_mm2": 16,
+      "outer_diameter_mm": 7.2,
+      "color": "brown",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 153.6,
+      "weight_kg_km": 172
+    },
+    {
+      "article_number": "1240104",
+      "cross_section_mm2": 16,
+      "outer_diameter_mm": 7.2,
+      "color": "red",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 153.6,
+      "weight_kg_km": 172
+    },
+    {
+      "article_number": "1240114",
+      "cross_section_mm2": 16,
+      "outer_diameter_mm": 7.2,
+      "color": "dark-blue",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 153.6,
+      "weight_kg_km": 172
+    },
+    {
+      "article_number": "1241000",
+      "cross_section_mm2": 25,
+      "outer_diameter_mm": 8.9,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 240,
+      "weight_kg_km": 262
+    },
+    {
+      "article_number": "1241001",
+      "cross_section_mm2": 25,
+      "outer_diameter_mm": 8.9,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 240,
+      "weight_kg_km": 262
+    },
+    {
+      "article_number": "1242000",
+      "cross_section_mm2": 35,
+      "outer_diameter_mm": 10.1,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 336,
+      "weight_kg_km": 362
+    },
+    {
+      "article_number": "1242001",
+      "cross_section_mm2": 35,
+      "outer_diameter_mm": 10.1,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 336,
+      "weight_kg_km": 362
+    },
+    {
+      "article_number": "1243000",
+      "cross_section_mm2": 50,
+      "outer_diameter_mm": 12.5,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 480,
+      "weight_kg_km": 512
+    },
+    {
+      "article_number": "1243001",
+      "cross_section_mm2": 50,
+      "outer_diameter_mm": 12.5,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 480,
+      "weight_kg_km": 512
+    },
+    {
+      "article_number": "1244000",
+      "cross_section_mm2": 70,
+      "outer_diameter_mm": 14.2,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 672,
+      "weight_kg_km": 710
+    },
+    {
+      "article_number": "1244001",
+      "cross_section_mm2": 70,
+      "outer_diameter_mm": 14.2,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 672,
+      "weight_kg_km": 710
+    },
+    {
+      "article_number": "1245000",
+      "cross_section_mm2": 95,
+      "outer_diameter_mm": 16.6,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 912,
+      "weight_kg_km": 937
+    },
+    {
+      "article_number": "1245001",
+      "cross_section_mm2": 95,
+      "outer_diameter_mm": 16.6,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 912,
+      "weight_kg_km": 937
+    },
+    {
+      "article_number": "1246001",
+      "cross_section_mm2": 120,
+      "outer_diameter_mm": 18.2,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 1152,
+      "weight_kg_km": 1159
+    },
+    {
+      "article_number": "1247000",
+      "cross_section_mm2": 150,
+      "outer_diameter_mm": 20.6,
+      "color": "green-yellow",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 1440,
+      "weight_kg_km": 1447
+    },
+    {
+      "article_number": "1247001",
+      "cross_section_mm2": 150,
+      "outer_diameter_mm": 20.6,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 1440,
+      "weight_kg_km": 1447
+    },
+    {
+      "article_number": "1248001",
+      "cross_section_mm2": 185,
+      "outer_diameter_mm": 22.5,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 1776,
+      "weight_kg_km": 1790
+    },
+    {
+      "article_number": "1249001",
+      "cross_section_mm2": 240,
+      "outer_diameter_mm": 26.4,
+      "color": "black",
+      "packaging": "ring",
+      "length_m": 100,
+      "copper_index_kg_km": 2304,
+      "weight_kg_km": 2318
+    }
+  ]
+}

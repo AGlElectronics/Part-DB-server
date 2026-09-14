@@ -1,0 +1,129 @@
+{
+  "black": {
+    "iec": "BK",
+    "en": "black",
+    "de": "schwarz",
+    "aliases": [
+      "BK",
+      "black",
+      "schwarz"
+    ]
+  },
+  "brown": {
+    "iec": "BN",
+    "en": "brown",
+    "de": "braun",
+    "aliases": [
+      "BN",
+      "brown",
+      "braun"
+    ]
+  },
+  "blue": {
+    "iec": "BU",
+    "en": "blue",
+    "de": "blau",
+    "aliases": [
+      "BU",
+      "blue",
+      "blau"
+    ]
+  },
+  "dark-blue": {
+    "iec": "DBU",
+    "en": "dark blue",
+    "de": "dunkelblau",
+    "aliases": [
+      "DBU",
+      "dark blue",
+      "dark-blue",
+      "dunkelblau"
+    ]
+  },
+  "red": {
+    "iec": "RD",
+    "en": "red",
+    "de": "rot",
+    "aliases": [
+      "RD",
+      "red",
+      "rot"
+    ]
+  },
+  "orange": {
+    "iec": "OG",
+    "en": "orange",
+    "de": "orange",
+    "aliases": [
+      "OG",
+      "orange"
+    ]
+  },
+  "yellow": {
+    "iec": "YE",
+    "en": "yellow",
+    "de": "gelb",
+    "aliases": [
+      "YE",
+      "yellow",
+      "gelb"
+    ]
+  },
+  "green": {
+    "iec": "GN",
+    "en": "green",
+    "de": "grün",
+    "aliases": [
+      "GN",
+      "green",
+      "grün",
+      "gruen"
+    ]
+  },
+  "green-yellow": {
+    "iec": "GNYE",
+    "en": "green/yellow",
+    "de": "grün/gelb",
+    "aliases": [
+      "GNYE",
+      "GN/YE",
+      "gn/ye",
+      "green/yellow",
+      "green-yellow",
+      "grün/gelb",
+      "gruen/gelb"
+    ]
+  },
+  "grey": {
+    "iec": "GY",
+    "en": "grey",
+    "de": "grau",
+    "aliases": [
+      "GY",
+      "grey",
+      "gray",
+      "grau"
+    ]
+  },
+  "white": {
+    "iec": "WH",
+    "en": "white",
+    "de": "weiß",
+    "aliases": [
+      "WH",
+      "white",
+      "weiß",
+      "weiss"
+    ]
+  },
+  "violet": {
+    "iec": "VT",
+    "en": "violet",
+    "de": "violett",
+    "aliases": [
+      "VT",
+      "violet",
+      "violett"
+    ]
+  }
+}

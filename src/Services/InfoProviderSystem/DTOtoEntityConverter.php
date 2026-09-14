@@ -32,6 +32,7 @@ use App\Entity\Parts\Footprint;
 use App\Entity\Parts\InfoProviderReference;
 use App\Entity\Parts\Manufacturer;
 use App\Entity\Parts\ManufacturingStatus;
+use App\Entity\Parts\MeasurementUnit;
 use App\Entity\Parts\Part;
 use App\Entity\Parts\Supplier;
 use App\Entity\PriceInformations\Currency;
@@ -39,6 +40,7 @@ use App\Entity\PriceInformations\Orderdetail;
 use App\Entity\PriceInformations\Pricedetail;
 use App\Repository\Parts\CategoryRepository;
 use App\Services\InfoProviderSystem\DTOs\FileDTO;
+use App\Services\InfoProviderSystem\DTOs\ManufacturerProfileDTO;
 use App\Services\InfoProviderSystem\DTOs\ParameterDTO;
 use App\Services\InfoProviderSystem\DTOs\PartDetailDTO;
 use App\Services\InfoProviderSystem\DTOs\PriceDTO;
@@ -170,7 +172,17 @@ final class DTOtoEntityConverter
         }
 
         $entity->setManufacturer($this->getOrCreateEntity(Manufacturer::class, $dto->manufacturer));
+        $this->applyManufacturerProfile($entity->getManufacturer(), $dto->manufacturer_profile);
         $entity->setFootprint($this->getOrCreateEntity(Footprint::class, $dto->footprint));
+
+        if ($dto->part_unit) {
+            $partUnit = $this->getOrCreateEntityNonNull(MeasurementUnit::class, $dto->part_unit);
+            if ($partUnit instanceof MeasurementUnit && $partUnit->getID() === null && ($partUnit->getUnit() === null || $partUnit->getUnit() === '')) {
+                $partUnit->setUnit('m');
+                $partUnit->setIsInteger(false);
+            }
+            $entity->setPartUnit($partUnit instanceof MeasurementUnit ? $partUnit : null);
+        }
 
         $entity->setManufacturerProductNumber($dto->mpn ?? '');
         $entity->setManufacturingStatus($dto->manufacturing_status ?? ManufacturingStatus::NOT_SET);
@@ -273,6 +285,54 @@ final class DTOtoEntityConverter
         }
 
         return array_values($unique);
+    }
+
+    /**
+     * Fill empty company fields from a provider manufacturer profile without overwriting user data.
+     */
+    private function applyManufacturerProfile(?Manufacturer $manufacturer, ?ManufacturerProfileDTO $profile): void
+    {
+        if ($manufacturer === null || $profile === null) {
+            return;
+        }
+
+        if ($manufacturer->getWebsite() === '' && $profile->website) {
+            $manufacturer->setWebsite($profile->website);
+        }
+        if ($manufacturer->getAddress() === '' && $profile->address) {
+            $manufacturer->setAddress($profile->address);
+        }
+        if (($manufacturer->getComment() === null || $manufacturer->getComment() === '') && $profile->comment) {
+            $manufacturer->setComment($profile->comment);
+        }
+
+        $this->mergeAlternativeNames($manufacturer, $profile->alternative_names);
+    }
+
+    /**
+     * @param  string[]  $names
+     */
+    private function mergeAlternativeNames(AbstractStructuralDBElement $entity, array $names): void
+    {
+        $existing = array_filter(array_map(static fn (string $name): string => trim($name), explode(',', $entity->getAlternativeNames() ?? '')));
+        $merged = $existing;
+
+        foreach ($names as $name) {
+            $name = trim($name);
+            if ($name === '') {
+                continue;
+            }
+            foreach ($existing as $current) {
+                if (strcasecmp($current, $name) === 0) {
+                    continue 2;
+                }
+            }
+            $merged[] = $name;
+        }
+
+        if ($merged !== $existing) {
+            $entity->setAlternativeNames(implode(', ', $merged));
+        }
     }
 
     /**

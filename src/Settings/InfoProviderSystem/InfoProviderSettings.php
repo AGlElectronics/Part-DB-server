@@ -82,4 +82,7 @@ class InfoProviderSettings
     #[EmbeddedSettings]
     public ?CanopySettings $canopy = null;
 
+    #[EmbeddedSettings]
+    public ?LappSettings $lapp = null;
+
 }

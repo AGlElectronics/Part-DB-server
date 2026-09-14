@@ -10382,6 +10382,18 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
         <target>Pollin.de bietet keine offizielle API an, daher extrahiert dieser Informationsanbieter die Daten per Webscraping aus der Website. Dies kann jederzeit aufhören zu funktionieren, die Nutzung erfolgt auf eigene Gefahr.</target>
       </segment>
     </unit>
+    <unit id="lAppPrv" name="settings.ips.lapp">
+      <segment state="translated">
+        <source>settings.ips.lapp</source>
+        <target>LAPP</target>
+      </segment>
+    </unit>
+    <unit id="lAppHlp" name="settings.ips.lapp.help">
+      <segment state="translated">
+        <source>settings.ips.lapp.help</source>
+        <target>Lokaler Katalog für LAPP-ÖLFLEX-Leitungen (HEAT 125 Adern). Kein Live-API-Zugriff; die Daten stammen aus LAPP-Produktinformationsblättern.</target>
+      </segment>
+    </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
       <segment state="translated">
         <source>settings.behavior.sidebar.rootNodeRedirectsToNewEntity</source>
