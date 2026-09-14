@@ -87,4 +87,13 @@ class InfoProviderSettings
     #[EmbeddedSettings]
     public ?TracePartsSettings $traceParts = null;
 
+    #[EmbeddedSettings]
+    public ?LappSettings $lapp = null;
+
+    #[EmbeddedSettings]
+    public ?LappHalogenFreeSettings $lappHalogenFree = null;
+
+    #[EmbeddedSettings]
+    public ?LappAutomotiveSettings $lappAutomotive = null;
+
 }

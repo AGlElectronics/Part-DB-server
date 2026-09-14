@@ -10464,6 +10464,42 @@ Please note, that you can not impersonate a disabled user. If you try you will g
         <target>Pollin.de offers no official API, so this info provider webscrapes the website to extract info. It could break at any time, use it at your own risk.</target>
       </segment>
     </unit>
+    <unit id="lAppPrv" name="settings.ips.lapp">
+      <segment state="translated">
+        <source>settings.ips.lapp</source>
+        <target>LAPP</target>
+      </segment>
+    </unit>
+    <unit id="lAppHlp" name="settings.ips.lapp.help">
+      <segment state="translated">
+        <source>settings.ips.lapp.help</source>
+        <target>Local catalog of LAPP industrial / installation cables. Separate from the halogen-free HAR and automotive ÖLFLEX HEAT 125 catalogs. No live API.</target>
+      </segment>
+    </unit>
+    <unit id="lAppHfP" name="settings.ips.lapp_halogen_free">
+      <segment state="translated">
+        <source>settings.ips.lapp_halogen_free</source>
+        <target>LAPP Halogen-free</target>
+      </segment>
+    </unit>
+    <unit id="lAppHfH" name="settings.ips.lapp_halogen_free.help">
+      <segment state="translated">
+        <source>settings.ips.lapp_halogen_free.help</source>
+        <target>Local catalog of standard halogen-free HAR single cores (H05Z-K, H07Z-K, H07Z1-K). Separate from the automotive ÖLFLEX HEAT 125 catalog. No live API.</target>
+      </segment>
+    </unit>
+    <unit id="lAppAuP" name="settings.ips.lapp_automotive">
+      <segment state="translated">
+        <source>settings.ips.lapp_automotive</source>
+        <target>LAPP Automotive</target>
+      </segment>
+    </unit>
+    <unit id="lAppAuH" name="settings.ips.lapp_automotive.help">
+      <segment state="translated">
+        <source>settings.ips.lapp_automotive.help</source>
+        <target>Local catalog of LAPP automotive cables (ÖLFLEX HEAT 125). Separate from the industrial and halogen-free HAR catalogs. No live API.</target>
+      </segment>
+    </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
       <segment state="translated">
         <source>settings.behavior.sidebar.rootNodeRedirectsToNewEntity</source>

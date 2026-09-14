@@ -25,7 +25,9 @@ namespace App\Tests\Services\InfoProviderSystem;
 use App\Entity\PriceInformations\Currency;
 use App\Entity\Attachments\AttachmentType;
 use App\Entity\Parts\ManufacturingStatus;
+use App\Entity\Parts\MeasurementUnit;
 use App\Services\InfoProviderSystem\DTOs\FileDTO;
+use App\Services\InfoProviderSystem\DTOs\ManufacturerProfileDTO;
 use App\Services\InfoProviderSystem\DTOs\ParameterDTO;
 use App\Services\InfoProviderSystem\DTOs\PartDetailDTO;
 use App\Services\InfoProviderSystem\DTOs\PriceDTO;
@@ -243,5 +245,81 @@ final class DTOtoEntityConverterTest extends WebTestCase
         $this->assertNull($part->getFootprint());
         $this->assertSame('ISO 4762', $part->getParameters()[1]->getValueText());
         $this->assertSame('Mechanical parameters', $part->getParameters()[1]->getGroup());
+    }
+
+    public function testConvertPartAppliesPartUnitAndManufacturerProfile(): void
+    {
+        $profile = new ManufacturerProfileDTO(
+            name: 'LAPP',
+            alternative_names: ['Lapp Group', 'U.I. Lapp GmbH'],
+            website: 'https://www.lapp.com',
+            address: 'Schulze-Delitzsch-Straße 25, 70565 Stuttgart, Germany',
+            comment: 'Industrial cable manufacturer',
+        );
+
+        $dto = new PartDetailDTO(
+            provider_key: 'lapp',
+            provider_id: '1249107',
+            name: '1249107',
+            description: 'UL single core',
+            manufacturer: 'LAPP',
+            mpn: 'ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)',
+            part_unit: 'Meter',
+            manufacturer_profile: $profile,
+        );
+
+        $entity = $this->service->convertPart($dto);
+
+        $this->assertInstanceOf(MeasurementUnit::class, $entity->getPartUnit());
+        $this->assertSame('Meter', $entity->getPartUnit()->getName());
+        $this->assertSame('m', $entity->getPartUnit()->getUnit());
+        $this->assertFalse($entity->getPartUnit()->isInteger());
+
+        $manufacturer = $entity->getManufacturer();
+        $this->assertSame('LAPP', $manufacturer->getName());
+        $this->assertSame('https://www.lapp.com', $manufacturer->getWebsite());
+        $this->assertSame('Schulze-Delitzsch-Straße 25, 70565 Stuttgart, Germany', $manufacturer->getAddress());
+        $this->assertSame('Industrial cable manufacturer', $manufacturer->getComment());
+        $this->assertStringContainsString('U.I. Lapp GmbH', $manufacturer->getAlternativeNames() ?? '');
+    }
+
+    public function testConvertPartDoesNotOverwriteExistingManufacturerFields(): void
+    {
+        $first = new PartDetailDTO(
+            provider_key: 'lapp',
+            provider_id: '1249107',
+            name: '1249107',
+            description: 'first',
+            manufacturer: 'ExistingMfr',
+            manufacturer_profile: new ManufacturerProfileDTO(
+                name: 'ExistingMfr',
+                alternative_names: ['Alt One'],
+                website: 'https://www.lapp.com',
+                address: 'Stuttgart',
+            ),
+        );
+        $created = $this->service->convertPart($first);
+        $this->assertSame('https://www.lapp.com', $created->getManufacturer()->getWebsite());
+
+        $second = new PartDetailDTO(
+            provider_key: 'lapp',
+            provider_id: '1249108',
+            name: '1249108',
+            description: 'second',
+            manufacturer: 'ExistingMfr',
+            manufacturer_profile: new ManufacturerProfileDTO(
+                name: 'ExistingMfr',
+                alternative_names: ['Alt Two'],
+                website: 'https://evil.example',
+                address: 'Somewhere else',
+            ),
+        );
+        $updated = $this->service->convertPart($second);
+
+        $this->assertSame($created->getManufacturer(), $updated->getManufacturer());
+        $this->assertSame('https://www.lapp.com', $updated->getManufacturer()->getWebsite());
+        $this->assertSame('Stuttgart', $updated->getManufacturer()->getAddress());
+        $this->assertStringContainsString('Alt One', $updated->getManufacturer()->getAlternativeNames() ?? '');
+        $this->assertStringContainsString('Alt Two', $updated->getManufacturer()->getAlternativeNames() ?? '');
     }
 }
