@@ -3,7 +3,8 @@
 **Overlay version:** `v1.3.0` → `v1.4.0`  
 **Upstream Part-DB:** `2.17.0` (unchanged)  
 **Image:** `ghcr.io/aglelectronics/part-db-server:mechanical-v1.4.0`  
-**Also tagged:** `ghcr.io/aglelectronics/part-db-server:mechanical-preview`  
+**Also tagged:** `ghcr.io/aglelectronics/part-db-server:mechanical-preview`, `sha-9eb765d`  
+**Digest:** `sha256:d7f5cb08dbb4b9fa2a82be583508e546befe03dbcbb18bf8ff0045a04fae4fb6`  
 **Date:** 2026-09-14
 
 ## Why this is 1.4.0
