@@ -10577,6 +10577,18 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
         <target>Lokaler Auszug aus dem Landefeld-Katalog Atlas 9 Compact (Pneumatik, Hydraulik, Industriebedarf). Kein Live-API-Zugriff.</target>
       </segment>
     </unit>
+    <unit id="htnPrv" name="settings.ips.hellermanntyton">
+      <segment state="translated">
+        <source>settings.ips.hellermanntyton</source>
+        <target>HellermannTyton</target>
+      </segment>
+    </unit>
+    <unit id="htnHlp" name="settings.ips.hellermanntyton.help">
+      <segment state="translated">
+        <source>settings.ips.hellermanntyton.help</source>
+        <target>Lokaler Auszug aus den HellermannTyton-Katalogen (Schrumpfschlauch, Kabelschutz, Kabelbinder und Befestigungen). Kein Live-API-Zugriff.</target>
+      </segment>
+    </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
       <segment state="translated">
         <source>settings.behavior.sidebar.rootNodeRedirectsToNewEntity</source>

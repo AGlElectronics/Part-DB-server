@@ -10512,6 +10512,18 @@ Please note, that you can not impersonate a disabled user. If you try you will g
         <target>Local extract of the Landefeld Atlas 9 Compact catalog (pneumatics, hydraulics, industrial supplies). No live API.</target>
       </segment>
     </unit>
+    <unit id="htnPrv" name="settings.ips.hellermanntyton">
+      <segment state="translated">
+        <source>settings.ips.hellermanntyton</source>
+        <target>HellermannTyton</target>
+      </segment>
+    </unit>
+    <unit id="htnHlp" name="settings.ips.hellermanntyton.help">
+      <segment state="translated">
+        <source>settings.ips.hellermanntyton.help</source>
+        <target>Local extract of HellermannTyton catalogs (heat shrink, cable protection, cable ties and fixings). No live API.</target>
+      </segment>
+    </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
       <segment state="translated">
         <source>settings.behavior.sidebar.rootNodeRedirectsToNewEntity</source>

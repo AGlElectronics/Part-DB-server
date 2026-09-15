@@ -99,4 +99,7 @@ class InfoProviderSettings
     #[EmbeddedSettings]
     public ?LandefeldSettings $landefeld = null;
 
+    #[EmbeddedSettings]
+    public ?HellermannTytonSettings $hellermannTyton = null;
+
 }

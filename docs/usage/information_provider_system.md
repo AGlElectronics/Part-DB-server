@@ -435,6 +435,31 @@ The following env configuration option is available:
 
 * `PROVIDER_LANDEFELD_ENABLED`: Set this to `1` to enable the Landefeld Atlas 9 Compact catalog (optional, default: `0`)
 
+### HellermannTyton
+
+The HellermannTyton provider searches a bundled, offline extract of three catalogs as **one** provider:
+
+* Heat shrink and insulation (Insulation 2025 UK)
+* Cable protection systems / coverings (Automotive Cable Protection Systems 2024)
+* Cable ties and fixings (Automotive Cable Ties and Fixings 2024)
+
+It does not call a live HellermannTyton API. After enabling it you can search article numbers
+(`111-01980`, `300-30120`, `170-10300`), type codes (`T18R`, `HIS-PACK`, `HIS-3`, `HEGP03`),
+or a logical description (`zip tie black`, `heat shrink 3:1`, `helagaine`). The part **name**
+stays the HellermannTyton article number; the **description** is the readable form (for example
+`Cable tie T18R, Black (BK), 2.5 x 100 mm`). Hits use categories such as
+`Insulation -> Heat shrink` or `Cable ties and fixings -> Ties` when those categories already
+exist in your database.
+
+Created parts use the HellermannTyton article number as the part name and manufacturer part
+number. The first created HellermannTyton part also fills the manufacturer record (website,
+address, alternative names) if those fields are still empty. Product links open the
+HellermannTyton webshop search for that article number.
+
+The following env configuration option is available:
+
+* `PROVIDER_HELLERMANNTYTON_ENABLED`: Set this to `1` to enable the bundled HellermannTyton catalogs (optional, default: `0`)
+
 ### Custom providers
 
 To create a custom provider, you have to create a new class implementing the `InfoProviderInterface` interface. As long

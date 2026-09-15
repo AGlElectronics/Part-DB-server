@@ -18,7 +18,7 @@ services:
     restart: unless-stopped
 
   partdb:
-    image: ghcr.io/aglelectronics/part-db-server:mechanical-v1.4.3
+    image: ghcr.io/aglelectronics/part-db-server:mechanical-v1.4.4
     pull_policy: always
     container_name: partdb-mechanical-preview
     ports:
@@ -39,6 +39,7 @@ services:
       PROVIDER_LAPP_HALOGEN_FREE_ENABLED: "1"
       PROVIDER_LAPP_AUTOMOTIVE_ENABLED: "1"
       PROVIDER_LANDEFELD_ENABLED: "1"
+      PROVIDER_HELLERMANNTYTON_ENABLED: "1"
     volumes:
       - partdb_mechanical_preview_data:/var/www/html/uploads
     depends_on:
