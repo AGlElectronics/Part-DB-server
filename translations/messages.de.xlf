@@ -10565,6 +10565,18 @@ Bitte beachten Sie, dass Sie sich nicht als deaktivierter Benutzer ausgeben kön
         <target>Lokaler Katalog für LAPP-Automotive-Leitungen (ÖLFLEX HEAT 125). Getrennt vom industriellen und halogenfreien HAR-Katalog. Kein Live-API-Zugriff.</target>
       </segment>
     </unit>
+    <unit id="ldfPrv" name="settings.ips.landefeld">
+      <segment state="translated">
+        <source>settings.ips.landefeld</source>
+        <target>Landefeld</target>
+      </segment>
+    </unit>
+    <unit id="ldfHlp" name="settings.ips.landefeld.help">
+      <segment state="translated">
+        <source>settings.ips.landefeld.help</source>
+        <target>Lokaler Auszug aus dem Landefeld-Katalog Atlas 9 Compact (Pneumatik, Hydraulik, Industriebedarf). Kein Live-API-Zugriff.</target>
+      </segment>
+    </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
       <segment state="translated">
         <source>settings.behavior.sidebar.rootNodeRedirectsToNewEntity</source>

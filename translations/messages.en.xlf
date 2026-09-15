@@ -10500,6 +10500,18 @@ Please note, that you can not impersonate a disabled user. If you try you will g
         <target>Local catalog of LAPP automotive cables (ÖLFLEX HEAT 125). Separate from the industrial and halogen-free HAR catalogs. No live API.</target>
       </segment>
     </unit>
+    <unit id="ldfPrv" name="settings.ips.landefeld">
+      <segment state="translated">
+        <source>settings.ips.landefeld</source>
+        <target>Landefeld</target>
+      </segment>
+    </unit>
+    <unit id="ldfHlp" name="settings.ips.landefeld.help">
+      <segment state="translated">
+        <source>settings.ips.landefeld.help</source>
+        <target>Local extract of the Landefeld Atlas 9 Compact catalog (pneumatics, hydraulics, industrial supplies). No live API.</target>
+      </segment>
+    </unit>
     <unit id="TEm7uIg" name="settings.behavior.sidebar.rootNodeRedirectsToNewEntity">
       <segment state="translated">
         <source>settings.behavior.sidebar.rootNodeRedirectsToNewEntity</source>

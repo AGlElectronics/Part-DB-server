@@ -96,4 +96,7 @@ class InfoProviderSettings
     #[EmbeddedSettings]
     public ?LappAutomotiveSettings $lappAutomotive = null;
 
+    #[EmbeddedSettings]
+    public ?LandefeldSettings $landefeld = null;
+
 }

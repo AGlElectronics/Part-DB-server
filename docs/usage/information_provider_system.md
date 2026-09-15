@@ -411,6 +411,30 @@ The following env configuration options are available:
 * `PROVIDER_LAPP_HALOGEN_FREE_ENABLED`: Set this to `1` to enable the standard halogen-free HAR catalog (optional, default: `0`)
 * `PROVIDER_LAPP_AUTOMOTIVE_ENABLED`: Set this to `1` to enable the automotive LAPP catalog (optional, default: `0`)
 
+### Landefeld
+
+The Landefeld provider searches a bundled, offline extract of the **Atlas 9 Compact** English catalog
+(pneumatics, hydraulics, and industrial supplies). It does not call a live Landefeld API.
+
+The "300,000 stock lines" figure on the catalog cover is Landefeld's full warehouse / webshop,
+not the size of this book. Atlas 9 Compact is a printed subset: many index entries say
+"Online Shop" only, hose colours are one row with an order suffix, and some table layouts do not
+parse cleanly. The current extract is about 11,400 unique type codes from the 647-page PDF.
+
+After enabling it you can search Landefeld type codes (`IQSG 146 G`, `PUN 6x4`, `GE 15 LM`) or a
+logical description (`straight 6mm`, `elbow 8 mm`, `push in 1/4`). The part **name** stays the
+Landefeld number; the **description** is the readable form (for example
+`Straight push-in fitting, G 1/4", 6 mm`). Hits use categories such as
+`Pneumatics -> Tube connectors` when those categories already exist in your database.
+
+Created parts use the Landefeld type code as the part name and manufacturer part number. The first
+created Landefeld part also fills the manufacturer record (website, address, alternative names) if
+those fields are still empty. Product links open the Landefeld webshop search for that type code.
+
+The following env configuration option is available:
+
+* `PROVIDER_LANDEFELD_ENABLED`: Set this to `1` to enable the Landefeld Atlas 9 Compact catalog (optional, default: `0`)
+
 ### Custom providers
 
 To create a custom provider, you have to create a new class implementing the `InfoProviderInterface` interface. As long
