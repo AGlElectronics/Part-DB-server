@@ -49,10 +49,10 @@ internal static class PrintDispatcher
                 return;
             }
 
-            AppLog.Write("Falling back to raster print: " + bpacError);
+            AppLog.Write("Falling back to driver print: " + bpacError);
         }
 
-        BrotherRasterPrinter.Print(job);
+        DriverLabelPrinter.Print(job);
     }
 
     public static PrintJob SampleJob() => new()

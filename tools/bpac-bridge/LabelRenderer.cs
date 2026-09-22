@@ -15,10 +15,13 @@ internal static class LabelRenderer
         graphics.SmoothingMode = SmoothingMode.None;
         graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         graphics.PixelOffsetMode = PixelOffsetMode.Half;
-        graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+        graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
 
-        var padding = Math.Max(2, heightDots / 32);
-        var qrSize = Math.Min(heightDots * 11 / 18, heightDots - padding * 2);
+        // Leave a solid black name line under the QR. Anti-aliased gray text
+        // disappears on the thermal head, and a tight line box draws nothing.
+        var padding = 4;
+        var textBand = 28;
+        var qrSize = Math.Min(widthDots - padding * 2, heightDots - padding - textBand - 6);
         qrSize = Math.Max(qrSize, 24);
 
         var qrUrl = string.IsNullOrWhiteSpace(label.QrUrl) ? "https://parts.4qt.org/" : label.QrUrl;
@@ -26,22 +29,12 @@ internal static class LabelRenderer
         var qrX = (widthDots - qrSize) / 2;
         graphics.DrawImage(qrImage, qrX, padding, qrSize, qrSize);
 
-        var textTop = padding + qrSize + Math.Max(1, padding / 2);
+        var textTop = padding + qrSize + 2;
         var textHeight = heightDots - textTop - padding;
-        if (textHeight < 8)
+        if (textHeight >= 10 && !string.IsNullOrWhiteSpace(label.Name))
         {
-            return bitmap;
-        }
-
-        var nameHeight = Math.Max(textHeight * 55 / 100, 8);
-        var descHeight = textHeight - nameHeight;
-        var textRect = new Rectangle(padding, textTop, widthDots - padding * 2, nameHeight);
-        DrawFittedText(graphics, label.Name, textRect, FontStyle.Bold, Math.Max(7f, heightDots * 0.13f));
-
-        if (descHeight >= 7 && !string.IsNullOrWhiteSpace(label.Description))
-        {
-            var descRect = new Rectangle(padding, textTop + nameHeight, widthDots - padding * 2, descHeight);
-            DrawFittedText(graphics, label.Description, descRect, FontStyle.Regular, Math.Max(6f, heightDots * 0.11f));
+            var textRect = new Rectangle(padding, textTop, widthDots - padding * 2, textHeight);
+            DrawOneLine(graphics, label.Name, textRect, FontStyle.Bold);
         }
 
         return bitmap;
@@ -63,13 +56,8 @@ internal static class LabelRenderer
         return scaled;
     }
 
-    private static void DrawFittedText(Graphics graphics, string text, Rectangle bounds, FontStyle style, float startSize)
+    private static void DrawOneLine(Graphics graphics, string text, Rectangle bounds, FontStyle style)
     {
-        if (string.IsNullOrWhiteSpace(text) || bounds.Width < 4 || bounds.Height < 4)
-        {
-            return;
-        }
-
         text = text.Replace('\n', ' ').Replace('\r', ' ').Trim();
         var format = new StringFormat
         {
@@ -78,19 +66,7 @@ internal static class LabelRenderer
             Trimming = StringTrimming.EllipsisCharacter,
             FormatFlags = StringFormatFlags.NoWrap,
         };
-
-        for (var size = startSize; size >= 5f; size -= 0.5f)
-        {
-            using var font = new Font("Segoe UI", size, style, GraphicsUnit.Pixel);
-            var measured = graphics.MeasureString(text, font, bounds.Width, format);
-            if (measured.Width <= bounds.Width + 1 && measured.Height <= bounds.Height + 1)
-            {
-                graphics.DrawString(text, font, Brushes.Black, bounds, format);
-                return;
-            }
-        }
-
-        using var fallback = new Font("Segoe UI", 5f, style, GraphicsUnit.Pixel);
-        graphics.DrawString(text, fallback, Brushes.Black, bounds, format);
+        using var font = new Font("Segoe UI", Math.Min(16f, Math.Max(11f, bounds.Height * 0.62f)), style, GraphicsUnit.Pixel);
+        graphics.DrawString(text, font, Brushes.Black, bounds, format);
     }
 }

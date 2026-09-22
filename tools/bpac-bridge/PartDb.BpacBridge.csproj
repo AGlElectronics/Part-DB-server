@@ -16,6 +16,7 @@
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
   </PropertyGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
     <PackageReference Include="QRCoder" Version="1.6.0" />
   </ItemGroup>
 </Project>
