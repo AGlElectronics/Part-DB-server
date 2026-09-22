@@ -3,7 +3,7 @@
 **Overlay version:** `v1.5.0` → `v1.5.1`  
 **Upstream Part-DB:** `2.17.0` → `2.18.0`  
 **Image:** `ghcr.io/aglelectronics/part-db-server:mechanical-v1.5.1`  
-**Digest:** pending  
+**Digest:** `sha256:74080f97d31195197cb9f8996c35aa56b0d7b95ec699ee1fa8a06f381a7072cb`  
 **Date:** 2026-09-22
 
 ## Change
