@@ -86,6 +86,10 @@ class PartDetailDTO extends SearchResultDTO
         public readonly ?float $mass = null,
         /** The URL to the product on the website of the manufacturer */
         public readonly ?string $manufacturer_product_url = null,
+        /** Measurement unit name used for stock (e.g. Meter for cables) */
+        public readonly ?string $part_unit = null,
+        /** Optional company details applied when creating/updating the manufacturer record */
+        public readonly ?ManufacturerProfileDTO $manufacturer_profile = null,
     ) {
         parent::__construct(
             provider_key: $provider_key,

@@ -213,6 +213,8 @@ class PartBaseType extends AbstractType
                 'required' => false,
                 'disable_not_selectable' => true,
                 'label' => 'part.edit.partUnit',
+                'allow_add' => $this->security->isGranted('@measurement_units.create'),
+                'dto_value' => $dto?->part_unit,
             ])
             ->add('partCustomState', StructuralEntityType::class, [
                 'class' => PartCustomState::class,

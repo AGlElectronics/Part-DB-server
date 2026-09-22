@@ -383,6 +383,83 @@ The following env configuration options are available:
   instead of querying the distributors in real time. This is faster and does not count against the rate limits, but the
   data can be outdated (optional, default: `0`)
 
+### LAPP
+
+There are three separate LAPP catalog providers, each with its own article database:
+
+* **LAPP** (`lapp`): industrial / installation cables (empty for now; add family JSON under
+  `src/Services/InfoProviderSystem/Resources/lapp/regular/`)
+* **LAPP Halogen-free** (`lapp_halogen_free`): standard HAR halogen-free single cores (H05Z-K 90°C, H07Z-K 90°C,
+  H07Z1-K Type 2). This is not the automotive catalog.
+* **LAPP Automotive** (`lapp_automotive`): automotive cables (currently ÖLFLEX HEAT 125 single cores)
+
+Neither provider calls a live LAPP API. After enabling a catalog, you can search article numbers (`1249107`,
+`4725011`), family names (`HEAT 125`, `H05Z-K`, `H07Z1-K`), or colors (`BK`, `black`, `schwarz`) and create parts
+from the results. Industrial hits use category `Cables -> Single core`. Halogen-free hits use
+`Cables -> Halogen-free`. Automotive hits (including HEAT 125) use `Cables -> Automotive`.
+Those categories are applied only if they already exist in your database.
+
+Created parts use the LAPP article number as the part name and the designation (for example
+`ÖLFLEX HEAT 125 SC A 0.34 mm² BK (black)` or `H05Z-K 90°C 0.5 mm² BK (black)`) as the manufacturer part number.
+Stock is measured in `Spool`.
+The first created LAPP part also fills the manufacturer record (website, address, alternative names) if those fields
+are still empty.
+
+The following env configuration options are available:
+
+* `PROVIDER_LAPP_ENABLED`: Set this to `1` to enable the industrial LAPP catalog (optional, default: `0`)
+* `PROVIDER_LAPP_HALOGEN_FREE_ENABLED`: Set this to `1` to enable the standard halogen-free HAR catalog (optional, default: `0`)
+* `PROVIDER_LAPP_AUTOMOTIVE_ENABLED`: Set this to `1` to enable the automotive LAPP catalog (optional, default: `0`)
+
+### Landefeld
+
+The Landefeld provider searches a bundled, offline extract of the **Atlas 9 Compact** English catalog
+(pneumatics, hydraulics, and industrial supplies). It does not call a live Landefeld API.
+
+The "300,000 stock lines" figure on the catalog cover is Landefeld's full warehouse / webshop,
+not the size of this book. Atlas 9 Compact is a printed subset: many index entries say
+"Online Shop" only, hose colours are one row with an order suffix, and some table layouts do not
+parse cleanly. The current extract is about 11,400 unique type codes from the 647-page PDF.
+
+After enabling it you can search Landefeld type codes (`IQSG 146 G`, `PUN 6x4`, `GE 15 LM`) or a
+logical description (`straight 6mm`, `elbow 8 mm`, `push in 1/4`). The part **name** stays the
+Landefeld number; the **description** is the readable form (for example
+`Straight push-in fitting, G 1/4", 6 mm`). Hits use categories such as
+`Pneumatics -> Tube connectors` when those categories already exist in your database.
+
+Created parts use the Landefeld type code as the part name and manufacturer part number. The first
+created Landefeld part also fills the manufacturer record (website, address, alternative names) if
+those fields are still empty. Product links open the Landefeld webshop search for that type code.
+
+The following env configuration option is available:
+
+* `PROVIDER_LANDEFELD_ENABLED`: Set this to `1` to enable the Landefeld Atlas 9 Compact catalog (optional, default: `0`)
+
+### HellermannTyton
+
+The HellermannTyton provider searches a bundled, offline extract of three catalogs as **one** provider:
+
+* Heat shrink and insulation (Insulation 2025 UK)
+* Cable protection systems / coverings (Automotive Cable Protection Systems 2024)
+* Cable ties and fixings (Automotive Cable Ties and Fixings 2024)
+
+It does not call a live HellermannTyton API. After enabling it you can search article numbers
+(`111-01980`, `300-30120`, `170-10300`), type codes (`T18R`, `HIS-PACK`, `HIS-3`, `HEGP03`),
+or a logical description (`zip tie black`, `heat shrink 3:1`, `helagaine`). The part **name**
+stays the HellermannTyton article number; the **description** is the readable form (for example
+`Cable tie T18R, Black (BK), 2.5 x 100 mm`). Hits use categories such as
+`Insulation -> Heat shrink` or `Cable ties and fixings -> Ties` when those categories already
+exist in your database.
+
+Created parts use the HellermannTyton article number as the part name and manufacturer part
+number. The first created HellermannTyton part also fills the manufacturer record (website,
+address, alternative names) if those fields are still empty. Product links open the
+HellermannTyton webshop search for that article number.
+
+The following env configuration option is available:
+
+* `PROVIDER_HELLERMANNTYTON_ENABLED`: Set this to `1` to enable the bundled HellermannTyton catalogs (optional, default: `0`)
+
 ### Custom providers
 
 To create a custom provider, you have to create a new class implementing the `InfoProviderInterface` interface. As long
