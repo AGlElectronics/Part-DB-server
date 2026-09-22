@@ -14,9 +14,13 @@ public sealed class PrintJob
     [JsonPropertyName("width_mm")]
     public double WidthMm { get; set; } = 30;
 
-    /// <summary>Tape width, matching Part-DB height_mm (18 or 24 for TZe).</summary>
+    /// <summary>Tape width, matching Part-DB height_mm (12, 18, or 24 for TZe).</summary>
     [JsonPropertyName("height_mm")]
     public double HeightMm { get; set; } = 18;
+
+    /// <summary>stacked puts the name under the QR. beside puts the name to the right.</summary>
+    [JsonPropertyName("layout")]
+    public string Layout { get; set; } = "stacked";
 
     [JsonPropertyName("copies")]
     public int Copies { get; set; } = 1;
@@ -45,6 +49,11 @@ public sealed class PrintJob
         if (job.Copies < 1)
         {
             job.Copies = 1;
+        }
+
+        if (!string.Equals(job.Layout, "beside", StringComparison.OrdinalIgnoreCase))
+        {
+            job.Layout = "stacked";
         }
 
         return job;

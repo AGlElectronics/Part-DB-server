@@ -30,13 +30,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'partdb:labels:install-p700',
-    description: 'Create or update Brother P-touch P700 18mm and 24mm part label profiles.'
+    description: 'Create or update Brother P-touch P700 part and storage-location label profiles.'
 )]
 final class InstallP700LabelProfilesCommand extends Command
 {
     public const LAYOUT_MARKER = 'label-layout-stacked';
+    public const BESIDE_MARKER = 'label-layout-beside';
     public const LINES = '<div class="stacked-name">[[NAME]]</div>'."\n"
         .'<div class="stacked-desc">[[DESCRIPTION_T]]</div>';
+    public const BESIDE_LINES = '<div class="beside-name">[[NAME]]</div>';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -57,7 +59,7 @@ final class InstallP700LabelProfilesCommand extends Command
         $updated = 0;
 
         foreach ($this->profiles() as $spec) {
-            $profile = $this->findProfile($spec['name']);
+            $profile = $this->findProfile($spec['name'], $spec['element']);
             if ($profile === null) {
                 $profile = new LabelProfile();
                 $profile->setName($spec['name']);
@@ -92,7 +94,7 @@ final class InstallP700LabelProfilesCommand extends Command
     }
 
     /**
-     * @return list<array{name: string, width: float, height: float, additional_css: string, comment: string}>
+     * @return list<array{name: string, width: float, height: float, element: LabelSupportedElement, lines: string, additional_css: string, comment: string}>
      */
     private function profiles(): array
     {
@@ -101,6 +103,8 @@ final class InstallP700LabelProfilesCommand extends Command
                 'name' => 'P700 18mm',
                 'width' => 30.0,
                 'height' => 18.0,
+                'element' => LabelSupportedElement::PART,
+                'lines' => self::LINES,
                 'additional_css' => $this->additionalCss(
                     width: 30.0,
                     height: 18.0,
@@ -115,6 +119,8 @@ final class InstallP700LabelProfilesCommand extends Command
                 'name' => 'P700 24mm',
                 'width' => 30.0,
                 'height' => 24.0,
+                'element' => LabelSupportedElement::PART,
+                'lines' => self::LINES,
                 'additional_css' => $this->additionalCss(
                     width: 30.0,
                     height: 24.0,
@@ -124,6 +130,15 @@ final class InstallP700LabelProfilesCommand extends Command
                     pageMargin: '0.6mm',
                 ),
                 'comment' => 'Brother P-touch P700 24mm TZe tape. QR opens the part on parts.4qt.org.',
+            ],
+            [
+                'name' => 'P700 12mm',
+                'width' => 70.0,
+                'height' => 12.0,
+                'element' => LabelSupportedElement::STORELOCATION,
+                'lines' => self::BESIDE_LINES,
+                'additional_css' => $this->besideCss(width: 70.0, height: 12.0, qrSize: '10mm', nameSize: '8pt', pageMargin: '0.4mm'),
+                'comment' => 'Brother P-touch P700 12mm TZe tape for storage locations. QR and location name sit side by side. The bridge cuts the tape to the name.',
             ],
         ];
     }
@@ -146,8 +161,19 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
 CSS;
     }
 
+    private function besideCss(float $width, float $height, string $qrSize, string $nameSize, string $pageMargin): string
+    {
+        return <<<CSS
+/* label-layout-beside */
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+@page { size: {$width}mm {$height}mm; margin: {$pageMargin}; }
+.beside-qr { width: {$qrSize}; height: {$qrSize}; }
+.beside-name { font-size: {$nameSize}; }
+CSS;
+    }
+
     /**
-     * @param array{name: string, width: float, height: float, additional_css: string, comment: string} $spec
+     * @param array{name: string, width: float, height: float, element: LabelSupportedElement, lines: string, additional_css: string, comment: string} $spec
      */
     private function applySpec(LabelProfile $profile, array $spec): void
     {
@@ -155,20 +181,20 @@ CSS;
         $options->setWidth($spec['width']);
         $options->setHeight($spec['height']);
         $options->setBarcodeType(BarcodeType::QR);
-        $options->setSupportedElement(LabelSupportedElement::PART);
+        $options->setSupportedElement($spec['element']);
         $options->setProcessMode(LabelProcessMode::PLACEHOLDER);
-        $options->setLines(self::LINES);
+        $options->setLines($spec['lines']);
         $options->setAdditionalCss($spec['additional_css']);
         $profile->setOptions($options);
         $profile->setShowInDropdown(true);
         $profile->setComment($spec['comment']);
     }
 
-    private function findProfile(string $name): ?LabelProfile
+    private function findProfile(string $name, LabelSupportedElement $element): ?LabelProfile
     {
         return $this->entityManager->getRepository(LabelProfile::class)->findOneBy([
             'name' => $name,
-            'options.supported_element' => LabelSupportedElement::PART,
+            'options.supported_element' => $element,
         ]);
     }
 }

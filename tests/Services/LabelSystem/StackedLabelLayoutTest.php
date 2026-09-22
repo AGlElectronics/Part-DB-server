@@ -21,6 +21,7 @@ use App\Entity\LabelSystem\LabelOptions;
 use App\Entity\LabelSystem\LabelProcessMode;
 use App\Entity\LabelSystem\LabelSupportedElement;
 use App\Entity\Parts\Part;
+use App\Entity\Parts\StorageLocation;
 use App\Services\LabelSystem\LabelHTMLGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -44,6 +45,29 @@ final class StackedLabelLayoutTest extends KernelTestCase
         $this->assertStringContainsString('DIN 912 M6 x 20', $html);
         $this->assertStringContainsString('Socket head cap screw', $html);
         $this->assertStringNotContainsString('col-5', $html);
+        $this->assertStringNotContainsString('beside-label', $html);
+    }
+
+    public function testBesideLayoutPutsQrAndNameOnOneRow(): void
+    {
+        $options = new LabelOptions();
+        $options->setSupportedElement(LabelSupportedElement::STORELOCATION);
+        $options->setBarcodeType(BarcodeType::QR);
+        $options->setProcessMode(LabelProcessMode::PLACEHOLDER);
+        $options->setWidth(70.0);
+        $options->setHeight(12.0);
+        $options->setLines(InstallP700LabelProfilesCommand::BESIDE_LINES);
+        $options->setAdditionalCss('/* '.InstallP700LabelProfilesCommand::BESIDE_MARKER.' */');
+
+        $location = new StorageLocation();
+        $location->setName('Box A3');
+
+        $html = $this->service->getLabelHTML($options, [$location]);
+
+        $this->assertStringContainsString('beside-label', $html);
+        $this->assertStringContainsString('beside-name', $html);
+        $this->assertStringContainsString('Box A3', $html);
+        $this->assertStringNotContainsString('stacked-label', $html);
     }
 
     public function testDefaultQrLayoutStaysSideBySideWithoutMarker(): void

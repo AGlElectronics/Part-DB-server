@@ -1,0 +1,12 @@
+<table class="beside-label">
+    <tr>
+        <td class="beside-barcode">
+            <a href="{{ element.barcode_content }}">
+                <img class="beside-qr" src="{{ element.barcode | data_uri(mime='image/svg+xml') }}" alt="">
+            </a>
+        </td>
+        <td class="beside-text">
+            {{ element.lines | raw }}
+        </td>
+    </tr>
+</table>

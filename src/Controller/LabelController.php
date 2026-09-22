@@ -195,6 +195,7 @@ class LabelController extends AbstractController
                     $targets,
                     $form_options->getWidth(),
                     $form_options->getHeight(),
+                    layout: BpacPrintJobFactory::layoutForCss($form_options->getAdditionalCss()),
                 );
                 if (count($targets) > 1) {
                     $ptouch_csv = $this->ptouchCsvExporter->export($targets);
@@ -275,7 +276,12 @@ class LabelController extends AbstractController
         $options = $profile instanceof LabelProfile ? $profile->getOptions() : new LabelOptions();
         $width = $request->query->get('width', $options->getWidth());
         $height = $request->query->get('height', $options->getHeight());
-        $job = $this->bpacPrintJobFactory->create($targets, (float) $width, (float) $height);
+        $job = $this->bpacPrintJobFactory->create(
+            $targets,
+            (float) $width,
+            (float) $height,
+            layout: BpacPrintJobFactory::layoutForCss($options->getAdditionalCss()),
+        );
 
         return $this->render('label_system/bpac_launch.html.twig', [
             'job' => $job,

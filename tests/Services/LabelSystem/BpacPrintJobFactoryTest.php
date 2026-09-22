@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace App\Tests\Services\LabelSystem;
 
 use App\Entity\Parts\Part;
+use App\Entity\Parts\StorageLocation;
 use App\Services\LabelSystem\BpacPrintJobFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -36,6 +37,7 @@ final class BpacPrintJobFactoryTest extends KernelTestCase
         $this->assertSame(30.0, $job['width_mm']);
         $this->assertSame(18.0, $job['height_mm']);
         $this->assertSame(1, $job['copies']);
+        $this->assertSame('stacked', $job['layout']);
         $this->assertCount(1, $job['labels']);
         $this->assertSame('DIN 912 M6 x 20', $job['labels'][0]['name']);
         $this->assertSame('Hexagon socket head cap screw', $job['labels'][0]['description']);
@@ -44,5 +46,27 @@ final class BpacPrintJobFactoryTest extends KernelTestCase
         $protocol = $factory->toProtocolUrl($job);
         $this->assertStringStartsWith('partdb-bpac:print,', $protocol);
         $this->assertTrue($factory->fitsProtocol($job));
+    }
+
+    public function testBesideLayoutKeepsTheLocationName(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(BpacPrintJobFactory::class);
+
+        $location = new StorageLocation();
+        $location->setName('Box A3');
+
+        $job = $factory->create([$location], 70.0, 12.0, layout: BpacPrintJobFactory::LAYOUT_BESIDE);
+
+        $this->assertSame('beside', $job['layout']);
+        $this->assertSame(70.0, $job['width_mm']);
+        $this->assertSame(12.0, $job['height_mm']);
+        $this->assertSame('Box A3', $job['labels'][0]['name']);
+        $this->assertSame('', $job['labels'][0]['description']);
+        $this->assertStringContainsString('/scan/location/', $job['labels'][0]['qr_url']);
+        $this->assertSame(
+            BpacPrintJobFactory::LAYOUT_BESIDE,
+            BpacPrintJobFactory::layoutForCss('/* label-layout-beside */')
+        );
     }
 }

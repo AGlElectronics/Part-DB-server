@@ -51,7 +51,7 @@ Chrome's print dialog cannot force the Brother driver's tape length, so a 30 mm 
 }
 ```
 
-`width_mm` is the tape **length** (Part-DB width). `height_mm` is the tape **width** (18 or 24). Physical length is never shorter than 24.5 mm — that is the PT-P700 cutter minimum.
+`width_mm` is the tape **length** (Part-DB width). `height_mm` is the tape **width** (12, 18, or 24). `layout` is `stacked` (name under the QR) or `beside` (name to the right of the QR). Physical length is never shorter than 24.5 mm — that is the PT-P700 cutter minimum.
 
 ## Optional b-PAC template
 

@@ -893,7 +893,7 @@ Subelemente werden beim Löschen nach oben verschoben.</target>
     <unit id="label_generator.print.hint" name="label_generator.print.hint">
       <segment state="translated">
         <source>label_generator.print.hint</source>
-        <target>Drucker Brother PT-P700 wählen, passendes 18- oder 24-mm-Band, 100 % / tatsächliche Größe.</target>
+        <target>Drucker Brother PT-P700 wählen, passendes 12-, 18- oder 24-mm-Band, 100 % / tatsächliche Größe.</target>
       </segment>
     </unit>
     <unit id="label_generator.bpac_print" name="label_generator.bpac_print">

@@ -894,7 +894,7 @@ Sub elements will be moved upwards.</target>
     <unit id="label_generator.print.hint" name="label_generator.print.hint">
       <segment state="translated">
         <source>label_generator.print.hint</source>
-        <target>Choose the Brother PT-P700, matching 18 or 24 mm tape, and 100% / actual size.</target>
+        <target>Choose the Brother PT-P700, matching 12, 18, or 24 mm tape, and 100% / actual size.</target>
       </segment>
     </unit>
     <unit id="label_generator.bpac_print" name="label_generator.bpac_print">

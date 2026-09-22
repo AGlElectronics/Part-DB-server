@@ -25,27 +25,37 @@ internal static class DriverLabelPrinter
         var printer = BrotherRasterPrinter.FindPrinter(job.Printer)
             ?? throw new InvalidOperationException("No Brother P-touch printer is installed.");
 
-        var lengthMm = Math.Max(job.WidthMm, BrotherRasterPrinter.MinLengthMm);
         var tape = BrotherRasterPrinter.TapeForHeight(job.HeightMm);
+        var beside = string.Equals(job.Layout, "beside", StringComparison.OrdinalIgnoreCase);
         using var queue = new PrintQueue(new LocalPrintServer(), printer);
-        var ticket = CreateTicket(queue, lengthMm, tape.WidthMm);
         // Brother leaves PageMediaSize.Width empty for custom tape. Landscape swaps
         // tape width and feed length, which matches the wide label preview.
-        var pageWidth = MmToDip(lengthMm);
         var pageHeight = MmToDip(tape.WidthMm);
-
-        AppLog.Write(
-            $"Driver print: printer={printer} tape={tape.WidthMm}mm printable={tape.PrintAreaDots}dots length={lengthMm}mm "
-            + $"page={pageWidth:0}x{pageHeight:0}dip labels={job.Labels.Count} copies={job.Copies}");
-        var alongTapeIsWidth = pageWidth >= pageHeight;
 
         for (var copy = 0; copy < Math.Max(1, job.Copies); copy++)
         {
             foreach (var label in job.Labels)
             {
-                WritePage(queue, ticket, label, pageWidth, pageHeight, alongTapeIsWidth, tape);
+                var lengthMm = beside
+                    ? LengthForBeside(label, tape)
+                    : Math.Max(job.WidthMm, BrotherRasterPrinter.MinLengthMm);
+                var ticket = CreateTicket(queue, lengthMm, tape.WidthMm);
+                var pageWidth = MmToDip(lengthMm);
+                AppLog.Write(
+                    $"Driver print: printer={printer} tape={tape.WidthMm}mm printable={tape.PrintAreaDots}dots length={lengthMm:0.0}mm "
+                    + $"page={pageWidth:0}x{pageHeight:0}dip layout={job.Layout}");
+                var alongTapeIsWidth = pageWidth >= pageHeight;
+                WritePage(queue, ticket, label, pageWidth, pageHeight, alongTapeIsWidth, tape, job.Layout, beside);
             }
         }
+    }
+
+    private static double LengthForBeside(PrintLabel label, TapeSpec tape)
+    {
+        var dots = LabelRenderer.BesideWidthDots(label, tape.PrintAreaDots);
+        var mm = dots / (double)BrotherRasterPrinter.Dpi * 25.4;
+        var snapped = Math.Ceiling(mm * 10.0) / 10.0;
+        return Math.Max(BrotherRasterPrinter.MinLengthMm, snapped);
     }
 
     private static void WritePage(
@@ -55,11 +65,13 @@ internal static class DriverLabelPrinter
         double pageWidth,
         double pageHeight,
         bool alongTapeIsWidth,
-        TapeSpec tape)
+        TapeSpec tape,
+        string layout,
+        bool beside)
     {
         var alongDots = Math.Max(1, (int)Math.Round((alongTapeIsWidth ? pageWidth : pageHeight) / 96.0 * BrotherRasterPrinter.Dpi));
         var acrossDots = tape.PrintAreaDots;
-        using var bitmap = LabelRenderer.Render(label, alongDots, acrossDots);
+        using var bitmap = LabelRenderer.Render(label, alongDots, acrossDots, layout);
         if (!alongTapeIsWidth)
         {
             bitmap.RotateFlip(System.Drawing.RotateFlipType.Rotate90FlipNone);
@@ -76,8 +88,11 @@ internal static class DriverLabelPrinter
         // pushes the QR into the top dead zone and the description into the bottom one.
         var printableMm = tape.PrintAreaDots / (double)BrotherRasterPrinter.Dpi * 25.4;
         var acrossDip = Math.Min(MmToDip(printableMm), alongTapeIsWidth ? pageHeight : pageWidth);
-        var imageWidth = alongTapeIsWidth ? pageWidth : acrossDip;
-        var imageHeight = alongTapeIsWidth ? acrossDip : pageHeight;
+        // Beside labels are only as long as the name. Do not stretch that bitmap
+        // out to a longer minimum cut, or the QR slides back into the cut zone.
+        var nativeAlongDip = bitmap.Width / (double)BrotherRasterPrinter.Dpi * 96.0;
+        var imageWidth = alongTapeIsWidth ? (beside ? Math.Min(nativeAlongDip, pageWidth) : pageWidth) : acrossDip;
+        var imageHeight = alongTapeIsWidth ? acrossDip : (beside ? Math.Min(nativeAlongDip, pageHeight) : pageHeight);
         var control = new System.Windows.Controls.Image
         {
             Source = image,
@@ -129,7 +144,7 @@ internal static class DriverLabelPrinter
             ?? throw new InvalidOperationException("The Brother driver ticket has no paper size.");
         var currentName = option.GetAttribute("name");
         var prefix = currentName.Contains(':') ? currentName.Split(':')[0] : "ns0001";
-        var media = tapeMm >= 21 ? "CustomMediaSize261" : "CustomMediaSize260";
+        var media = tapeMm >= 21 ? "CustomMediaSize261" : tapeMm >= 15 ? "CustomMediaSize260" : "CustomMediaSize259";
         option.SetAttribute("name", prefix + ":" + media);
 
         var microns = (int)Math.Round(lengthMm * 1000.0 / 100.0) * 100;

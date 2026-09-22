@@ -56,7 +56,17 @@ internal static class BrotherRasterPrinter
 
     public static TapeSpec TapeForHeight(double heightMm)
     {
-        return heightMm >= 21 ? TapeSpec.Tze24 : TapeSpec.Tze18;
+        if (heightMm >= 21)
+        {
+            return TapeSpec.Tze24;
+        }
+
+        if (heightMm >= 15)
+        {
+            return TapeSpec.Tze18;
+        }
+
+        return TapeSpec.Tze12;
     }
 
     public static int MmToDots(double mm) => Math.Max(1, (int)Math.Round(mm / 25.4 * Dpi));
@@ -81,7 +91,7 @@ internal static class BrotherRasterPrinter
         var lastIndex = job.Labels.Count - 1;
         for (var i = 0; i < job.Labels.Count; i++)
         {
-            using var bitmap = LabelRenderer.Render(job.Labels[i], rasterLines, tape.PrintAreaDots);
+            using var bitmap = LabelRenderer.Render(job.Labels[i], rasterLines, tape.PrintAreaDots, job.Layout);
             WritePage(payload, bitmap, tape, rasterLines, startingPage: i == 0, lastPage: i == lastIndex);
         }
 
@@ -89,7 +99,7 @@ internal static class BrotherRasterPrinter
         {
             for (var i = 0; i < job.Labels.Count; i++)
             {
-                using var bitmap = LabelRenderer.Render(job.Labels[i], rasterLines, tape.PrintAreaDots);
+                using var bitmap = LabelRenderer.Render(job.Labels[i], rasterLines, tape.PrintAreaDots, job.Layout);
                 WritePage(payload, bitmap, tape, rasterLines, startingPage: false, lastPage: i == lastIndex);
             }
         }
@@ -171,6 +181,7 @@ internal static class BrotherRasterPrinter
 
 internal readonly record struct TapeSpec(int WidthMm, int PrintAreaDots, int OffsetDots)
 {
+    public static TapeSpec Tze12 { get; } = new(12, 70, 29);
     public static TapeSpec Tze18 { get; } = new(18, 112, 8);
     public static TapeSpec Tze24 { get; } = new(24, 128, 0);
 }

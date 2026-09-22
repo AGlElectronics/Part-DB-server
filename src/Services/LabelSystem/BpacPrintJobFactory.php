@@ -27,6 +27,8 @@ final class BpacPrintJobFactory
 {
     public const PROTOCOL = 'partdb-bpac';
     public const MAX_PROTOCOL_LENGTH = 14000;
+    public const LAYOUT_STACKED = 'stacked';
+    public const LAYOUT_BESIDE = 'beside';
 
     public function __construct(
         private readonly BarcodeContentGenerator $barcodeContentGenerator,
@@ -36,9 +38,9 @@ final class BpacPrintJobFactory
     /**
      * @param object[] $elements
      *
-     * @return array{version: int, width_mm: float, height_mm: float, copies: int, labels: list<array{id: string, name: string, description: string, qr_url: string}>}
+     * @return array{version: int, width_mm: float, height_mm: float, copies: int, layout: string, labels: list<array{id: string, name: string, description: string, qr_url: string}>}
      */
-    public function create(array $elements, float $widthMm, float $heightMm, int $copies = 1): array
+    public function create(array $elements, float $widthMm, float $heightMm, int $copies = 1, string $layout = self::LAYOUT_STACKED): array
     {
         $labels = [];
         foreach ($elements as $element) {
@@ -59,8 +61,14 @@ final class BpacPrintJobFactory
             'width_mm' => $widthMm,
             'height_mm' => $heightMm,
             'copies' => max(1, $copies),
+            'layout' => $layout === self::LAYOUT_BESIDE ? self::LAYOUT_BESIDE : self::LAYOUT_STACKED,
             'labels' => $labels,
         ];
+    }
+
+    public static function layoutForCss(string $css): string
+    {
+        return str_contains($css, 'label-layout-beside') ? self::LAYOUT_BESIDE : self::LAYOUT_STACKED;
     }
 
     /**
