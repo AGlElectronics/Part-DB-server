@@ -36,9 +36,11 @@ final class InstallP700LabelProfilesCommand extends Command
 {
     public const LAYOUT_MARKER = 'label-layout-stacked';
     public const BESIDE_MARKER = 'label-layout-beside';
+    public const TEXT_MARKER = 'label-layout-text';
     public const LINES = '<div class="stacked-name">[[NAME]]</div>'."\n"
         .'<div class="stacked-desc">[[DESCRIPTION_T]]</div>';
     public const BESIDE_LINES = '<div class="beside-name">[[NAME]]</div>';
+    public const TEXT_LINES = '<div class="desc-only">[[DESCRIPTION_T]]</div>';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -94,7 +96,7 @@ final class InstallP700LabelProfilesCommand extends Command
     }
 
     /**
-     * @return list<array{name: string, width: float, height: float, element: LabelSupportedElement, lines: string, additional_css: string, comment: string}>
+     * @return list<array{name: string, width: float, height: float, element: LabelSupportedElement, barcode: BarcodeType, lines: string, additional_css: string, comment: string}>
      */
     private function profiles(): array
     {
@@ -104,6 +106,7 @@ final class InstallP700LabelProfilesCommand extends Command
                 'width' => 30.0,
                 'height' => 18.0,
                 'element' => LabelSupportedElement::PART,
+                'barcode' => BarcodeType::QR,
                 'lines' => self::LINES,
                 'additional_css' => $this->additionalCss(
                     width: 30.0,
@@ -120,6 +123,7 @@ final class InstallP700LabelProfilesCommand extends Command
                 'width' => 30.0,
                 'height' => 24.0,
                 'element' => LabelSupportedElement::PART,
+                'barcode' => BarcodeType::QR,
                 'lines' => self::LINES,
                 'additional_css' => $this->additionalCss(
                     width: 30.0,
@@ -136,9 +140,20 @@ final class InstallP700LabelProfilesCommand extends Command
                 'width' => 70.0,
                 'height' => 12.0,
                 'element' => LabelSupportedElement::STORELOCATION,
+                'barcode' => BarcodeType::QR,
                 'lines' => self::BESIDE_LINES,
                 'additional_css' => $this->besideCss(width: 70.0, height: 12.0, qrSize: '10mm', nameSize: '8pt', pageMargin: '0.4mm'),
                 'comment' => 'Brother P-touch P700 12mm TZe tape for storage locations. QR and location name sit side by side. The bridge cuts the tape to the name.',
+            ],
+            [
+                'name' => 'P700 12mm description',
+                'width' => 50.0,
+                'height' => 12.0,
+                'element' => LabelSupportedElement::PART,
+                'barcode' => BarcodeType::NONE,
+                'lines' => self::TEXT_LINES,
+                'additional_css' => $this->textCss(width: 50.0, height: 12.0, textSize: '8pt', pageMargin: '0.4mm'),
+                'comment' => 'Brother P-touch P700 12mm TZe tape, 50mm long. Prints the part description only. Longer text is cut off.',
             ],
         ];
     }
@@ -172,15 +187,25 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
 CSS;
     }
 
+    private function textCss(float $width, float $height, string $textSize, string $pageMargin): string
+    {
+        return <<<CSS
+/* label-layout-text */
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+@page { size: {$width}mm {$height}mm; margin: {$pageMargin}; }
+.desc-only { font-size: {$textSize}; }
+CSS;
+    }
+
     /**
-     * @param array{name: string, width: float, height: float, element: LabelSupportedElement, lines: string, additional_css: string, comment: string} $spec
+     * @param array{name: string, width: float, height: float, element: LabelSupportedElement, barcode: BarcodeType, lines: string, additional_css: string, comment: string} $spec
      */
     private function applySpec(LabelProfile $profile, array $spec): void
     {
         $options = $profile->getOptions();
         $options->setWidth($spec['width']);
         $options->setHeight($spec['height']);
-        $options->setBarcodeType(BarcodeType::QR);
+        $options->setBarcodeType($spec['barcode']);
         $options->setSupportedElement($spec['element']);
         $options->setProcessMode(LabelProcessMode::PLACEHOLDER);
         $options->setLines($spec['lines']);

@@ -14,6 +14,11 @@ internal static class LabelRenderer
             return RenderBeside(label, widthDots, heightDots);
         }
 
+        if (string.Equals(layout, "text", StringComparison.OrdinalIgnoreCase))
+        {
+            return RenderText(label, widthDots, heightDots);
+        }
+
         return RenderStacked(label, widthDots, heightDots);
     }
 
@@ -46,6 +51,34 @@ internal static class LabelRenderer
             var textRect = new Rectangle(padding, textTop, widthDots - padding * 2, textHeight);
             DrawOneLine(graphics, label.Name, textRect, FontStyle.Bold, StringAlignment.Center);
         }
+
+        return bitmap;
+    }
+
+    private static Bitmap RenderText(PrintLabel label, int widthDots, int heightDots)
+    {
+        var bitmap = new Bitmap(Math.Max(widthDots, 1), Math.Max(heightDots, 1), PixelFormat.Format32bppArgb);
+        using var graphics = Graphics.FromImage(bitmap);
+        graphics.Clear(Color.White);
+        graphics.SmoothingMode = SmoothingMode.None;
+        graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+        graphics.PixelOffsetMode = PixelOffsetMode.Half;
+        graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixelGridFit;
+
+        var text = (label.Description ?? "").Replace('\n', ' ').Replace('\r', ' ').Trim();
+        if (text.Length == 0)
+        {
+            return bitmap;
+        }
+
+        // Keep the first letters out of the cutter, then ellipsize whatever does not fit in 50 mm.
+        const int leadDots = 28;
+        const int trailDots = 16;
+        var padding = 3;
+        var textLeft = Math.Min(leadDots, Math.Max(0, widthDots - 20));
+        var textWidth = Math.Max(16, widthDots - textLeft - trailDots);
+        var textRect = new Rectangle(textLeft, padding, textWidth, Math.Max(10, heightDots - padding * 2));
+        DrawOneLine(graphics, text, textRect, FontStyle.Bold, StringAlignment.Near, 22f);
 
         return bitmap;
     }

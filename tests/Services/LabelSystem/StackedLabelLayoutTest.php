@@ -70,6 +70,25 @@ final class StackedLabelLayoutTest extends KernelTestCase
         $this->assertStringNotContainsString('stacked-label', $html);
     }
 
+    public function testDescriptionLabelIsTextOnly(): void
+    {
+        $options = new LabelOptions();
+        $options->setSupportedElement(LabelSupportedElement::PART);
+        $options->setBarcodeType(BarcodeType::NONE);
+        $options->setProcessMode(LabelProcessMode::PLACEHOLDER);
+        $options->setWidth(50.0);
+        $options->setHeight(12.0);
+        $options->setLines(InstallP700LabelProfilesCommand::TEXT_LINES);
+        $options->setAdditionalCss('/* '.InstallP700LabelProfilesCommand::TEXT_MARKER.' */');
+
+        $html = $this->service->getLabelHTML($options, [$this->part()]);
+
+        $this->assertStringContainsString('desc-only', $html);
+        $this->assertStringContainsString('Socket head cap screw', $html);
+        $this->assertStringNotContainsString('stacked-label', $html);
+        $this->assertStringNotContainsString('<img', $html);
+    }
+
     public function testDefaultQrLayoutStaysSideBySideWithoutMarker(): void
     {
         $options = $this->options(withStackedMarker: false);

@@ -69,4 +69,29 @@ final class BpacPrintJobFactoryTest extends KernelTestCase
             BpacPrintJobFactory::layoutForCss('/* label-layout-beside */')
         );
     }
+
+    public function testTextLayoutKeepsTheDescriptionAndDropsTheQrRole(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(BpacPrintJobFactory::class);
+
+        $part = new Part();
+        $part->setName('LCMA10-6-C');
+        $part->setDescription('Ring Terminal Connector M6 Stud Flat Sided, Tubular (Battery Lugs) 10mm² Crimp');
+
+        $job = $factory->create([$part], 50.0, 12.0, layout: BpacPrintJobFactory::LAYOUT_TEXT);
+
+        $this->assertSame('text', $job['layout']);
+        $this->assertSame(50.0, $job['width_mm']);
+        $this->assertSame(12.0, $job['height_mm']);
+        $this->assertSame('LCMA10-6-C', $job['labels'][0]['name']);
+        $this->assertSame(
+            'Ring Terminal Connector M6 Stud Flat Sided, Tubular (Battery Lugs) 10mm² Crimp',
+            $job['labels'][0]['description']
+        );
+        $this->assertSame(
+            BpacPrintJobFactory::LAYOUT_TEXT,
+            BpacPrintJobFactory::layoutForCss('/* label-layout-text */')
+        );
+    }
 }

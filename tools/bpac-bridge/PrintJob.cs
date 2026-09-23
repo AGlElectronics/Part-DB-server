@@ -18,7 +18,7 @@ public sealed class PrintJob
     [JsonPropertyName("height_mm")]
     public double HeightMm { get; set; } = 18;
 
-    /// <summary>stacked puts the name under the QR. beside puts the name to the right.</summary>
+    /// <summary>stacked puts the name under the QR. beside puts the name to the right. text prints the description only.</summary>
     [JsonPropertyName("layout")]
     public string Layout { get; set; } = "stacked";
 
@@ -51,7 +51,15 @@ public sealed class PrintJob
             job.Copies = 1;
         }
 
-        if (!string.Equals(job.Layout, "beside", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(job.Layout, "beside", StringComparison.OrdinalIgnoreCase))
+        {
+            job.Layout = "beside";
+        }
+        else if (string.Equals(job.Layout, "text", StringComparison.OrdinalIgnoreCase))
+        {
+            job.Layout = "text";
+        }
+        else
         {
             job.Layout = "stacked";
         }

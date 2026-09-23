@@ -29,6 +29,7 @@ final class BpacPrintJobFactory
     public const MAX_PROTOCOL_LENGTH = 14000;
     public const LAYOUT_STACKED = 'stacked';
     public const LAYOUT_BESIDE = 'beside';
+    public const LAYOUT_TEXT = 'text';
 
     public function __construct(
         private readonly BarcodeContentGenerator $barcodeContentGenerator,
@@ -61,14 +62,27 @@ final class BpacPrintJobFactory
             'width_mm' => $widthMm,
             'height_mm' => $heightMm,
             'copies' => max(1, $copies),
-            'layout' => $layout === self::LAYOUT_BESIDE ? self::LAYOUT_BESIDE : self::LAYOUT_STACKED,
+            'layout' => self::normalizeLayout($layout),
             'labels' => $labels,
         ];
     }
 
     public static function layoutForCss(string $css): string
     {
+        if (str_contains($css, 'label-layout-text')) {
+            return self::LAYOUT_TEXT;
+        }
+
         return str_contains($css, 'label-layout-beside') ? self::LAYOUT_BESIDE : self::LAYOUT_STACKED;
+    }
+
+    private static function normalizeLayout(string $layout): string
+    {
+        return match ($layout) {
+            self::LAYOUT_BESIDE => self::LAYOUT_BESIDE,
+            self::LAYOUT_TEXT => self::LAYOUT_TEXT,
+            default => self::LAYOUT_STACKED,
+        };
     }
 
     /**
