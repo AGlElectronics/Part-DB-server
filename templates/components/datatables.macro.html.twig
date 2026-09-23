@@ -60,6 +60,9 @@
                         <option {% if not is_granted('@labels.create_labels') %}disabled{% endif %} value="print_bpac" data-turbo="false">{% trans %}part_list.action.print_bpac{% endtrans %}</option>
                         <option {% if not is_granted('@labels.create_labels') %}disabled{% endif %} value="export_ptouch_csv" data-turbo="false">{% trans %}part_list.action.export_ptouch_csv{% endtrans %}</option>
                     </optgroup>
+                    <optgroup label="{% trans %}part_list.action.group.purchasing{% endtrans %}">
+                        <option {% if not is_granted('@parts.edit') %}disabled{% endif %} value="make_purchase_order" data-turbo="false">{% trans %}part_list.action.make_purchase_order{% endtrans %}</option>
+                    </optgroup>
                     <optgroup label="{% trans %}part_list.action.group.projects{% endtrans %}">
                         <option {% if not is_granted('@projects.read') %}disabled{% endif %} value="add_to_project" data-url="{{  path('select_project')}}">{% trans %}part_list.action.projects.add_to_project{% endtrans %}</option>
                     </optgroup>

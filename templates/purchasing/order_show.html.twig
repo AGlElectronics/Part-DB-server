@@ -1,0 +1,75 @@
+{% extends "main_card.html.twig" %}
+
+{% block title %}{{ order.name }}{% endblock %}
+
+{% block card_title %}
+    <i class="fas fa-cart-shopping"></i> {{ order.name }}
+    <a class="btn btn-outline-secondary btn-sm float-end" href="{{ path('purchase_orders_list') }}">{% trans %}purchase_order.back{% endtrans %}</a>
+{% endblock %}
+
+{% block card_content %}
+    <p class="text-muted">{% trans %}purchase_order.hint{% endtrans %}</p>
+
+    <form method="post" action="{{ path('purchase_order_show', {id: order.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_' ~ order.id) }}">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>{% trans %}part.edit.name{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.stock{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.minimum{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.target{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.quantity{% endtrans %}</th>
+                    <th>DigiKey</th>
+                    <th>Mouser</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in lines %}
+                    {% set line = row.line %}
+                    <tr>
+                        <td><a href="{{ path('part_edit', {id: line.part.id}) }}">{{ line.part.name }}</a></td>
+                        <td>{{ row.stock }}</td>
+                        <td>{{ row.minimum }}</td>
+                        <td>
+                            <input class="form-control" type="number" min="0" step="1"
+                                   name="lines[{{ line.id }}][target]" value="{{ line.targetStock }}"
+                                   data-order-target data-stock="{{ row.stock }}">
+                        </td>
+                        <td>
+                            <input class="form-control" type="number" min="0" step="1"
+                                   name="lines[{{ line.id }}][quantity]" value="{{ line.quantity }}"
+                                   data-order-qty>
+                        </td>
+                        <td>{{ row.digikey ?? ('purchase_order.no_number'|trans) }}</td>
+                        <td>{{ row.mouser ?? ('purchase_order.no_number'|trans) }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7">{% trans %}purchase_order.empty{% endtrans %}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary">{% trans %}purchase_order.save{% endtrans %}</button>
+        <a class="btn btn-outline-primary" data-turbo="false" href="{{ path('purchase_order_digikey', {id: order.id}) }}">{% trans %}purchase_order.download_digikey{% endtrans %}</a>
+        <a class="btn btn-outline-primary" data-turbo="false" href="{{ path('purchase_order_mouser', {id: order.id}) }}">{% trans %}purchase_order.download_mouser{% endtrans %}</a>
+    </form>
+    <script>
+        document.querySelectorAll('[data-order-target]').forEach((input) => {
+            input.addEventListener('input', () => {
+                const qty = input.closest('tr').querySelector('[data-order-qty]');
+                if (!qty || qty.dataset.touched === '1') {
+                    return;
+                }
+                const missing = Number(input.value) - Number(input.dataset.stock);
+                qty.value = String(Math.max(0, Math.ceil(missing)));
+            });
+        });
+        document.querySelectorAll('[data-order-qty]').forEach((input) => {
+            input.addEventListener('input', () => {
+                input.dataset.touched = '1';
+            });
+        });
+    </script>
+{% endblock %}

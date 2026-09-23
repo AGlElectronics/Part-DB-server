@@ -15536,5 +15536,131 @@ Buerklin-API Authentication server:
         <target>The info provider this part was created with is not available anymore.</target>
       </segment>
     </unit>
+    <unit id="part_list.action.group.purchasing" name="part_list.action.group.purchasing">
+      <segment state="translated">
+        <source>part_list.action.group.purchasing</source>
+        <target>Order</target>
+      </segment>
+    </unit>
+    <unit id="part_list.action.make_purchase_order" name="part_list.action.make_purchase_order">
+      <segment state="translated">
+        <source>part_list.action.make_purchase_order</source>
+        <target>Make order</target>
+      </segment>
+    </unit>
+    <unit id="navbar.purchase_orders" name="navbar.purchase_orders">
+      <segment state="translated">
+        <source>navbar.purchase_orders</source>
+        <target>Orders</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.list.title" name="purchase_order.list.title">
+      <segment state="translated">
+        <source>purchase_order.list.title</source>
+        <target>Orders</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.list.hint" name="purchase_order.list.hint">
+      <segment state="translated">
+        <source>purchase_order.list.hint</source>
+        <target>Orders made from the parts table. Open one to change the quantities or download the DigiKey and Mouser files.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.list.empty" name="purchase_order.list.empty">
+      <segment state="translated">
+        <source>purchase_order.list.empty</source>
+        <target>No orders yet. Select parts in the parts table and choose Make order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.name" name="purchase_order.name">
+      <segment state="translated">
+        <source>purchase_order.name</source>
+        <target>Name</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.created" name="purchase_order.created">
+      <segment state="translated">
+        <source>purchase_order.created</source>
+        <target>Created</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.lines" name="purchase_order.lines">
+      <segment state="translated">
+        <source>purchase_order.lines</source>
+        <target>Parts</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.back" name="purchase_order.back">
+      <segment state="translated">
+        <source>purchase_order.back</source>
+        <target>All orders</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.hint" name="purchase_order.hint">
+      <segment state="translated">
+        <source>purchase_order.hint</source>
+        <target>The target is the minimum stock plus 10%, rounded up to the next 5. The order quantity is that target minus what is in stock. Change the target if you will need more in the next few days, then save before downloading the files.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.stock" name="purchase_order.stock">
+      <segment state="translated">
+        <source>purchase_order.stock</source>
+        <target>In stock</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.minimum" name="purchase_order.minimum">
+      <segment state="translated">
+        <source>purchase_order.minimum</source>
+        <target>Minimum</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.target" name="purchase_order.target">
+      <segment state="translated">
+        <source>purchase_order.target</source>
+        <target>Target</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.quantity" name="purchase_order.quantity">
+      <segment state="translated">
+        <source>purchase_order.quantity</source>
+        <target>Order qty</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.no_number" name="purchase_order.no_number">
+      <segment state="translated">
+        <source>purchase_order.no_number</source>
+        <target>No part number</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.empty" name="purchase_order.empty">
+      <segment state="translated">
+        <source>purchase_order.empty</source>
+        <target>This order has no parts.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.save" name="purchase_order.save">
+      <segment state="translated">
+        <source>purchase_order.save</source>
+        <target>Save</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.saved" name="purchase_order.saved">
+      <segment state="translated">
+        <source>purchase_order.saved</source>
+        <target>Order saved.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.download_digikey" name="purchase_order.download_digikey">
+      <segment state="translated">
+        <source>purchase_order.download_digikey</source>
+        <target>Download DigiKey file</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.download_mouser" name="purchase_order.download_mouser">
+      <segment state="translated">
+        <source>purchase_order.download_mouser</source>
+        <target>Download Mouser file</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

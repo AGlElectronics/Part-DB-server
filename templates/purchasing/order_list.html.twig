@@ -1,0 +1,33 @@
+{% extends "main_card.html.twig" %}
+
+{% block title %}{% trans %}purchase_order.list.title{% endtrans %}{% endblock %}
+
+{% block card_title %}
+    <i class="fas fa-cart-shopping"></i> {% trans %}purchase_order.list.title{% endtrans %}
+{% endblock %}
+
+{% block card_content %}
+    <p class="text-muted">{% trans %}purchase_order.list.hint{% endtrans %}</p>
+    {% if orders is empty %}
+        <p>{% trans %}purchase_order.list.empty{% endtrans %}</p>
+    {% else %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>{% trans %}purchase_order.name{% endtrans %}</th>
+                <th>{% trans %}purchase_order.created{% endtrans %}</th>
+                <th>{% trans %}purchase_order.lines{% endtrans %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td><a href="{{ path('purchase_order_show', {id: order.id}) }}">{{ order.name }}</a></td>
+                    <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+                    <td>{{ order.lines|length }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

@@ -22,7 +22,10 @@ declare(strict_types=1);
  */
 namespace App\Services\Parts;
 
+use App\Entity\Purchasing\PurchaseOrder;
+use App\Entity\Purchasing\PurchaseOrderLine;
 use App\Entity\Parts\StorageLocation;
+use App\Services\Purchasing\StockRefillCalculator;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Parts\Category;
 use App\Entity\Parts\Footprint;
@@ -40,8 +43,12 @@ use function Symfony\Component\Translation\t;
 
 final readonly class PartsTableActionHandler
 {
-    public function __construct(private EntityManagerInterface $entityManager, private Security $security, private UrlGeneratorInterface $urlGenerator)
-    {
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private Security $security,
+        private UrlGeneratorInterface $urlGenerator,
+        private StockRefillCalculator $stockRefill,
+    ) {
     }
 
     /**
@@ -106,6 +113,27 @@ implode(',', array_map(static fn (PartLot $lot) => $lot->getID(), $part->getPart
                     'width' => 30,
                     'height' => 18,
                 ])
+            );
+        }
+
+        if ($action === 'make_purchase_order') {
+            if ($selected_parts === []) {
+                return null;
+            }
+
+            $order = new PurchaseOrder();
+            foreach ($selected_parts as $part) {
+                $line = new PurchaseOrderLine();
+                $line->setPart($part);
+                $line->setTargetStock($this->stockRefill->targetStock($part->getMinAmount()));
+                $line->setQuantity($this->stockRefill->orderQuantity($part->getAmountSum(), $part->getMinAmount()));
+                $order->addLine($line);
+            }
+            $this->entityManager->persist($order);
+            $this->entityManager->flush();
+
+            return new RedirectResponse(
+                $this->urlGenerator->generate('purchase_order_show', ['id' => $order->getId()])
             );
         }
 

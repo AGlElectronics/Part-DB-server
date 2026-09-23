@@ -83,6 +83,12 @@
                            href="{{ path('info_providers_search') }}">{% trans %}navbar.create_from_provider{% endtrans %}</a>
                     </li>
                 {% endif %}
+
+                {% if is_granted('@parts.read') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('purchase_orders_list') }}">{% trans %}navbar.purchase_orders{% endtrans %}</a>
+                    </li>
+                {% endif %}
             </ul>
 
             {% if is_granted('@parts.read') %}
