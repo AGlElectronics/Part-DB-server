@@ -1,0 +1,41 @@
+{% extends "main_card.html.twig" %}
+
+{% block title %}{% trans %}purchase_order.add.title{% endtrans %}{% endblock %}
+
+{% block card_title %}
+    <i class="fas fa-cart-shopping"></i> {% trans %}purchase_order.add.title{% endtrans %}
+{% endblock %}
+
+{% block card_content %}
+    <p class="text-muted">{% trans %}purchase_order.add.hint{% endtrans %}</p>
+
+    <p class="mb-1">{% trans %}purchase_order.add.parts{% endtrans %}</p>
+    <ul>
+        {% for part in parts %}
+            <li><a href="{{ path('part_edit', {id: part.id}) }}">{{ part.name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <form method="post" action="{{ path('purchase_order_add_part') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_add_part') }}">
+        <input type="hidden" name="parts" value="{{ partIds }}">
+
+        <div class="mb-3">
+            <label class="form-label" for="purchase-order-target">{% trans %}purchase_order.add.existing{% endtrans %}</label>
+            <select class="form-select" id="purchase-order-target" name="order">
+                <option value="">{% trans %}purchase_order.add.new_option{% endtrans %}</option>
+                {% for order in orders %}
+                    <option value="{{ order.id }}">{{ order.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="purchase-order-add-name">{% trans %}purchase_order.name_optional{% endtrans %}</label>
+            <input class="form-control" id="purchase-order-add-name" type="text" name="name" maxlength="255">
+        </div>
+
+        <button type="submit" class="btn btn-primary">{% trans %}purchase_order.add.submit{% endtrans %}</button>
+        <a class="btn btn-outline-secondary" href="{{ path('purchase_orders_list') }}">{% trans %}purchase_order.back{% endtrans %}</a>
+    </form>
+{% endblock %}

@@ -88,3 +88,9 @@
     <i class="fa-solid fa-magnifying-glass-plus fa-fw"></i>
     {% trans %}part.info.add_part_to_project{% endtrans %}
 </a>
+
+<a class="btn btn-success mt-2" {% if not is_granted('@parts.edit') %}disabled{% endif %}
+   href="{{ path('purchase_order_add_part', {"parts": part.id}) }}">
+    <i class="fas fa-cart-shopping fa-fw"></i>
+    {% trans %}part.info.add_part_to_order{% endtrans %}
+</a>

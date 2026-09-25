@@ -8,6 +8,20 @@
 
 {% block card_content %}
     <p class="text-muted">{% trans %}purchase_order.list.hint{% endtrans %}</p>
+
+    {% if is_granted('@parts.edit') %}
+        <form class="row g-2 align-items-end mb-3" method="post" action="{{ path('purchase_order_create') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_create') }}">
+            <div class="col-sm-6 col-md-4">
+                <label class="form-label" for="purchase-order-new-name">{% trans %}purchase_order.name_optional{% endtrans %}</label>
+                <input class="form-control" id="purchase-order-new-name" type="text" name="name" maxlength="255">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">{% trans %}purchase_order.create{% endtrans %}</button>
+            </div>
+        </form>
+    {% endif %}
+
     {% if orders is empty %}
         <p>{% trans %}purchase_order.list.empty{% endtrans %}</p>
     {% else %}

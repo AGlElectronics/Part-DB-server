@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Purchasing;
 
+use App\Entity\Parts\Part;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -71,5 +72,21 @@ class PurchaseOrder
         }
         $this->lines->add($line);
         $line->setPurchaseOrder($this);
+    }
+
+    public function findLineForPart(Part $part): ?PurchaseOrderLine
+    {
+        foreach ($this->lines as $line) {
+            if ($line->getPart()->getID() === $part->getID()) {
+                return $line;
+            }
+        }
+
+        return null;
+    }
+
+    public function removeLine(PurchaseOrderLine $line): void
+    {
+        $this->lines->removeElement($line);
     }
 }

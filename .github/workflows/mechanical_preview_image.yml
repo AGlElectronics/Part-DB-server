@@ -2,6 +2,11 @@ name: Mechanical Preview Image
 
 on:
   workflow_dispatch:
+    inputs:
+      version_tag:
+        description: Extra image tag, for example mechanical-v1.5.4
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -40,6 +45,7 @@ jobs:
           tags: |
             type=raw,value=mechanical-preview
             type=sha,prefix=sha-
+            type=raw,value=${{ inputs.version_tag }},enable=${{ inputs.version_tag != '' }}
           labels: |
             org.opencontainers.image.title=Part-DB Mechanical Preview
             org.opencontainers.image.description=Part-DB preview with the mechanical parts library

@@ -15563,13 +15563,13 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.list.hint" name="purchase_order.list.hint">
       <segment state="translated">
         <source>purchase_order.list.hint</source>
-        <target>Orders made from the parts table. Open one to change the quantities or download the DigiKey and Mouser files.</target>
+        <target>Create an order here, or select parts in the parts table and choose Make order. Open an order to rename it, add or remove parts, change quantities, or download the DigiKey and Mouser files.</target>
       </segment>
     </unit>
     <unit id="purchase_order.list.empty" name="purchase_order.list.empty">
       <segment state="translated">
         <source>purchase_order.list.empty</source>
-        <target>No orders yet. Select parts in the parts table and choose Make order.</target>
+        <target>No orders yet.</target>
       </segment>
     </unit>
     <unit id="purchase_order.name" name="purchase_order.name">
@@ -15660,6 +15660,126 @@ Buerklin-API Authentication server:
       <segment state="translated">
         <source>purchase_order.download_mouser</source>
         <target>Download Mouser file</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create" name="purchase_order.create">
+      <segment state="translated">
+        <source>purchase_order.create</source>
+        <target>New order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.flash.created" name="purchase_order.flash.created">
+      <segment state="translated">
+        <source>purchase_order.flash.created</source>
+        <target>Order created.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.name_optional" name="purchase_order.name_optional">
+      <segment state="translated">
+        <source>purchase_order.name_optional</source>
+        <target>Optional name</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.delete" name="purchase_order.delete">
+      <segment state="translated">
+        <source>purchase_order.delete</source>
+        <target>Delete order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.deleted" name="purchase_order.deleted">
+      <segment state="translated">
+        <source>purchase_order.deleted</source>
+        <target>Order deleted.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.delete.confirm_title" name="purchase_order.delete.confirm_title">
+      <segment state="translated">
+        <source>purchase_order.delete.confirm_title</source>
+        <target>Delete %name%?</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.delete.message" name="purchase_order.delete.message">
+      <segment state="translated">
+        <source>purchase_order.delete.message</source>
+        <target>This removes the order. Stock is not changed.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.remove" name="purchase_order.remove">
+      <segment state="translated">
+        <source>purchase_order.remove</source>
+        <target>Remove</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add_part_label" name="purchase_order.add_part_label">
+      <segment state="translated">
+        <source>purchase_order.add_part_label</source>
+        <target>Add a part</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.part_added" name="purchase_order.part_added">
+      <segment state="translated">
+        <source>purchase_order.part_added</source>
+        <target>Part added to the order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.part_already" name="purchase_order.part_already">
+      <segment state="translated">
+        <source>purchase_order.part_already</source>
+        <target>That part is already on this order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.part_missing" name="purchase_order.part_missing">
+      <segment state="translated">
+        <source>purchase_order.part_missing</source>
+        <target>That part could not be found.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.no_parts" name="purchase_order.no_parts">
+      <segment state="translated">
+        <source>purchase_order.no_parts</source>
+        <target>Choose a part to add.</target>
+      </segment>
+    </unit>
+    <unit id="part.info.add_part_to_order" name="part.info.add_part_to_order">
+      <segment state="translated">
+        <source>part.info.add_part_to_order</source>
+        <target>Add this [part] to an order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.title" name="purchase_order.add.title">
+      <segment state="translated">
+        <source>purchase_order.add.title</source>
+        <target>Add to an order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.hint" name="purchase_order.add.hint">
+      <segment state="translated">
+        <source>purchase_order.add.hint</source>
+        <target>Choose an existing order, or leave New order selected and set a name.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.parts" name="purchase_order.add.parts">
+      <segment state="translated">
+        <source>purchase_order.add.parts</source>
+        <target>Parts</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.existing" name="purchase_order.add.existing">
+      <segment state="translated">
+        <source>purchase_order.add.existing</source>
+        <target>Order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.new_option" name="purchase_order.add.new_option">
+      <segment state="translated">
+        <source>purchase_order.add.new_option</source>
+        <target>New order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.submit" name="purchase_order.add.submit">
+      <segment state="translated">
+        <source>purchase_order.add.submit</source>
+        <target>Add to order</target>
       </segment>
     </unit>
   </file>
