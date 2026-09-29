@@ -30,6 +30,8 @@
             <tr>
                 <th>{% trans %}purchase_order.name{% endtrans %}</th>
                 <th>{% trans %}purchase_order.created{% endtrans %}</th>
+                <th>{% trans %}purchase_order.ordered_on{% endtrans %}</th>
+                <th>{% trans %}purchase_order.status{% endtrans %}</th>
                 <th>{% trans %}purchase_order.lines{% endtrans %}</th>
             </tr>
             </thead>
@@ -38,6 +40,14 @@
                 <tr>
                     <td><a href="{{ path('purchase_order_show', {id: order.id}) }}">{{ order.name }}</a></td>
                     <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+                    <td>
+                        {% if order.orderedAt %}
+                            {{ order.orderedAt|date('Y-m-d') }}
+                        {% else %}
+                            {% trans %}purchase_order.not_ordered{% endtrans %}
+                        {% endif %}
+                    </td>
+                    <td>{{ ('purchase_order.fulfillment.' ~ order.fulfillment)|trans }}</td>
                     <td>{{ order.lines|length }}</td>
                 </tr>
             {% endfor %}

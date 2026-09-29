@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Entity\LogSystem\PartStockChangedLogEntry;
+use App\Entity\Parts\Category;
 use App\Entity\Parts\Part;
+use App\Entity\Parts\PartLot;
+use App\Entity\Parts\StorageLocation;
 use App\Entity\Purchasing\PurchaseOrder;
+use App\Entity\Purchasing\PurchaseOrderLine;
 use App\Entity\UserSystem\User;
+use App\Services\Purchasing\OrderCheckIn;
+use App\Services\Purchasing\OrderCheckInException;
+use App\Services\Purchasing\OrderCheckInLine;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -121,6 +129,273 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[name^="remove["]'));
     }
 
+    public function testOrderedDateShowsOnTheListAndCanBeCleared(): void
+    {
+        $client = $this->client();
+        $name = 'Dated-'.bin2hex(random_bytes(3));
+        $crawler = $client->request('GET', '/en/orders');
+        $client->request('POST', '/en/orders', [
+            '_token' => $this->formToken($crawler, '#/orders$#'),
+            'name' => $name,
+        ]);
+        $orderId = $this->orderIdFromRedirect($client);
+        $client->followRedirect();
+
+        $crawler = $client->request('GET', '/en/orders');
+        $row = $this->orderRow($crawler, $name);
+        self::assertStringContainsString('Not ordered', $row);
+        self::assertStringContainsString('Open', $row);
+
+        $crawler = $client->request('GET', '/en/orders/'.$orderId);
+        $client->request('POST', '/en/orders/'.$orderId, [
+            '_token' => $this->formToken($crawler, '#/orders/'.$orderId.'$#'),
+            'name' => $name,
+            'ordered_on' => '2026-09-29',
+        ]);
+        $client->followRedirect();
+        self::assertSame('2026-09-29', $client->getCrawler()->filter('#purchase-order-ordered')->attr('value'));
+
+        $crawler = $client->request('GET', '/en/orders');
+        self::assertStringContainsString('2026-09-29', $this->orderRow($crawler, $name));
+
+        $crawler = $client->request('GET', '/en/orders/'.$orderId);
+        $client->request('POST', '/en/orders/'.$orderId, [
+            '_token' => $this->formToken($crawler, '#/orders/'.$orderId.'$#'),
+            'name' => $name,
+            'ordered_on' => '',
+        ]);
+        $client->followRedirect();
+        $crawler = $client->request('GET', '/en/orders');
+        self::assertStringContainsString('Not ordered', $this->orderRow($crawler, $name));
+    }
+
+    public function testCheckInAddsStockAcrossDeliveriesAndRecordsTheComment(): void
+    {
+        $client = $this->client();
+        $created = $this->partWithSingleLot($client, 4.0);
+        $part = $created['part'];
+        $lotId = (int) $created['lot']->getID();
+        $name = 'Arrive-'.bin2hex(random_bytes(3));
+        $orderId = $this->createOrderWithParts($client, $name, [$part]);
+        $lineId = $this->lineIdForPart($client->getCrawler(), (int) $part->getID());
+        $this->setLineQuantity($client, $client->getCrawler(), $orderId, $name, $lineId, 10);
+
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        self::assertResponseIsSuccessful();
+        self::assertSame((string) $lotId, $this->namedField($crawler, 'lot['.$lineId.']')?->attr('value'));
+        self::assertStringContainsString($created['location']->getName(), (string) $client->getResponse()->getContent());
+
+        $comment = 'Checked in from order '.$name;
+        $crawler = $this->postCheckIn($client, $crawler, $orderId, [
+            'step' => 'review',
+            'comment' => $comment,
+            'check' => [$lineId => '1'],
+            'qty' => [$lineId => '4'],
+            'lot' => [$lineId => (string) $lotId],
+        ]);
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Nothing has changed yet.', (string) $client->getResponse()->getContent());
+        $em = $this->em($client);
+        $em->clear();
+        self::assertSame(4.0, $this->lotAmount($em, $lotId));
+
+        $client->request('POST', '/en/orders/'.$orderId.'/check-in', [
+            '_token' => $this->formToken($crawler, '#/check-in$#'),
+            'step' => 'confirm',
+            'comment' => $comment,
+            'check' => [$lineId => '1'],
+            'qty' => [$lineId => '4'],
+            'lot' => [$lineId => (string) $lotId],
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        $page = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('Stock was updated.', $page);
+        self::assertStringContainsString('Partial', $page);
+        self::assertStringContainsString($comment, $page);
+        $em->clear();
+        self::assertSame(8.0, $this->lotAmount($em, $lotId));
+        self::assertTrue($this->stockCommentExists($em, $lotId, $comment));
+
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        $client->request('POST', '/en/orders/'.$orderId.'/check-in', [
+            '_token' => $this->formToken($crawler, '#/check-in$#'),
+            'step' => 'confirm',
+            'comment' => $comment,
+            'check' => [$lineId => '1'],
+            'qty' => [$lineId => '6'],
+            'lot' => [$lineId => (string) $lotId],
+        ]);
+        $client->followRedirect();
+        $em->clear();
+        $order = $em->find(PurchaseOrder::class, $orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $order);
+        self::assertSame('received', $order->getFulfillment());
+        self::assertSame(14.0, $this->lotAmount($em, $lotId));
+        self::assertCount(2, $order->getReceipts());
+
+        $crawler = $client->request('GET', '/en/orders');
+        self::assertStringContainsString('Received', $this->orderRow($crawler, $name));
+    }
+
+    public function testCheckInCreatesALotWhenThePartHasNone(): void
+    {
+        $client = $this->client();
+        $em = $this->em($client);
+        $part = $em->getRepository(Part::class)->findOneBy(['name' => 'Part 1']);
+        if (!$part instanceof Part || $part->getPartLots()->count() > 0) {
+            self::markTestSkipped('Fixture part Part 1 without lots was not found.');
+        }
+        $name = 'New-lot-'.bin2hex(random_bytes(3));
+        $orderId = $this->createOrderWithParts($client, $name, [$part]);
+        $lineId = $this->lineIdForPart($client->getCrawler(), (int) $part->getID());
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        $locationSelect = $this->namedField($crawler, 'location['.$lineId.']');
+        self::assertInstanceOf(Crawler::class, $locationSelect);
+        $locationId = 0;
+        $locationSelect->filter('option')->each(function (Crawler $option) use (&$locationId): void {
+            $value = (string) $option->attr('value');
+            if ($locationId === 0 && $value !== '') {
+                $locationId = (int) $value;
+            }
+        });
+        self::assertGreaterThan(0, $locationId);
+        $comment = 'Checked in from order '.$name;
+        $crawler = $this->postCheckIn($client, $crawler, $orderId, [
+            'step' => 'review',
+            'comment' => $comment,
+            'check' => [$lineId => '1'],
+            'qty' => [$lineId => '3'],
+            'location' => [$lineId => (string) $locationId],
+        ]);
+        self::assertStringContainsString('New lot at', (string) $client->getResponse()->getContent());
+        $client->request('POST', '/en/orders/'.$orderId.'/check-in', [
+            '_token' => $this->formToken($crawler, '#/check-in$#'),
+            'step' => 'confirm',
+            'comment' => $comment,
+            'check' => [$lineId => '1'],
+            'qty' => [$lineId => '3'],
+            'location' => [$lineId => (string) $locationId],
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        $em->clear();
+        $reloaded = $em->find(Part::class, $part->getID());
+        self::assertInstanceOf(Part::class, $reloaded);
+        self::assertCount(1, $reloaded->getPartLots());
+        $lot = $reloaded->getPartLots()->first();
+        self::assertInstanceOf(PartLot::class, $lot);
+        self::assertSame(3.0, $lot->getAmount());
+        self::assertSame($locationId, $lot->getStorageLocation()?->getID());
+        self::assertTrue($this->stockCommentExists($em, (int) $lot->getID(), $comment));
+    }
+
+    public function testCheckInOfAMissingLocationLeavesStockUnchanged(): void
+    {
+        $client = $this->client();
+        $created = $this->partWithSingleLot($client, 4.0);
+        $em = $this->em($client);
+        $bare = $em->getRepository(Part::class)->findOneBy(['name' => 'Part 1']);
+        if (!$bare instanceof Part || $bare->getPartLots()->count() > 0) {
+            self::markTestSkipped('Fixture part Part 1 without lots was not found.');
+        }
+        $name = 'Hold-'.bin2hex(random_bytes(3));
+        $orderId = $this->createOrderWithParts($client, $name, [$created['part'], $bare]);
+        $goodLine = $this->lineIdForPart($client->getCrawler(), (int) $created['part']->getID());
+        $bareLine = $this->lineIdForPart($client->getCrawler(), (int) $bare->getID());
+        $lotId = (int) $created['lot']->getID();
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        $client->request('POST', '/en/orders/'.$orderId.'/check-in', [
+            '_token' => $this->formToken($crawler, '#/check-in$#'),
+            'step' => 'confirm',
+            'comment' => 'should not stick',
+            'check' => [$goodLine => '1', $bareLine => '1'],
+            'qty' => [$goodLine => '2', $bareLine => '2'],
+            'lot' => [$goodLine => (string) $lotId],
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertStringContainsString('Choose a storage location for Part 1.', (string) $client->getResponse()->getContent());
+        $em->clear();
+        self::assertSame(4.0, $this->lotAmount($em, $lotId));
+        $order = $em->find(PurchaseOrder::class, $orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $order);
+        self::assertCount(0, $order->getReceipts());
+        self::assertSame(0, $order->findLineForPart($em->find(Part::class, $created['part']->getID()) ?? $created['part'])?->getQuantityReceived());
+    }
+
+    public function testCheckInAsksForALotWhenThePartHasSeveral(): void
+    {
+        $client = $this->client();
+        $part = $this->em($client)->getRepository(Part::class)->findOneBy(['name' => 'Part 3']);
+        if (!$part instanceof Part || $part->getPartLots()->count() < 2) {
+            self::markTestSkipped('Fixture part Part 3 with two lots was not found.');
+        }
+        $orderId = $this->createOrderWithParts($client, 'Multi-'.bin2hex(random_bytes(3)), [$part]);
+        $lineId = $this->lineIdForPart($client->getCrawler(), (int) $part->getID());
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        $lotSelect = $this->namedField($crawler, 'lot['.$lineId.']');
+        self::assertInstanceOf(Crawler::class, $lotSelect);
+        self::assertGreaterThan(2, $lotSelect->filter('option')->count());
+
+        $client->request('POST', '/en/orders/'.$orderId.'/check-in', [
+            '_token' => $this->formToken($crawler, '#/check-in$#'),
+            'step' => 'review',
+            'check' => [$lineId => '1'],
+            'qty' => [$lineId => '1'],
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertStringContainsString('Choose a stock lot for Part 3.', (string) $client->getResponse()->getContent());
+    }
+
+    public function testAFailedLineRollsBackTheWholeCheckIn(): void
+    {
+        $client = $this->client();
+        $em = $this->em($client);
+        $first = $this->partWithSingleLot($client, 5.0);
+        $second = $this->partWithSingleLot($client, 7.0);
+        $second['lot']->setInstockUnknown(true);
+        $em->flush();
+
+        $order = new PurchaseOrder();
+        $order->setName('Rollback-'.bin2hex(random_bytes(3)));
+        $line1 = new PurchaseOrderLine();
+        $line1->setPart($first['part']);
+        $line1->setQuantity(5);
+        $order->addLine($line1);
+        $line2 = new PurchaseOrderLine();
+        $line2->setPart($second['part']);
+        $line2->setQuantity(5);
+        $order->addLine($line2);
+        $em->persist($order);
+        $em->flush();
+
+        $service = static::getContainer()->get(OrderCheckIn::class);
+        self::assertInstanceOf(OrderCheckIn::class, $service);
+        try {
+            $service->apply($order, [
+                new OrderCheckInLine($line1, 2, $first['lot'], false, null),
+                new OrderCheckInLine($line2, 2, $second['lot'], false, null),
+            ], 'should not stick');
+            self::fail('The check-in should have been rejected.');
+        } catch (OrderCheckInException $exception) {
+            self::assertSame('purchase_order.check_in.lot_rejected', $exception->translationKey);
+        }
+
+        $lotId = (int) $first['lot']->getID();
+        $orderId = (int) $order->getId();
+        $partId = (int) $first['part']->getID();
+        $em->clear();
+        self::assertSame(5.0, $this->lotAmount($em, $lotId));
+        $reloaded = $em->find(PurchaseOrder::class, $orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $reloaded);
+        self::assertCount(0, $reloaded->getReceipts());
+        $part = $em->find(Part::class, $partId);
+        self::assertInstanceOf(Part::class, $part);
+        self::assertSame(0, $reloaded->findLineForPart($part)?->getQuantityReceived());
+    }
+
     public function testAddPageWithoutAPartReturnsToTheList(): void
     {
         $client = $this->client();
@@ -174,5 +449,143 @@ final class PurchaseOrderControllerTest extends WebTestCase
         preg_match('#/orders/(\d+)#', $location, $matches);
 
         return (int) $matches[1];
+    }
+
+    private function em(KernelBrowser $client): EntityManagerInterface
+    {
+        $em = $client->getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $em);
+
+        return $em;
+    }
+
+    /**
+     * @return array{part: Part, lot: PartLot, location: StorageLocation}
+     */
+    private function partWithSingleLot(KernelBrowser $client, float $amount): array
+    {
+        $em = $this->em($client);
+        $category = $em->find(Category::class, 1);
+        $location = $em->find(StorageLocation::class, 1);
+        if (!$category instanceof Category || !$location instanceof StorageLocation) {
+            self::markTestSkipped('Fixture category or storage location was not found.');
+        }
+        $part = new Part();
+        $part->setName('Checkin-'.bin2hex(random_bytes(3)));
+        $part->setCategory($category);
+        $lot = new PartLot();
+        $lot->setAmount($amount);
+        $lot->setStorageLocation($location);
+        $part->addPartLot($lot);
+        $em->persist($part);
+        $em->flush();
+
+        return ['part' => $part, 'lot' => $lot, 'location' => $location];
+    }
+
+    /**
+     * @param list<Part> $parts
+     */
+    private function createOrderWithParts(KernelBrowser $client, string $name, array $parts): int
+    {
+        $ids = array_map(static fn (Part $part): string => (string) $part->getID(), $parts);
+        $crawler = $client->request('GET', '/en/orders/add?parts='.implode(',', $ids));
+        self::assertResponseIsSuccessful();
+        $client->request('POST', '/en/orders/add', [
+            '_token' => $this->formToken($crawler, '#/orders/add$#'),
+            'parts' => implode(',', $ids),
+            'order' => '',
+            'name' => $name,
+        ]);
+        self::assertResponseRedirects();
+        $orderId = $this->orderIdFromRedirect($client);
+        $client->followRedirect();
+
+        return $orderId;
+    }
+
+    private function lineIdForPart(Crawler $crawler, int $partId): int
+    {
+        $id = null;
+        $crawler->filter('tbody tr')->each(function (Crawler $row) use ($partId, &$id): void {
+            if ($id !== null || $row->filter('a[href*="/part/'.$partId.'/"]')->count() === 0) {
+                return;
+            }
+            $name = $row->filter('input[data-order-qty]')->attr('name');
+            if (is_string($name) && preg_match('/lines\[(\d+)\]\[quantity\]/', $name, $matches) === 1) {
+                $id = (int) $matches[1];
+            }
+        });
+        self::assertIsInt($id);
+
+        return $id;
+    }
+
+    private function setLineQuantity(KernelBrowser $client, Crawler $crawler, int $orderId, string $name, int $lineId, int $quantity): void
+    {
+        $client->request('POST', '/en/orders/'.$orderId, [
+            '_token' => $this->formToken($crawler, '#/orders/'.$orderId.'$#'),
+            'name' => $name,
+            'lines' => [$lineId => ['target' => '0', 'quantity' => (string) $quantity]],
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+    }
+
+    /**
+     * @param array<string, mixed> $fields
+     */
+    private function postCheckIn(KernelBrowser $client, Crawler $crawler, int $orderId, array $fields): Crawler
+    {
+        $fields['_token'] = $this->formToken($crawler, '#/check-in$#');
+        $client->request('POST', '/en/orders/'.$orderId.'/check-in', $fields);
+
+        return $client->getCrawler();
+    }
+
+    private function namedField(Crawler $crawler, string $name): ?Crawler
+    {
+        $found = null;
+        $crawler->filter('input, select, textarea')->each(function (Crawler $node) use ($name, &$found): void {
+            if ($found instanceof Crawler || $node->attr('name') !== $name) {
+                return;
+            }
+            $found = $node;
+        });
+
+        return $found;
+    }
+
+    private function orderRow(Crawler $crawler, string $name): string
+    {
+        $text = null;
+        $crawler->filter('table tbody tr')->each(function (Crawler $row) use ($name, &$text): void {
+            if ($text === null && str_contains($row->text(), $name)) {
+                $text = $row->text();
+            }
+        });
+        self::assertIsString($text);
+
+        return $text;
+    }
+
+    private function lotAmount(EntityManagerInterface $em, int $lotId): float
+    {
+        $lot = $em->find(PartLot::class, $lotId);
+        self::assertInstanceOf(PartLot::class, $lot);
+
+        return $lot->getAmount();
+    }
+
+    private function stockCommentExists(EntityManagerInterface $em, int $lotId, string $comment): bool
+    {
+        $logs = $em->getRepository(PartStockChangedLogEntry::class)->findBy(['target_id' => $lotId]);
+        foreach ($logs as $log) {
+            if ($log->getComment() === $comment) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

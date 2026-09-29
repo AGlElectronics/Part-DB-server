@@ -15587,7 +15587,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.list.hint" name="purchase_order.list.hint">
       <segment state="translated">
         <source>purchase_order.list.hint</source>
-        <target>Create an order here, or select parts in the parts table and choose Make order. Open an order to rename it, add or remove parts, change quantities, or download the DigiKey and Mouser files.</target>
+        <target>Create an order here, or select parts in the parts table and choose Make order. Open an order to mark when it was ordered, change quantities, check in deliveries, or download the DigiKey and Mouser files.</target>
       </segment>
     </unit>
     <unit id="purchase_order.list.empty" name="purchase_order.list.empty">
@@ -15623,7 +15623,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.hint" name="purchase_order.hint">
       <segment state="translated">
         <source>purchase_order.hint</source>
-        <target>The target is the minimum stock plus 10%, rounded up to the next 5. The order quantity is that target minus what is in stock. Change the target if you will need more in the next few days, then save before downloading the files.</target>
+        <target>The target is the minimum stock plus 10%, rounded up to the next 5. The order quantity is that target minus what is in stock. Change the target if you will need more in the next few days, then save before downloading the files. Set Ordered on when you place the order, and use Check in when parts arrive.</target>
       </segment>
     </unit>
     <unit id="purchase_order.stock" name="purchase_order.stock">
@@ -15804,6 +15804,228 @@ Buerklin-API Authentication server:
       <segment state="translated">
         <source>purchase_order.add.submit</source>
         <target>Add to order</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.ordered_on" name="purchase_order.ordered_on">
+      <segment state="translated">
+        <source>purchase_order.ordered_on</source>
+        <target>Ordered on</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.ordered_on_help" name="purchase_order.ordered_on_help">
+      <segment state="translated">
+        <source>purchase_order.ordered_on_help</source>
+        <target>Leave this empty until you place the order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.not_ordered" name="purchase_order.not_ordered">
+      <segment state="translated">
+        <source>purchase_order.not_ordered</source>
+        <target>Not ordered</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.status" name="purchase_order.status">
+      <segment state="translated">
+        <source>purchase_order.status</source>
+        <target>Status</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.fulfillment.open" name="purchase_order.fulfillment.open">
+      <segment state="translated">
+        <source>purchase_order.fulfillment.open</source>
+        <target>Open</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.fulfillment.partial" name="purchase_order.fulfillment.partial">
+      <segment state="translated">
+        <source>purchase_order.fulfillment.partial</source>
+        <target>Partial</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.fulfillment.received" name="purchase_order.fulfillment.received">
+      <segment state="translated">
+        <source>purchase_order.fulfillment.received</source>
+        <target>Received</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.received" name="purchase_order.received">
+      <segment state="translated">
+        <source>purchase_order.received</source>
+        <target>Received</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.outstanding" name="purchase_order.outstanding">
+      <segment state="translated">
+        <source>purchase_order.outstanding</source>
+        <target>Still open</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.over_received" name="purchase_order.over_received">
+      <segment state="translated">
+        <source>purchase_order.over_received</source>
+        <target>More than ordered</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.receipts" name="purchase_order.receipts">
+      <segment state="translated">
+        <source>purchase_order.receipts</source>
+        <target>Deliveries</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.action" name="purchase_order.check_in.action">
+      <segment state="translated">
+        <source>purchase_order.check_in.action</source>
+        <target>Check in</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.title" name="purchase_order.check_in.title">
+      <segment state="translated">
+        <source>purchase_order.check_in.title</source>
+        <target>Check in</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.hint" name="purchase_order.check_in.hint">
+      <segment state="translated">
+        <source>purchase_order.check_in.hint</source>
+        <target>Tick the parts that arrived, enter how many you got, then review. Stock changes only after you confirm.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.include" name="purchase_order.check_in.include">
+      <segment state="translated">
+        <source>purchase_order.check_in.include</source>
+        <target>Arrived</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.received_now" name="purchase_order.check_in.received_now">
+      <segment state="translated">
+        <source>purchase_order.check_in.received_now</source>
+        <target>Qty received now</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.where" name="purchase_order.check_in.where">
+      <segment state="translated">
+        <source>purchase_order.check_in.where</source>
+        <target>Stock lot</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.comment" name="purchase_order.check_in.comment">
+      <segment state="translated">
+        <source>purchase_order.check_in.comment</source>
+        <target>Comment</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.review" name="purchase_order.check_in.review">
+      <segment state="translated">
+        <source>purchase_order.check_in.review</source>
+        <target>Review</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.review_title" name="purchase_order.check_in.review_title">
+      <segment state="translated">
+        <source>purchase_order.check_in.review_title</source>
+        <target>Confirm check-in</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.review_hint" name="purchase_order.check_in.review_hint">
+      <segment state="translated">
+        <source>purchase_order.check_in.review_hint</source>
+        <target>Stock will be updated with the comment below. Nothing has changed yet.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.confirm" name="purchase_order.check_in.confirm">
+      <segment state="translated">
+        <source>purchase_order.check_in.confirm</source>
+        <target>Confirm and update stock</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.back" name="purchase_order.check_in.back">
+      <segment state="translated">
+        <source>purchase_order.check_in.back</source>
+        <target>Back</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.choose_lot_option" name="purchase_order.check_in.choose_lot_option">
+      <segment state="translated">
+        <source>purchase_order.check_in.choose_lot_option</source>
+        <target>Choose a lot</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.choose_location_option" name="purchase_order.check_in.choose_location_option">
+      <segment state="translated">
+        <source>purchase_order.check_in.choose_location_option</source>
+        <target>Choose a location</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.default_comment" name="purchase_order.check_in.default_comment">
+      <segment state="translated">
+        <source>purchase_order.check_in.default_comment</source>
+        <target>Checked in from order %name%</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.new_lot" name="purchase_order.check_in.new_lot">
+      <segment state="translated">
+        <source>purchase_order.check_in.new_lot</source>
+        <target>New lot at %location%</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.empty_order" name="purchase_order.check_in.empty_order">
+      <segment state="translated">
+        <source>purchase_order.check_in.empty_order</source>
+        <target>Add parts before checking this order in.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.none_selected" name="purchase_order.check_in.none_selected">
+      <segment state="translated">
+        <source>purchase_order.check_in.none_selected</source>
+        <target>Tick the parts that arrived.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.invalid_quantity" name="purchase_order.check_in.invalid_quantity">
+      <segment state="translated">
+        <source>purchase_order.check_in.invalid_quantity</source>
+        <target>Enter a quantity above zero for %part%.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.invalid_line" name="purchase_order.check_in.invalid_line">
+      <segment state="translated">
+        <source>purchase_order.check_in.invalid_line</source>
+        <target>That part is not on this order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.choose_lot" name="purchase_order.check_in.choose_lot">
+      <segment state="translated">
+        <source>purchase_order.check_in.choose_lot</source>
+        <target>Choose a stock lot for %part%.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.choose_location" name="purchase_order.check_in.choose_location">
+      <segment state="translated">
+        <source>purchase_order.check_in.choose_location</source>
+        <target>Choose a storage location for %part%.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.no_location" name="purchase_order.check_in.no_location">
+      <segment state="translated">
+        <source>purchase_order.check_in.no_location</source>
+        <target>No storage location can take %part%.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.lot_rejected" name="purchase_order.check_in.lot_rejected">
+      <segment state="translated">
+        <source>purchase_order.check_in.lot_rejected</source>
+        <target>%part% cannot be added to that stock lot.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.denied" name="purchase_order.check_in.denied">
+      <segment state="translated">
+        <source>purchase_order.check_in.denied</source>
+        <target>You cannot add stock for %part%.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.confirmed" name="purchase_order.check_in.confirmed">
+      <segment state="translated">
+        <source>purchase_order.check_in.confirmed</source>
+        <target>Stock was updated.</target>
       </segment>
     </unit>
     <unit id="ohF6xCL" name="attachment.3d_viewer.title">

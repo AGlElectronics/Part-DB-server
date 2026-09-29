@@ -14,10 +14,22 @@
     <form method="post" action="{{ path('purchase_order_show', {id: order.id}) }}">
         <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_' ~ order.id) }}">
 
-        <div class="mb-3">
-            <label class="form-label" for="purchase-order-name">{% trans %}purchase_order.name{% endtrans %}</label>
-            <input class="form-control" id="purchase-order-name" type="text" name="name" maxlength="255"
-                   value="{{ order.name }}" {% if not can_edit %}disabled{% endif %}>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label" for="purchase-order-name">{% trans %}purchase_order.name{% endtrans %}</label>
+                <input class="form-control" id="purchase-order-name" type="text" name="name" maxlength="255"
+                       value="{{ order.name }}" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="purchase-order-ordered">{% trans %}purchase_order.ordered_on{% endtrans %}</label>
+                <input class="form-control" id="purchase-order-ordered" type="date" name="ordered_on"
+                       value="{{ order.orderedAt ? order.orderedAt|date('Y-m-d') : '' }}" {% if not can_edit %}disabled{% endif %}>
+                <div class="form-text">{% trans %}purchase_order.ordered_on_help{% endtrans %}</div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{% trans %}purchase_order.status{% endtrans %}</label>
+                <div class="form-control-plaintext">{{ ('purchase_order.fulfillment.' ~ order.fulfillment)|trans }}</div>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -29,6 +41,8 @@
                     <th>{% trans %}purchase_order.minimum{% endtrans %}</th>
                     <th>{% trans %}purchase_order.target{% endtrans %}</th>
                     <th>{% trans %}purchase_order.quantity{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.received{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.outstanding{% endtrans %}</th>
                     <th>DigiKey</th>
                     <th>Mouser</th>
                     {% if can_edit %}
@@ -53,6 +67,13 @@
                                    name="lines[{{ line.id }}][quantity]" value="{{ line.quantity }}"
                                    data-order-qty>
                         </td>
+                        <td>
+                            {{ line.quantityReceived }}
+                            {% if line.quantityReceived > line.quantity %}
+                                <div class="small text-muted">{% trans %}purchase_order.over_received{% endtrans %}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ line.outstanding }}</td>
                         <td>{{ row.digikey ?? ('purchase_order.no_number'|trans) }}</td>
                         <td>{{ row.mouser ?? ('purchase_order.no_number'|trans) }}</td>
                         {% if can_edit %}
@@ -63,7 +84,7 @@
                         {% endif %}
                     </tr>
                 {% else %}
-                    <tr><td colspan="{{ can_edit ? 8 : 7 }}">{% trans %}purchase_order.empty{% endtrans %}</td></tr>
+                    <tr><td colspan="{{ can_edit ? 10 : 9 }}">{% trans %}purchase_order.empty{% endtrans %}</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
@@ -81,6 +102,9 @@
 
         <div class="d-flex flex-wrap gap-2">
             <button type="submit" class="btn btn-primary">{% trans %}purchase_order.save{% endtrans %}</button>
+            {% if can_edit and order.lines is not empty %}
+                <a class="btn btn-success" href="{{ path('purchase_order_check_in', {id: order.id}) }}">{% trans %}purchase_order.check_in.action{% endtrans %}</a>
+            {% endif %}
             <a class="btn btn-outline-primary" data-turbo="false" href="{{ path('purchase_order_digikey', {id: order.id}) }}">{% trans %}purchase_order.download_digikey{% endtrans %}</a>
             <a class="btn btn-outline-primary" data-turbo="false" href="{{ path('purchase_order_mouser', {id: order.id}) }}">{% trans %}purchase_order.download_mouser{% endtrans %}</a>
         </div>
@@ -97,6 +121,34 @@
                 {% trans %}purchase_order.delete{% endtrans %}
             </button>
         </form>
+    {% endif %}
+
+    {% if order.receipts is not empty %}
+        <h2 class="h5 mt-4">{% trans %}purchase_order.receipts{% endtrans %}</h2>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>{% trans %}purchase_order.received{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.check_in.comment{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.lines{% endtrans %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for receipt in order.receipts %}
+                    <tr>
+                        <td>{{ receipt.receivedAt|date('Y-m-d H:i') }}</td>
+                        <td>{{ receipt.comment }}</td>
+                        <td>
+                            {% for item in receipt.lines %}
+                                {{ item.orderLine.part.name }} ({{ item.quantity }}){% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endif %}
 
     <script>

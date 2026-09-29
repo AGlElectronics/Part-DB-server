@@ -1,0 +1,94 @@
+{% extends "main_card.html.twig" %}
+
+{% block title %}{% trans %}purchase_order.check_in.title{% endtrans %}{% endblock %}
+
+{% block card_title %}
+    <i class="fas fa-box-open"></i> {% trans %}purchase_order.check_in.title{% endtrans %}: {{ order.name }}
+    <a class="btn btn-outline-secondary btn-sm float-end" href="{{ path('purchase_order_show', {id: order.id}) }}">{% trans %}purchase_order.check_in.back{% endtrans %}</a>
+{% endblock %}
+
+{% block card_content %}
+    <p class="text-muted">{% trans %}purchase_order.check_in.hint{% endtrans %}</p>
+
+    <form method="post" action="{{ path('purchase_order_check_in', {id: order.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_check_in_' ~ order.id) }}">
+        <input type="hidden" name="step" value="review">
+
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>{% trans %}purchase_order.check_in.include{% endtrans %}</th>
+                    <th>{% trans %}part.edit.name{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.quantity{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.received{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.outstanding{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.check_in.received_now{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.check_in.where{% endtrans %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    {% set line = row.line %}
+                    <tr data-line-id="{{ line.id }}">
+                        <td>
+                            <input class="form-check-input" type="checkbox" name="check[{{ line.id }}]" value="1"
+                                   data-check-in aria-label="{{ 'purchase_order.check_in.include'|trans }}">
+                        </td>
+                        <td>{{ line.part.name }}</td>
+                        <td>{{ line.quantity }}</td>
+                        <td>{{ line.quantityReceived }}</td>
+                        <td>{{ line.outstanding }}</td>
+                        <td>
+                            <input class="form-control" type="number" min="0" step="1"
+                                   name="qty[{{ line.id }}]" value="{{ line.outstanding }}"
+                                   data-check-qty data-outstanding="{{ line.outstanding }}">
+                        </td>
+                        <td>
+                            {% if row.lots|length == 1 %}
+                                <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lots[0].id }}">
+                                {{ row.lotLabels[row.lots[0].id] }}
+                            {% elseif row.lots|length > 1 %}
+                                <select class="form-select" name="lot[{{ line.id }}]">
+                                    <option value="">{% trans %}purchase_order.check_in.choose_lot_option{% endtrans %}</option>
+                                    {% for lot in row.lots %}
+                                        <option value="{{ lot.id }}">{{ row.lotLabels[lot.id] }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select class="form-select" name="location[{{ line.id }}]">
+                                    <option value="">{% trans %}purchase_order.check_in.choose_location_option{% endtrans %}</option>
+                                    {% for location in row.locations %}
+                                        <option value="{{ location.id }}">{{ location.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="purchase-order-check-in-comment">{% trans %}purchase_order.check_in.comment{% endtrans %}</label>
+            <textarea class="form-control" id="purchase-order-check-in-comment" name="comment" rows="2" maxlength="255">{{ comment }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">{% trans %}purchase_order.check_in.review{% endtrans %}</button>
+    </form>
+
+    <script>
+        document.querySelectorAll('[data-check-in]').forEach((box) => {
+            box.addEventListener('change', () => {
+                const qty = box.closest('tr').querySelector('[data-check-qty]');
+                if (!qty || !box.checked) {
+                    return;
+                }
+                if (qty.value === '' || Number(qty.value) === 0) {
+                    qty.value = qty.dataset.outstanding;
+                }
+            });
+        });
+    </script>
+{% endblock %}

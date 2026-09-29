@@ -22,13 +22,16 @@ class PurchaseOrderLine
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Part $part;
+    private ?Part $part = null;
 
     #[ORM\Column]
     private int $targetStock = 0;
 
     #[ORM\Column]
     private int $quantity = 0;
+
+    #[ORM\Column]
+    private int $quantityReceived = 0;
 
     public function getId(): ?int
     {
@@ -47,6 +50,10 @@ class PurchaseOrderLine
 
     public function getPart(): Part
     {
+        if (!$this->part instanceof Part) {
+            throw new \LogicException('A purchase order line must have a part.');
+        }
+
         return $this->part;
     }
 
@@ -73,5 +80,20 @@ class PurchaseOrderLine
     public function setQuantity(int $quantity): void
     {
         $this->quantity = max(0, $quantity);
+    }
+
+    public function getQuantityReceived(): int
+    {
+        return $this->quantityReceived;
+    }
+
+    public function addQuantityReceived(int $quantity): void
+    {
+        $this->quantityReceived += max(0, $quantity);
+    }
+
+    public function getOutstanding(): int
+    {
+        return max(0, $this->quantity - $this->quantityReceived);
     }
 }

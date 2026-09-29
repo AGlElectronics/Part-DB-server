@@ -1,0 +1,57 @@
+{% extends "main_card.html.twig" %}
+
+{% block title %}{% trans %}purchase_order.check_in.review_title{% endtrans %}{% endblock %}
+
+{% block card_title %}
+    <i class="fas fa-box-open"></i> {% trans %}purchase_order.check_in.review_title{% endtrans %}: {{ order.name }}
+{% endblock %}
+
+{% block card_content %}
+    <p class="text-muted">{% trans %}purchase_order.check_in.review_hint{% endtrans %}</p>
+
+    <form method="post" action="{{ path('purchase_order_check_in', {id: order.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_check_in_' ~ order.id) }}">
+        <input type="hidden" name="step" value="confirm">
+
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>{% trans %}part.edit.name{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.check_in.received_now{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.check_in.where{% endtrans %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    {% set line = row.line %}
+                    <tr data-line-id="{{ line.id }}">
+                        <td>{{ line.part.name }}</td>
+                        <td>{{ row.quantity }}</td>
+                        <td>
+                            {{ destinations[line.id] }}
+                            <input type="hidden" name="check[{{ line.id }}]" value="1">
+                            <input type="hidden" name="qty[{{ line.id }}]" value="{{ row.quantity }}">
+                            {% if row.newLot %}
+                                <input type="hidden" name="location[{{ line.id }}]" value="{{ row.location.id }}">
+                            {% else %}
+                                <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lot.id }}">
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="purchase-order-check-in-comment">{% trans %}purchase_order.check_in.comment{% endtrans %}</label>
+            <textarea class="form-control" id="purchase-order-check-in-comment" name="comment" rows="2" maxlength="255">{{ comment }}</textarea>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-success">{% trans %}purchase_order.check_in.confirm{% endtrans %}</button>
+            <a class="btn btn-outline-secondary" href="{{ path('purchase_order_check_in', {id: order.id}) }}">{% trans %}purchase_order.check_in.back{% endtrans %}</a>
+        </div>
+    </form>
+{% endblock %}

@@ -25,16 +25,25 @@ class PurchaseOrder
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $orderedAt = null;
+
     /** @var Collection<int, PurchaseOrderLine> */
     #[ORM\OneToMany(mappedBy: 'purchaseOrder', targetEntity: PurchaseOrderLine::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $lines;
+
+    /** @var Collection<int, PurchaseOrderReceipt> */
+    #[ORM\OneToMany(mappedBy: 'purchaseOrder', targetEntity: PurchaseOrderReceipt::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['receivedAt' => 'ASC', 'id' => 'ASC'])]
+    private Collection $receipts;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->name = 'Order '.$this->createdAt->format('Y-m-d H:i');
         $this->lines = new ArrayCollection();
+        $this->receipts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -55,6 +64,46 @@ class PurchaseOrder
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getOrderedAt(): ?\DateTimeImmutable
+    {
+        return $this->orderedAt;
+    }
+
+    public function setOrderedAt(?\DateTimeImmutable $orderedAt): void
+    {
+        $this->orderedAt = $orderedAt;
+    }
+
+    /**
+     * Open when nothing has been received, partial when some has, received when every ordered line is filled.
+     */
+    public function getFulfillment(): string
+    {
+        $receivedAny = false;
+        $stillOpen = false;
+        $trackable = false;
+        foreach ($this->lines as $line) {
+            if ($line->getQuantityReceived() > 0) {
+                $receivedAny = true;
+            }
+            if ($line->getQuantity() <= 0) {
+                continue;
+            }
+            $trackable = true;
+            if ($line->getQuantityReceived() < $line->getQuantity()) {
+                $stillOpen = true;
+            }
+        }
+        if (!$receivedAny) {
+            return 'open';
+        }
+        if ($trackable && $stillOpen) {
+            return 'partial';
+        }
+
+        return 'received';
     }
 
     /**
@@ -88,5 +137,22 @@ class PurchaseOrder
     public function removeLine(PurchaseOrderLine $line): void
     {
         $this->lines->removeElement($line);
+    }
+
+    /**
+     * @return Collection<int, PurchaseOrderReceipt>
+     */
+    public function getReceipts(): Collection
+    {
+        return $this->receipts;
+    }
+
+    public function addReceipt(PurchaseOrderReceipt $receipt): void
+    {
+        if ($this->receipts->contains($receipt)) {
+            return;
+        }
+        $this->receipts->add($receipt);
+        $receipt->setPurchaseOrder($this);
     }
 }

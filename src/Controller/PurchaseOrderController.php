@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Parts\Part;
+use App\Entity\Parts\PartLot;
 use App\Entity\Purchasing\PurchaseOrder;
 use App\Entity\Purchasing\PurchaseOrderLine;
+use App\Services\Purchasing\OrderCheckIn;
+use App\Services\Purchasing\OrderCheckInException;
+use App\Services\Purchasing\OrderCheckInLine;
 use App\Services\Purchasing\StockRefillCalculator;
 use App\Services\Purchasing\SupplierOrderCsv;
 use App\Services\Purchasing\SupplierPartNumberResolver;
@@ -15,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/orders')]
 final class PurchaseOrderController extends AbstractController
@@ -24,6 +29,8 @@ final class PurchaseOrderController extends AbstractController
         private readonly SupplierPartNumberResolver $partNumbers,
         private readonly SupplierOrderCsv $csv,
         private readonly StockRefillCalculator $stockRefill,
+        private readonly OrderCheckIn $orderCheckIn,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -105,6 +112,7 @@ final class PurchaseOrderController extends AbstractController
             $this->denyAccessUnlessGranted('@parts.edit');
             $this->assertCsrf($request, 'purchase_order_'.$order->getId());
             $this->applyName($order, $request);
+            $this->applyOrderedAt($order, $request);
             $this->updateLines($request, $order);
             $this->addPostedPart($request, $order);
             $this->entityManager->flush();
@@ -128,6 +136,52 @@ final class PurchaseOrderController extends AbstractController
         return $this->render('purchasing/order_show.html.twig', [
             'order' => $order,
             'lines' => $lines,
+        ]);
+    }
+
+    #[Route('/{id}/check-in', name: 'purchase_order_check_in', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function checkIn(Request $request, PurchaseOrder $order): Response
+    {
+        $this->denyAccessUnlessGranted('@parts.edit');
+        if ($order->getLines()->isEmpty()) {
+            $this->addFlash('warning', 'purchase_order.check_in.empty_order');
+
+            return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+        }
+
+        $comment = $this->checkInComment($request, $order);
+        if ($request->isMethod('POST')) {
+            $this->assertCsrf($request, 'purchase_order_check_in_'.$order->getId());
+            try {
+                $posted = $this->postedCheckIn($request);
+                if ($posted === []) {
+                    throw new OrderCheckInException('purchase_order.check_in.none_selected');
+                }
+                $resolved = $this->orderCheckIn->resolve($order, $posted);
+                if ($request->request->get('step') === 'confirm') {
+                    $this->orderCheckIn->apply($order, $resolved, $comment);
+                    $this->addFlash('success', 'purchase_order.check_in.confirmed');
+
+                    return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+                }
+
+                return $this->render('purchasing/order_check_in_review.html.twig', [
+                    'order' => $order,
+                    'rows' => $resolved,
+                    'comment' => $comment,
+                    'destinations' => $this->destinations($resolved),
+                ]);
+            } catch (OrderCheckInException $exception) {
+                $this->addFlash('error', $this->translator->trans($exception->translationKey, $exception->parameters));
+
+                return $this->redirectToRoute('purchase_order_check_in', ['id' => $order->getId()]);
+            }
+        }
+
+        return $this->render('purchasing/order_check_in.html.twig', [
+            'order' => $order,
+            'rows' => $this->checkInRows($order),
+            'comment' => $comment,
         ]);
     }
 
@@ -221,6 +275,125 @@ final class PurchaseOrderController extends AbstractController
         $this->entityManager->persist($order);
 
         return $order;
+    }
+
+    private function applyOrderedAt(PurchaseOrder $order, Request $request): void
+    {
+        if (!$request->request->has('ordered_on')) {
+            return;
+        }
+        $value = $request->request->get('ordered_on');
+        if (!is_scalar($value) || trim((string) $value) === '') {
+            $order->setOrderedAt(null);
+
+            return;
+        }
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', trim((string) $value));
+        if ($date instanceof \DateTimeImmutable) {
+            $order->setOrderedAt($date);
+        }
+    }
+
+    /**
+     * @return list<array{line: PurchaseOrderLine, lots: list<PartLot>, lotLabels: array<int, string>, locations: list<\App\Entity\Parts\StorageLocation>}>
+     */
+    private function checkInRows(PurchaseOrder $order): array
+    {
+        $rows = [];
+        foreach ($order->getLines() as $line) {
+            $part = $line->getPart();
+            $lots = $this->orderCheckIn->usableLots($part);
+            $labels = [];
+            foreach ($lots as $lot) {
+                $id = $lot->getID();
+                if ($id !== null) {
+                    $labels[$id] = $this->orderCheckIn->describeLot($lot);
+                }
+            }
+            $rows[] = [
+                'line' => $line,
+                'lots' => $lots,
+                'lotLabels' => $labels,
+                'locations' => $lots === [] ? $this->orderCheckIn->locationChoices($part) : [],
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param list<OrderCheckInLine> $rows
+     *
+     * @return array<int, string>
+     */
+    private function destinations(array $rows): array
+    {
+        $labels = [];
+        foreach ($rows as $row) {
+            $lineId = $row->line->getId();
+            if ($lineId === null) {
+                continue;
+            }
+            if ($row->newLot) {
+                $labels[$lineId] = $this->translator->trans('purchase_order.check_in.new_lot', [
+                    '%location%' => $row->location?->getName() ?? '',
+                ]);
+                continue;
+            }
+            $labels[$lineId] = $this->orderCheckIn->describeLot($row->lot);
+        }
+
+        return $labels;
+    }
+
+    /**
+     * @return array<int, array{quantity: int, lotId: int, locationId: int}>
+     */
+    private function postedCheckIn(Request $request): array
+    {
+        /** @var array<mixed, mixed> $checks */
+        $checks = $request->request->all('check');
+        /** @var array<mixed, mixed> $quantities */
+        $quantities = $request->request->all('qty');
+        /** @var array<mixed, mixed> $lots */
+        $lots = $request->request->all('lot');
+        /** @var array<mixed, mixed> $locations */
+        $locations = $request->request->all('location');
+        $rows = [];
+        foreach (array_keys($checks) as $id) {
+            $key = (string) $id;
+            if (!ctype_digit($key)) {
+                continue;
+            }
+            $lineId = (int) $key;
+            $rows[$lineId] = [
+                'quantity' => $this->postedInt($quantities[$key] ?? null),
+                'lotId' => $this->postedInt($lots[$key] ?? null),
+                'locationId' => $this->postedInt($locations[$key] ?? null),
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function postedInt(mixed $value): int
+    {
+        if (!is_scalar($value) || !preg_match('/^\d+$/', trim((string) $value))) {
+            return 0;
+        }
+
+        return (int) $value;
+    }
+
+    private function checkInComment(Request $request, PurchaseOrder $order): string
+    {
+        $value = $request->request->get('comment');
+        $comment = is_scalar($value) ? trim((string) $value) : '';
+        if ($comment === '') {
+            $comment = $this->translator->trans('purchase_order.check_in.default_comment', ['%name%' => $order->getName()]);
+        }
+
+        return mb_substr($comment, 0, 255);
     }
 
     private function applyName(PurchaseOrder $order, Request $request): void
