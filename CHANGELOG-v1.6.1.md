@@ -1,8 +1,8 @@
-# 4QT Part database — Changelog v1.5.5
+# 4QT Part database — Changelog v1.6.1
 
-**Overlay version:** `v1.5.4` → `v1.5.5`  
+**Overlay version:** `v1.6.0` → `v1.6.1`  
 **Upstream Part-DB:** `2.19.1`  
-**Image:** `ghcr.io/aglelectronics/part-db-server:mechanical-v1.5.5`  
+**Image:** `ghcr.io/aglelectronics/part-db-server:mechanical-v1.6.1`  
 **Digest:** `sha256:b8f0ca0f20faa77da5188169499b76644bc6053c86c70909c167c3c525b2889a`  
 **Date:** 2026-09-29
 
