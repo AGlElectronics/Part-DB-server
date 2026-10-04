@@ -1,9 +1,12 @@
 {% extends "main_card.html.twig" %}
 
-{% block title %}{{ order.name }}{% endblock %}
+{% block title %}{{ order.number }} - {{ order.name }}{% endblock %}
 
 {% block card_title %}
-    <i class="fas fa-cart-shopping"></i> {{ order.name }}
+    <i class="fas fa-cart-shopping"></i>
+    <strong>{{ order.number }}</strong>
+    <span class="badge bg-secondary">{{ ('purchase_order.kind.' ~ order.kind)|trans }}</span>
+    <span class="ms-1">{{ order.name }}</span>
     <a class="btn btn-outline-secondary btn-sm float-end" href="{{ path('purchase_orders_list') }}">{% trans %}purchase_order.back{% endtrans %}</a>
 {% endblock %}
 
@@ -11,107 +14,275 @@
     {% set can_edit = is_granted('@parts.edit') %}
     <p class="text-muted">{% trans %}purchase_order.hint{% endtrans %}</p>
 
-    <form method="post" action="{{ path('purchase_order_show', {id: order.id}) }}">
+    {# Controls below use this form by ID so per-line create forms are never nested. #}
+    <form id="purchase-order-edit" method="post" action="{{ path('purchase_order_show', {id: order.id}) }}">
         <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_' ~ order.id) }}">
-
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label class="form-label" for="purchase-order-name">{% trans %}purchase_order.name{% endtrans %}</label>
-                <input class="form-control" id="purchase-order-name" type="text" name="name" maxlength="255"
-                       value="{{ order.name }}" {% if not can_edit %}disabled{% endif %}>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label" for="purchase-order-ordered">{% trans %}purchase_order.ordered_on{% endtrans %}</label>
-                <input class="form-control" id="purchase-order-ordered" type="date" name="ordered_on"
-                       value="{{ order.orderedAt ? order.orderedAt|date('Y-m-d') : '' }}" {% if not can_edit %}disabled{% endif %}>
-                <div class="form-text">{% trans %}purchase_order.ordered_on_help{% endtrans %}</div>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">{% trans %}purchase_order.status{% endtrans %}</label>
-                <div class="form-control-plaintext">{{ ('purchase_order.fulfillment.' ~ order.fulfillment)|trans }}</div>
-            </div>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-sm align-middle">
-                <thead>
-                <tr>
-                    <th>{% trans %}part.edit.name{% endtrans %}</th>
-                    <th>{% trans %}purchase_order.stock{% endtrans %}</th>
-                    <th>{% trans %}purchase_order.minimum{% endtrans %}</th>
-                    <th>{% trans %}purchase_order.target{% endtrans %}</th>
-                    <th>{% trans %}purchase_order.quantity{% endtrans %}</th>
-                    <th>{% trans %}purchase_order.received{% endtrans %}</th>
-                    <th>{% trans %}purchase_order.outstanding{% endtrans %}</th>
-                    <th>DigiKey</th>
-                    <th>Mouser</th>
-                    {% if can_edit %}
-                        <th>{% trans %}purchase_order.remove{% endtrans %}</th>
-                    {% endif %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for row in lines %}
-                    {% set line = row.line %}
-                    <tr>
-                        <td><a href="{{ path('part_edit', {id: line.part.id}) }}">{{ line.part.name }}</a></td>
-                        <td>{{ row.stock }}</td>
-                        <td>{{ row.minimum }}</td>
-                        <td>
-                            <input class="form-control" type="number" min="0" step="1"
-                                   name="lines[{{ line.id }}][target]" value="{{ line.targetStock }}"
-                                   data-order-target data-stock="{{ row.stock }}">
-                        </td>
-                        <td>
-                            <input class="form-control" type="number" min="0" step="1"
-                                   name="lines[{{ line.id }}][quantity]" value="{{ line.quantity }}"
-                                   data-order-qty>
-                        </td>
-                        <td>
-                            {{ line.quantityReceived }}
-                            {% if line.quantityReceived > line.quantity %}
-                                <div class="small text-muted">{% trans %}purchase_order.over_received{% endtrans %}</div>
-                            {% endif %}
-                        </td>
-                        <td>{{ line.outstanding }}</td>
-                        <td>{{ row.digikey ?? ('purchase_order.no_number'|trans) }}</td>
-                        <td>{{ row.mouser ?? ('purchase_order.no_number'|trans) }}</td>
-                        {% if can_edit %}
-                            <td>
-                                <input class="form-check-input" type="checkbox" name="remove[{{ line.id }}]"
-                                       aria-label="{{ 'purchase_order.remove'|trans }}">
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% else %}
-                    <tr><td colspan="{{ can_edit ? 10 : 9 }}">{% trans %}purchase_order.empty{% endtrans %}</td></tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        {% if can_edit %}
-            <div class="mb-3">
-                <label class="form-label" for="purchase-order-add-part">{% trans %}purchase_order.add_part_label{% endtrans %}</label>
-                <select class="form-select" id="purchase-order-add-part" name="add_part"
-                        {{ stimulus_controller('elements/part_select') }}
-                        data-autocomplete="{{ path('typeahead_parts', {'query': '__QUERY__'}) }}">
-                </select>
-            </div>
-        {% endif %}
-
-        <div class="d-flex flex-wrap gap-2">
-            <button type="submit" class="btn btn-primary">{% trans %}purchase_order.save{% endtrans %}</button>
-            {% if can_edit and order.lines is not empty %}
-                <a class="btn btn-success" href="{{ path('purchase_order_check_in', {id: order.id}) }}">{% trans %}purchase_order.check_in.action{% endtrans %}</a>
-            {% endif %}
-            <a class="btn btn-outline-primary" data-turbo="false" href="{{ path('purchase_order_digikey', {id: order.id}) }}">{% trans %}purchase_order.download_digikey{% endtrans %}</a>
-            <a class="btn btn-outline-primary" data-turbo="false" href="{{ path('purchase_order_mouser', {id: order.id}) }}">{% trans %}purchase_order.download_mouser{% endtrans %}</a>
-        </div>
     </form>
 
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        {% if can_edit %}
+            <button type="submit" class="btn btn-primary" form="purchase-order-edit">
+                {% trans %}purchase_order.save{% endtrans %}
+            </button>
+            {% if not order.orderedAt %}
+                <button type="submit" class="btn btn-outline-success" name="mark_ordered" value="1"
+                        form="purchase-order-edit">
+                    {% trans %}purchase_order.mark_ordered{% endtrans %}
+                </button>
+            {% endif %}
+            {% if order.lines is not empty %}
+                <a class="btn btn-success" href="{{ path('purchase_order_check_in', {id: order.id}) }}">
+                    {% trans %}purchase_order.check_in.action{% endtrans %}
+                </a>
+            {% endif %}
+        {% endif %}
+
+        {% if order.kind == 'elec' %}
+            <a class="btn btn-outline-primary" data-turbo="false"
+               href="{{ path('purchase_order_digikey', {id: order.id}) }}">
+                {% trans %}purchase_order.download_digikey{% endtrans %}
+            </a>
+            <a class="btn btn-outline-primary" data-turbo="false"
+               href="{{ path('purchase_order_mouser', {id: order.id}) }}">
+                {% trans %}purchase_order.download_mouser{% endtrans %}
+            </a>
+        {% else %}
+            <form class="d-flex gap-2" method="get" action="{{ path('purchase_order_supplier', {id: order.id}) }}"
+                  data-turbo="false">
+                <label class="visually-hidden" for="purchase-order-export-supplier">
+                    {% trans %}purchase_order.supplier{% endtrans %}
+                </label>
+                <select class="form-select" id="purchase-order-export-supplier" name="supplier" required>
+                    <option value="">{% trans %}purchase_order.supplier{% endtrans %}</option>
+                    {% for supplier in suppliers %}
+                        <option value="{{ supplier.id }}">{{ supplier.label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-primary text-nowrap">
+                    {% trans %}purchase_order.download_supplier{% endtrans %}
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label class="form-label" for="purchase-order-name">{% trans %}purchase_order.name{% endtrans %}</label>
+            <input class="form-control" id="purchase-order-name" type="text" name="name" maxlength="255"
+                   value="{{ order.name }}" form="purchase-order-edit" required {% if not can_edit %}disabled{% endif %}>
+            <small class="form-text text-muted">
+                {% trans %}purchase_order.created{% endtrans %}: {{ order.createdAt|date('Y-m-d H:i') }}
+            </small>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">{% trans %}purchase_order.ordered_on{% endtrans %}</label>
+            <div class="form-control-plaintext">
+                {{ order.orderedAt ? order.orderedAt|date('Y-m-d') : ('purchase_order.not_ordered'|trans) }}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">{% trans %}purchase_order.status{% endtrans %}</label>
+            <div class="form-control-plaintext">{{ ('purchase_order.fulfillment.' ~ order.fulfillment)|trans }}</div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr>
+                <th>{% trans %}part.edit.name{% endtrans %}</th>
+                <th>{% trans %}purchase_order.stock{% endtrans %}</th>
+                <th>{% trans %}purchase_order.minimum{% endtrans %}</th>
+                <th>{% trans %}purchase_order.target{% endtrans %}</th>
+                <th>{% trans %}purchase_order.quantity{% endtrans %}</th>
+                <th>{% trans %}purchase_order.received{% endtrans %}</th>
+                <th>{% trans %}purchase_order.outstanding{% endtrans %}</th>
+                {% if order.kind == 'elec' %}
+                    <th>DigiKey</th>
+                    <th>Mouser</th>
+                {% else %}
+                    <th>{% trans %}purchase_order.supplier{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.supplier_part_number{% endtrans %}</th>
+                {% endif %}
+                {% if can_edit %}
+                    <th>{% trans %}purchase_order.remove{% endtrans %}</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in lines %}
+                {% set line = row.line %}
+                <tr>
+                    <td>
+                        {% if line.part %}
+                            <a href="{{ path('part_edit', {id: line.part.id}) }}">{{ line.part.name }}</a>
+                        {% else %}
+                            <div>
+                                {{ line.label }}
+                                <span class="badge bg-warning text-dark">{% trans %}purchase_order.not_in_database{% endtrans %}</span>
+                            </div>
+                            {% if can_edit %}
+                                <form class="row g-1 mt-1"
+                                      method="post"
+                                      action="{{ path('purchase_order_create_part', {id: order.id, lineId: line.id}) }}">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('purchase_order_create_part_' ~ order.id ~ '_' ~ line.id) }}">
+                                    <div class="col-12 col-xl-5">
+                                        <label class="visually-hidden" for="purchase-order-adopt-name-{{ line.id }}">
+                                            {% trans %}purchase_order.create_part.name{% endtrans %}
+                                        </label>
+                                        <input class="form-control form-control-sm" id="purchase-order-adopt-name-{{ line.id }}"
+                                               type="text" name="adopt_name" maxlength="255" value="{{ line.label }}">
+                                    </div>
+                                    <div class="col-12 col-xl-4">
+                                        <label class="visually-hidden" for="purchase-order-category-{{ line.id }}">
+                                            {% trans %}purchase_order.create_part.category_label{% endtrans %}
+                                        </label>
+                                        <select class="form-select form-select-sm" id="purchase-order-category-{{ line.id }}"
+                                                name="category" required>
+                                            <option value="">{% trans %}purchase_order.create_part.category_label{% endtrans %}</option>
+                                            {% for category in categories %}
+                                                <option value="{{ category.id }}">{{ category.label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3">
+                                        <button class="btn btn-outline-primary btn-sm w-100" type="submit">
+                                            {% trans %}purchase_order.create_part.action{% endtrans %}
+                                        </button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>{{ row.stock ?? '—' }}</td>
+                    <td>{{ row.minimum ?? '—' }}</td>
+                    <td>
+                        {% if line.part %}
+                            {% if can_edit %}
+                                <input class="form-control" type="number" min="0" step="1"
+                                       name="lines[{{ line.id }}][target]" value="{{ line.targetStock }}"
+                                       form="purchase-order-edit" data-order-target data-stock="{{ row.stock }}">
+                            {% else %}
+                                {{ line.targetStock }}
+                            {% endif %}
+                        {% else %}
+                            —
+                            {% if can_edit %}
+                                <input type="hidden" name="lines[{{ line.id }}][target]" value="{{ line.targetStock }}"
+                                       form="purchase-order-edit">
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if can_edit %}
+                            <input class="form-control" type="number" min="0" step="1"
+                                   name="lines[{{ line.id }}][quantity]" value="{{ line.quantity }}"
+                                   form="purchase-order-edit" data-order-qty>
+                        {% else %}
+                            {{ line.quantity }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ line.quantityReceived }}
+                        {% if line.quantityReceived > line.quantity %}
+                            <div class="small text-muted">{% trans %}purchase_order.over_received{% endtrans %}</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ line.outstanding }}</td>
+                    {% if order.kind == 'elec' %}
+                        <td>{{ row.digikey ?? ('purchase_order.no_number'|trans) }}</td>
+                        <td>{{ row.mouser ?? ('purchase_order.no_number'|trans) }}</td>
+                    {% else %}
+                        <td>{{ line.supplier ? line.supplier.name : '—' }}</td>
+                        <td>{{ line.supplierPartNumber ?? ('purchase_order.no_number'|trans) }}</td>
+                    {% endif %}
+                    {% if can_edit %}
+                        <td>
+                            <input class="form-check-input" type="checkbox" name="remove[{{ line.id }}]"
+                                   form="purchase-order-edit" aria-label="{{ 'purchase_order.remove'|trans }}">
+                        </td>
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr><td colspan="{{ can_edit ? 10 : 9 }}">{% trans %}purchase_order.empty{% endtrans %}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     {% if can_edit %}
-        <form method="post" class="mt-3" action="{{ path('purchase_order_delete', {id: order.id}) }}"
+        <div class="row g-3 mb-3">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title">{% trans %}purchase_order.add.database_part{% endtrans %}</h2>
+                        <label class="form-label" for="purchase-order-add-part">
+                            {% trans %}purchase_order.add_part_label{% endtrans %}
+                        </label>
+                        <select class="form-select" id="purchase-order-add-part" name="add_part"
+                                form="purchase-order-edit"
+                                {{ stimulus_controller('elements/part_select') }}
+                                data-autocomplete="{{ path('typeahead_parts', {'query': '__QUERY__'}) }}">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5 card-title">{% trans %}purchase_order.add.external_part{% endtrans %}</h2>
+                        <div class="row g-2">
+                            <div class="col-sm-8">
+                                <label class="form-label" for="purchase-order-external-name">
+                                    {% trans %}purchase_order.external_name{% endtrans %}
+                                </label>
+                                <input class="form-control" id="purchase-order-external-name" type="text"
+                                       name="external_name" maxlength="255" form="purchase-order-edit">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" for="purchase-order-external-quantity">
+                                    {% trans %}purchase_order.quantity{% endtrans %}
+                                </label>
+                                <input class="form-control" id="purchase-order-external-quantity" type="number"
+                                       name="external_quantity" min="1" step="1" value="1" form="purchase-order-edit">
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label" for="purchase-order-external-supplier">
+                                    {% trans %}purchase_order.supplier{% endtrans %}
+                                </label>
+                                <select class="form-select" id="purchase-order-external-supplier"
+                                        name="external_supplier" form="purchase-order-edit">
+                                    <option value=""></option>
+                                    {% for supplier in suppliers %}
+                                        <option value="{{ supplier.id }}">{{ supplier.label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label" for="purchase-order-external-supplier-part-number">
+                                    {% trans %}purchase_order.supplier_part_number{% endtrans %}
+                                </label>
+                                <input class="form-control" id="purchase-order-external-supplier-part-number" type="text"
+                                       name="external_supplier_part_number" maxlength="255" form="purchase-order-edit">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if can_edit %}
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary" form="purchase-order-edit">
+                {% trans %}purchase_order.save{% endtrans %}
+            </button>
+        </div>
+    {% endif %}
+
+    {% if can_edit %}
+        <form method="post" action="{{ path('purchase_order_delete', {id: order.id}) }}"
               {{ stimulus_controller('elements/delete_btn') }} {{ stimulus_action('elements/delete_btn', 'submit', 'submit') }}
               data-delete-title="{{ 'purchase_order.delete.confirm_title'|trans({'%name%': order.name})|e('html_attr') }}"
               data-delete-message="{{ 'purchase_order.delete.message'|trans|e('html_attr') }}">
@@ -141,7 +312,7 @@
                         <td>{{ receipt.comment }}</td>
                         <td>
                             {% for item in receipt.lines %}
-                                {{ item.orderLine.part.name }} ({{ item.quantity }}){% if not loop.last %}, {% endif %}
+                                {{ item.orderLine.label }} ({{ item.quantity }}){% if not loop.last %}, {% endif %}
                             {% endfor %}
                         </td>
                     </tr>

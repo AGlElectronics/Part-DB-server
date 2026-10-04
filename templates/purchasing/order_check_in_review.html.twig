@@ -14,10 +14,13 @@
         <input type="hidden" name="step" value="confirm">
 
         <div class="table-responsive">
-            <table class="table table-sm align-middle">
+            <table class="table align-middle">
                 <thead>
                 <tr>
                     <th>{% trans %}part.edit.name{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.quantity{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.received{% endtrans %}</th>
+                    <th>{% trans %}purchase_order.outstanding{% endtrans %}</th>
                     <th>{% trans %}purchase_order.check_in.received_now{% endtrans %}</th>
                     <th>{% trans %}purchase_order.check_in.where{% endtrans %}</th>
                 </tr>
@@ -26,10 +29,23 @@
                 {% for row in rows %}
                     {% set line = row.line %}
                     <tr data-line-id="{{ line.id }}">
-                        <td>{{ line.part.name }}</td>
-                        <td>{{ row.quantity }}</td>
+                        <td><strong>{{ line.label }}</strong></td>
                         <td>
-                            {{ destinations[line.id] }}
+                            <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">{{ line.quantity }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success rounded-pill fs-6 px-3 py-2">{{ line.quantityReceived }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning text-dark rounded-pill fs-6 px-3 py-2">{{ line.outstanding }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info text-dark rounded-pill fs-6 px-3 py-2">
+                                <i class="fas fa-plus me-1"></i>{{ row.quantity }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold">{{ destinations[line.id] }}</span>
                             <input type="hidden" name="check[{{ line.id }}]" value="1">
                             <input type="hidden" name="qty[{{ line.id }}]" value="{{ row.quantity }}">
                             {% if row.newLot %}

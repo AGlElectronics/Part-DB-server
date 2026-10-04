@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Purchasing;
 
 use App\Entity\Parts\Part;
+use App\Entity\Parts\Supplier;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -21,8 +22,18 @@ class PurchaseOrderLine
     private ?PurchaseOrder $purchaseOrder = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Part $part = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $externalName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $supplierPartNumber = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Supplier $supplier = null;
 
     #[ORM\Column]
     private int $targetStock = 0;
@@ -48,18 +59,60 @@ class PurchaseOrderLine
         $this->purchaseOrder = $purchaseOrder;
     }
 
-    public function getPart(): Part
+    public function getPart(): ?Part
     {
-        if (!$this->part instanceof Part) {
-            throw new \LogicException('A purchase order line must have a part.');
+        return $this->part;
+    }
+
+    public function isInDatabase(): bool
+    {
+        return $this->part instanceof Part;
+    }
+
+    public function getLabel(): string
+    {
+        if ($this->part instanceof Part) {
+            return $this->part->getName();
         }
 
-        return $this->part;
+        return $this->externalName ?? '';
     }
 
     public function setPart(Part $part): void
     {
         $this->part = $part;
+    }
+
+    public function getExternalName(): ?string
+    {
+        return $this->externalName;
+    }
+
+    public function setExternalName(?string $externalName): void
+    {
+        $name = $externalName === null ? '' : trim($externalName);
+        $this->externalName = $name === '' ? null : mb_substr($name, 0, 255);
+    }
+
+    public function getSupplierPartNumber(): ?string
+    {
+        return $this->supplierPartNumber;
+    }
+
+    public function setSupplierPartNumber(?string $supplierPartNumber): void
+    {
+        $number = $supplierPartNumber === null ? '' : trim($supplierPartNumber);
+        $this->supplierPartNumber = $number === '' ? null : mb_substr($number, 0, 255);
+    }
+
+    public function getSupplier(): ?Supplier
+    {
+        return $this->supplier;
+    }
+
+    public function setSupplier(?Supplier $supplier): void
+    {
+        $this->supplier = $supplier;
     }
 
     public function getTargetStock(): int

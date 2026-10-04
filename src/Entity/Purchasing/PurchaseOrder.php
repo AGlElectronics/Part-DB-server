@@ -12,15 +12,26 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'purchase_orders')]
+#[ORM\UniqueConstraint(name: 'UNIQ_PURCHASE_ORDERS_NUMBER', columns: ['number'])]
 class PurchaseOrder
 {
+    public const KIND_ELEC = 'elec';
+
+    public const KIND_MECH = 'mech';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $number = null;
+
+    #[ORM\Column(length: 8, options: ['default' => self::KIND_ELEC])]
+    private string $kind = self::KIND_ELEC;
+
     #[ORM\Column(length: 255)]
-    private string $name;
+    private string $name = '';
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
@@ -41,7 +52,6 @@ class PurchaseOrder
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->name = 'Order '.$this->createdAt->format('Y-m-d H:i');
         $this->lines = new ArrayCollection();
         $this->receipts = new ArrayCollection();
     }
@@ -49,6 +59,26 @@ class PurchaseOrder
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getNumber(): string
+    {
+        return $this->number ?? '';
+    }
+
+    public function setNumber(string $number): void
+    {
+        $this->number = $number;
+    }
+
+    public function getKind(): string
+    {
+        return $this->kind;
+    }
+
+    public function setKind(string $kind): void
+    {
+        $this->kind = $kind === self::KIND_MECH ? self::KIND_MECH : self::KIND_ELEC;
     }
 
     public function getName(): string
@@ -126,7 +156,8 @@ class PurchaseOrder
     public function findLineForPart(Part $part): ?PurchaseOrderLine
     {
         foreach ($this->lines as $line) {
-            if ($line->getPart()->getID() === $part->getID()) {
+            $linked = $line->getPart();
+            if ($linked instanceof Part && $linked->getID() === $part->getID()) {
                 return $line;
             }
         }

@@ -91,6 +91,87 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertNull($orders->find($orderId));
     }
 
+    public function testNameIsRequiredAndPoNumberMatchesTheOrderKind(): void
+    {
+        $client = $this->client();
+        $em = $this->em($client);
+        $repository = $em->getRepository(PurchaseOrder::class);
+        $before = $repository->count([]);
+        $crawler = $client->request('GET', '/en/orders');
+
+        $client->request('POST', '/en/orders', [
+            '_token' => $this->formToken($crawler, '#/orders$#'),
+            'name' => '   ',
+            'kind' => 'mech',
+        ]);
+        $client->followRedirect();
+        self::assertSame($before, $repository->count([]));
+        self::assertStringContainsString('Enter a name for the order.', (string) $client->getResponse()->getContent());
+
+        $crawler = $client->request('GET', '/en/orders');
+        $client->request('POST', '/en/orders', [
+            '_token' => $this->formToken($crawler, '#/orders$#'),
+            'name' => 'Mechanical PO',
+            'kind' => 'mech',
+        ]);
+        $orderId = $this->orderIdFromRedirect($client);
+        $order = $repository->find($orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $order);
+        self::assertSame(PurchaseOrder::KIND_MECH, $order->getKind());
+        self::assertMatchesRegularExpression('/^Mech-'.date('Y').'\d{4}$/', $order->getNumber());
+    }
+
+    public function testExternalOrderLineCanBeTurnedIntoADatabasePart(): void
+    {
+        $client = $this->client();
+        $em = $this->em($client);
+        $name = 'External-order-'.bin2hex(random_bytes(3));
+        $crawler = $client->request('GET', '/en/orders');
+        $client->request('POST', '/en/orders', [
+            '_token' => $this->formToken($crawler, '#/orders$#'),
+            'name' => $name,
+            'kind' => 'mech',
+        ]);
+        $orderId = $this->orderIdFromRedirect($client);
+        $crawler = $client->followRedirect();
+
+        $client->request('POST', '/en/orders/'.$orderId, [
+            '_token' => $this->formToken($crawler, '#/orders/'.$orderId.'$#'),
+            'name' => $name,
+            'external_name' => 'DIN 912 M5x20',
+            'external_quantity' => '12',
+        ]);
+        $client->followRedirect();
+        $em->clear();
+        $order = $em->find(PurchaseOrder::class, $orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $order);
+        self::assertCount(1, $order->getLines());
+        $line = $order->getLines()->first();
+        self::assertInstanceOf(PurchaseOrderLine::class, $line);
+        self::assertFalse($line->isInDatabase());
+        self::assertSame(12, $line->getQuantity());
+
+        $category = $em->find(Category::class, 1);
+        if (!$category instanceof Category) {
+            self::markTestSkipped('Fixture category was not found.');
+        }
+        $crawler = $client->request('GET', '/en/orders/'.$orderId);
+        $client->request('POST', '/en/orders/'.$orderId.'/lines/'.$line->getId().'/create-part', [
+            '_token' => $this->formToken($crawler, '#/create-part$#'),
+            'adopt_name' => 'DIN 912 M5 x 20',
+            'category' => (string) $category->getID(),
+        ]);
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        $em->clear();
+        $order = $em->find(PurchaseOrder::class, $orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $order);
+        $line = $order->getLines()->first();
+        self::assertInstanceOf(PurchaseOrderLine::class, $line);
+        self::assertTrue($line->isInDatabase());
+        self::assertSame('DIN 912 M5 x 20', $line->getPart()?->getName());
+    }
+
     public function testPartToolsButtonAddsThePartToANewOrExistingOrder(): void
     {
         $client = $this->client();
@@ -129,7 +210,7 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[name^="remove["]'));
     }
 
-    public function testOrderedDateShowsOnTheListAndCanBeCleared(): void
+    public function testOrderedButtonUsesTheServerDate(): void
     {
         $client = $this->client();
         $name = 'Dated-'.bin2hex(random_bytes(3));
@@ -150,23 +231,13 @@ final class PurchaseOrderControllerTest extends WebTestCase
         $client->request('POST', '/en/orders/'.$orderId, [
             '_token' => $this->formToken($crawler, '#/orders/'.$orderId.'$#'),
             'name' => $name,
-            'ordered_on' => '2026-09-29',
+            'mark_ordered' => '1',
         ]);
         $client->followRedirect();
-        self::assertSame('2026-09-29', $client->getCrawler()->filter('#purchase-order-ordered')->attr('value'));
+        self::assertStringContainsString((new \DateTimeImmutable('today'))->format('Y-m-d'), (string) $client->getResponse()->getContent());
 
         $crawler = $client->request('GET', '/en/orders');
-        self::assertStringContainsString('2026-09-29', $this->orderRow($crawler, $name));
-
-        $crawler = $client->request('GET', '/en/orders/'.$orderId);
-        $client->request('POST', '/en/orders/'.$orderId, [
-            '_token' => $this->formToken($crawler, '#/orders/'.$orderId.'$#'),
-            'name' => $name,
-            'ordered_on' => '',
-        ]);
-        $client->followRedirect();
-        $crawler = $client->request('GET', '/en/orders');
-        self::assertStringContainsString('Not ordered', $this->orderRow($crawler, $name));
+        self::assertStringContainsString((new \DateTimeImmutable('today'))->format('Y-m-d'), $this->orderRow($crawler, $name));
     }
 
     public function testCheckInAddsStockAcrossDeliveriesAndRecordsTheComment(): void
@@ -234,7 +305,7 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertSame(14.0, $this->lotAmount($em, $lotId));
         self::assertCount(2, $order->getReceipts());
 
-        $crawler = $client->request('GET', '/en/orders');
+        $crawler = $client->request('GET', '/en/orders?view=history');
         self::assertStringContainsString('Received', $this->orderRow($crawler, $name));
     }
 

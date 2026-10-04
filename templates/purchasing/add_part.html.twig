@@ -16,26 +16,77 @@
         {% endfor %}
     </ul>
 
-    <form method="post" action="{{ path('purchase_order_add_part') }}">
-        <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_add_part') }}">
-        <input type="hidden" name="parts" value="{{ partIds }}">
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 card-title">{% trans %}purchase_order.add.existing{% endtrans %}</h2>
+                    {% if orders is empty %}
+                        <p class="text-muted">{% trans %}purchase_order.list.empty{% endtrans %}</p>
+                    {% else %}
+                        <form method="post" action="{{ path('purchase_order_add_part') }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_add_part') }}">
+                            <input type="hidden" name="parts" value="{{ partIds }}">
 
-        <div class="mb-3">
-            <label class="form-label" for="purchase-order-target">{% trans %}purchase_order.add.existing{% endtrans %}</label>
-            <select class="form-select" id="purchase-order-target" name="order">
-                <option value="">{% trans %}purchase_order.add.new_option{% endtrans %}</option>
-                {% for order in orders %}
-                    <option value="{{ order.id }}">{{ order.name }}</option>
-                {% endfor %}
-            </select>
+                            <div class="mb-3">
+                                <label class="form-label" for="purchase-order-target">
+                                    {% trans %}purchase_order.add.existing{% endtrans %}
+                                </label>
+                                <select class="form-select" id="purchase-order-target" name="order" required>
+                                    <option value=""></option>
+                                    {% for order in orders %}
+                                        <option value="{{ order.id }}">
+                                            {{ order.number }} - {{ order.name }} ({{ ('purchase_order.kind.' ~ order.kind)|trans }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                {% trans %}purchase_order.add.submit{% endtrans %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label" for="purchase-order-add-name">{% trans %}purchase_order.name_optional{% endtrans %}</label>
-            <input class="form-control" id="purchase-order-add-name" type="text" name="name" maxlength="255">
-        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 card-title">{% trans %}purchase_order.add.new_option{% endtrans %}</h2>
+                    <form method="post" action="{{ path('purchase_order_add_part') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_add_part') }}">
+                        <input type="hidden" name="parts" value="{{ partIds }}">
 
-        <button type="submit" class="btn btn-primary">{% trans %}purchase_order.add.submit{% endtrans %}</button>
-        <a class="btn btn-outline-secondary" href="{{ path('purchase_orders_list') }}">{% trans %}purchase_order.back{% endtrans %}</a>
-    </form>
+                        <div class="mb-3">
+                            <label class="form-label" for="purchase-order-add-name">
+                                {% trans %}purchase_order.name{% endtrans %}
+                            </label>
+                            <input class="form-control" id="purchase-order-add-name" type="text"
+                                   name="name" maxlength="255" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="purchase-order-add-kind">
+                                {% trans %}purchase_order.kind{% endtrans %}
+                            </label>
+                            <select class="form-select" id="purchase-order-add-kind" name="kind" required>
+                                <option value="elec">{% trans %}purchase_order.kind.elec{% endtrans %}</option>
+                                <option value="mech">{% trans %}purchase_order.kind.mech{% endtrans %}</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            {% trans %}purchase_order.add.submit{% endtrans %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-outline-secondary mt-3" href="{{ path('purchase_orders_list') }}">
+        {% trans %}purchase_order.back{% endtrans %}
+    </a>
 {% endblock %}
