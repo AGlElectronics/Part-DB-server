@@ -1,15 +1,15 @@
-name: partdb-mechanical-preview
+name: partdb-server-dev
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: partdb-mechanical-preview-postgres
+    container_name: partdb-server-dev-postgres
     environment:
       POSTGRES_DB: partdb
       POSTGRES_USER: partdb
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-partdb-preview}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-partdb-dev}"
     volumes:
-      - partdb_mechanical_preview_postgres:/var/lib/postgresql/data
+      - partdb_server_dev_postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U partdb -d partdb"]
       interval: 5s
@@ -18,22 +18,22 @@ services:
     restart: unless-stopped
 
   partdb:
-    image: ghcr.io/aglelectronics/part-db-server:${PARTDB_TAG:-mechanical-v1.6.2}
+    image: ghcr.io/aglelectronics/part-db-server:${PARTDB_TAG:-master}
     pull_policy: always
-    container_name: partdb-mechanical-preview
+    container_name: partdb-server-dev
     ports:
-      - "${PARTDB_PORT:-8080}:80"
+      - "${PARTDB_PORT:-8081}:80"
     environment:
       APP_ENV: docker
       APP_DEBUG: "0"
-      APP_SECRET: "${APP_SECRET:-mechanical-preview-change-me}"
-      DATABASE_URL: "postgresql://partdb:${POSTGRES_PASSWORD:-partdb-preview}@postgres:5432/partdb?serverVersion=16&charset=utf8"
+      APP_SECRET: "${APP_SECRET:-mechanical-dev-change-me}"
+      DATABASE_URL: "postgresql://partdb:${POSTGRES_PASSWORD:-partdb-dev}@postgres:5432/partdb?serverVersion=16&charset=utf8"
       DB_AUTOMIGRATE: "true"
       DEFAULT_LANG: "${DEFAULT_LANG:-en}"
       DEFAULT_TIMEZONE: "${DEFAULT_TIMEZONE:-UTC}"
       BASE_CURRENCY: "${BASE_CURRENCY:-EUR}"
-      INSTANCE_NAME: "Mechanical Parts Preview"
-      DEFAULT_URI: "https://parts.4qt.org/"
+      INSTANCE_NAME: "${INSTANCE_NAME:-Mechanical Parts Dev}"
+      DEFAULT_URI: "${DEFAULT_URI:-http://localhost:8081}"
       CHECK_FOR_UPDATES: "0"
       ALLOW_ATTACHMENT_DOWNLOADS: "0"
       PROVIDER_LAPP_ENABLED: "1"
@@ -42,14 +42,14 @@ services:
       PROVIDER_LANDEFELD_ENABLED: "1"
       PROVIDER_HELLERMANNTYTON_ENABLED: "1"
     volumes:
-      - partdb_mechanical_preview_data:/var/www/html/uploads
+      - partdb_server_dev_data:/var/www/html/uploads
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  partdb_mechanical_preview_data:
-    name: partdb_mechanical_preview_data
-  partdb_mechanical_preview_postgres:
-    name: partdb_mechanical_preview_postgres
+  partdb_server_dev_data:
+    name: partdb_server_dev_data
+  partdb_server_dev_postgres:
+    name: partdb_server_dev_postgres

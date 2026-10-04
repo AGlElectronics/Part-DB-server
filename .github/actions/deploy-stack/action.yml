@@ -1,0 +1,54 @@
+name: Deploy a compose stack
+description: Update one Part-DB stack on the Docker virtual machine
+
+inputs:
+  compose-file:
+    description: Compose file in the repository
+    required: true
+  remote-path:
+    description: Directory on the Docker virtual machine
+    required: true
+  image-tag:
+    description: GHCR tag to run
+    required: true
+  host:
+    description: SSH host. Used only from GitHub-hosted runners.
+    required: false
+    default: ""
+  user:
+    description: SSH user
+    required: false
+    default: ""
+  ssh-key:
+    description: SSH private key
+    required: false
+    default: ""
+  ghcr-user:
+    description: GHCR user, when the package is private
+    required: false
+    default: ""
+  ghcr-token:
+    description: GHCR token, when the package is private
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy
+      shell: bash
+      env:
+        DEPLOY_HOST: ${{ inputs.host }}
+        DEPLOY_USER: ${{ inputs.user }}
+        DEPLOY_SSH_KEY: ${{ inputs.ssh-key }}
+        GHCR_PULL_USER: ${{ inputs.ghcr-user }}
+        GHCR_PULL_TOKEN: ${{ inputs.ghcr-token }}
+        COMPOSE_FILE: ${{ inputs.compose-file }}
+        REMOTE_PATH: ${{ inputs.remote-path }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+      run: |
+        mode="ssh"
+        if [ "$RUNNER_ENVIRONMENT" = "self-hosted" ]; then
+          mode="local"
+        fi
+        bash deploy/up.sh "$mode" "$REMOTE_PATH" "$COMPOSE_FILE" "$IMAGE_TAG"

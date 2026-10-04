@@ -1,4 +1,4 @@
-name: Images
+name: CI/CD
 
 on:
   pull_request:
@@ -9,31 +9,37 @@ on:
       - 'mechanical-v*'
   workflow_dispatch:
     inputs:
-      track:
-        description: Which image to build
+      deploy:
+        description: Stack to deploy. none only builds. dev is started by hand.
         required: true
-        default: test
+        default: none
         type: choice
         options:
-          - test
+          - none
+          - dev
           - prod
-      version_tag:
-        description: Extra production tag, for example mechanical-v1.6.3
+      image_tag:
+        description: Tag to deploy, such as master, sha-abc1234, or pr-12. Empty uses master.
         required: false
         type: string
+      rebuild:
+        description: Build the image before deploying
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: images-${{ github.ref }}
+  group: cicd-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.event.inputs.deploy || 'auto' }}
   cancel-in-progress: true
 
 jobs:
   test-image:
     name: Test image
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.track == 'test')
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,7 +49,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to GitHub Container Registry
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -57,11 +63,10 @@ jobs:
           images: ghcr.io/aglelectronics/part-db-server
           tags: |
             type=sha,prefix=sha-,format=short
-            type=raw,value=pr-${{ github.event.pull_request.number }},enable=${{ github.event_name == 'pull_request' }}
-            type=raw,value=test-${{ github.ref_name }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=raw,value=pr-${{ github.event.pull_request.number }}
           labels: |
             org.opencontainers.image.title=Part-DB test image
-            org.opencontainers.image.description=Part-DB image built to try a branch before it is released
+            org.opencontainers.image.description=Part-DB image built to try a pull request
             org.opencontainers.image.licenses=AGPL-3.0-or-later
 
       - name: Build and publish test image
@@ -70,17 +75,17 @@ jobs:
           context: .
           file: Dockerfile
           platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+          push: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=test-image
           cache-to: type=gha,mode=max,scope=test-image
 
-  prod-image:
-    name: Production image
+  release-image:
+    name: Release image
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/mechanical-v'))) ||
-      (github.event_name == 'workflow_dispatch' && inputs.track == 'prod')
+      (github.event_name == 'workflow_dispatch' && (inputs.deploy == 'none' || inputs.rebuild))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -109,13 +114,13 @@ jobs:
             type=raw,value=master,enable=${{ github.ref == 'refs/heads/master' }}
             type=raw,value=mechanical-preview,enable=${{ github.ref == 'refs/heads/master' }}
             type=ref,event=tag
-            type=raw,value=${{ inputs.version_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.version_tag != '' }}
+            type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
           labels: |
             org.opencontainers.image.title=Part-DB
             org.opencontainers.image.description=Part-DB with the mechanical parts library
             org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-      - name: Build and publish production image
+      - name: Build and publish release image
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -128,3 +133,70 @@ jobs:
           cache-to: type=gha,mode=max,scope=prod-image
           provenance: mode=max
           sbom: true
+
+  deploy-prod:
+    name: Deploy production
+    needs: release-image
+    if: >-
+      always() &&
+      (
+        (
+          github.event_name == 'push' &&
+          (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/mechanical-v')) &&
+          needs.release-image.result == 'success'
+        ) ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.deploy == 'prod' &&
+          (
+            needs.release-image.result == 'success' ||
+            (needs.release-image.result == 'skipped' && inputs.rebuild == false)
+          )
+        )
+      )
+    runs-on: ${{ vars.DEPLOY_RUNNER || 'ubuntu-latest' }}
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Deploy production stack
+        uses: ./.github/actions/deploy-stack
+        with:
+          compose-file: compose.preview.yaml
+          remote-path: /opt/partdb/prod
+          image-tag: ${{ github.ref_type == 'tag' && github.ref_name || inputs.image_tag || 'master' }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          user: ${{ secrets.DEPLOY_USER }}
+          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          ghcr-user: ${{ secrets.GHCR_PULL_USER }}
+          ghcr-token: ${{ secrets.GHCR_PULL_TOKEN }}
+
+  deploy-dev:
+    name: Deploy dev
+    needs: release-image
+    if: >-
+      always() &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.deploy == 'dev' &&
+      (
+        needs.release-image.result == 'success' ||
+        (needs.release-image.result == 'skipped' && inputs.rebuild == false)
+      )
+    runs-on: ${{ vars.DEPLOY_RUNNER || 'ubuntu-latest' }}
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Deploy dev stack
+        uses: ./.github/actions/deploy-stack
+        with:
+          compose-file: deploy/compose.dev.yaml
+          remote-path: /opt/partdb/dev
+          image-tag: ${{ inputs.image_tag || 'master' }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          user: ${{ secrets.DEPLOY_USER }}
+          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          ghcr-user: ${{ secrets.GHCR_PULL_USER }}
+          ghcr-token: ${{ secrets.GHCR_PULL_TOKEN }}
