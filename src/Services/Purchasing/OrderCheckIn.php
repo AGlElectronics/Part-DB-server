@@ -84,7 +84,7 @@ final class OrderCheckIn
         $resolved = [];
         foreach ($posted as $lineId => $row) {
             $line = $this->line($order, $lineId);
-            $part = $line->getPart();
+            $part = $this->part($line);
             if ($row['quantity'] <= 0) {
                 throw new OrderCheckInException('purchase_order.check_in.invalid_quantity', ['%part%' => $part->getName()]);
             }
@@ -106,7 +106,7 @@ final class OrderCheckIn
             $this->entityManager->persist($receipt);
 
             foreach ($rows as $row) {
-                $part = $row->line->getPart();
+                $part = $this->part($row->line);
                 $lot = $this->prepareLot($row, $part);
                 $this->stock->add($lot, (float) $row->quantity, $comment);
                 $row->line->addQuantityReceived($row->quantity);
@@ -145,7 +145,7 @@ final class OrderCheckIn
 
     private function destination(PurchaseOrderLine $line, int $quantity, int $lotId, int $locationId): OrderCheckInLine
     {
-        $part = $line->getPart();
+        $part = $this->part($line);
         $usable = $this->usableLots($part);
         if ($lotId > 0) {
             foreach ($usable as $lot) {
@@ -167,7 +167,7 @@ final class OrderCheckIn
 
     private function newLot(PurchaseOrderLine $line, int $quantity, int $locationId): OrderCheckInLine
     {
-        $part = $line->getPart();
+        $part = $this->part($line);
         $choices = $this->locationChoices($part);
         if ($choices === []) {
             throw new OrderCheckInException('purchase_order.check_in.no_location', ['%part%' => $part->getName()]);
@@ -188,6 +188,16 @@ final class OrderCheckIn
         $lot->setStorageLocation($location);
 
         return new OrderCheckInLine($line, $quantity, $lot, true, $location);
+    }
+
+    private function part(PurchaseOrderLine $line): Part
+    {
+        $part = $line->getPart();
+        if (!$part instanceof Part) {
+            throw new OrderCheckInException('purchase_order.check_in.not_in_database', ['%part%' => $line->getLabel()]);
+        }
+
+        return $part;
     }
 
     private function line(PurchaseOrder $order, int $id): PurchaseOrderLine

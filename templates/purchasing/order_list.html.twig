@@ -1,5 +1,43 @@
 {% extends "main_card.html.twig" %}
 
+{% macro order_table(orders) %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th>{% trans %}purchase_order.number{% endtrans %}</th>
+                <th>{% trans %}purchase_order.ordered_on{% endtrans %}</th>
+                <th>{% trans %}purchase_order.status{% endtrans %}</th>
+                <th>{% trans %}purchase_order.lines{% endtrans %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>
+                        <a class="fw-semibold" href="{{ path('purchase_order_show', {id: order.id}) }}">{{ order.number }}</a>
+                        <div>{{ order.name }}</div>
+                        <small class="text-muted">
+                            {% trans %}purchase_order.created{% endtrans %}: {{ order.createdAt|date('Y-m-d H:i') }}
+                            &middot; {{ ('purchase_order.kind.' ~ order.kind)|trans }}
+                        </small>
+                    </td>
+                    <td>
+                        {% if order.orderedAt %}
+                            {{ order.orderedAt|date('Y-m-d') }}
+                        {% else %}
+                            <span class="text-muted">{% trans %}purchase_order.not_ordered{% endtrans %}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ ('purchase_order.fulfillment.' ~ order.fulfillment)|trans }}</td>
+                    <td>{{ order.lines|length }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}
+
 {% block title %}{% trans %}purchase_order.list.title{% endtrans %}{% endblock %}
 
 {% block card_title %}
@@ -13,8 +51,15 @@
         <form class="row g-2 align-items-end mb-3" method="post" action="{{ path('purchase_order_create') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_create') }}">
             <div class="col-sm-6 col-md-4">
-                <label class="form-label" for="purchase-order-new-name">{% trans %}purchase_order.name_optional{% endtrans %}</label>
-                <input class="form-control" id="purchase-order-new-name" type="text" name="name" maxlength="255">
+                <label class="form-label" for="purchase-order-new-name">{% trans %}purchase_order.name{% endtrans %}</label>
+                <input class="form-control" id="purchase-order-new-name" type="text" name="name" maxlength="255" required>
+            </div>
+            <div class="col-sm-3 col-md-2">
+                <label class="form-label" for="purchase-order-new-kind">{% trans %}purchase_order.kind{% endtrans %}</label>
+                <select class="form-select" id="purchase-order-new-kind" name="kind" required>
+                    <option value="elec">{% trans %}purchase_order.kind.elec{% endtrans %}</option>
+                    <option value="mech">{% trans %}purchase_order.kind.mech{% endtrans %}</option>
+                </select>
             </div>
             <div class="col-auto">
                 <button class="btn btn-primary" type="submit">{% trans %}purchase_order.create{% endtrans %}</button>
@@ -22,36 +67,52 @@
         </form>
     {% endif %}
 
-    {% if orders is empty %}
-        <p>{% trans %}purchase_order.list.empty{% endtrans %}</p>
-    {% else %}
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>{% trans %}purchase_order.name{% endtrans %}</th>
-                <th>{% trans %}purchase_order.created{% endtrans %}</th>
-                <th>{% trans %}purchase_order.ordered_on{% endtrans %}</th>
-                <th>{% trans %}purchase_order.status{% endtrans %}</th>
-                <th>{% trans %}purchase_order.lines{% endtrans %}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for order in orders %}
-                <tr>
-                    <td><a href="{{ path('purchase_order_show', {id: order.id}) }}">{{ order.name }}</a></td>
-                    <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
-                    <td>
-                        {% if order.orderedAt %}
-                            {{ order.orderedAt|date('Y-m-d') }}
-                        {% else %}
-                            {% trans %}purchase_order.not_ordered{% endtrans %}
-                        {% endif %}
-                    </td>
-                    <td>{{ ('purchase_order.fulfillment.' ~ order.fulfillment)|trans }}</td>
-                    <td>{{ order.lines|length }}</td>
-                </tr>
+    <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link {{ view == 'current' ? 'active' : '' }}"
+                   href="{{ path('purchase_orders_list', {view: 'current', kind: kind}) }}">
+                    {% trans %}purchase_order.list.current{% endtrans %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ view == 'history' ? 'active' : '' }}"
+                   href="{{ path('purchase_orders_list', {view: 'history', kind: kind}) }}">
+                    {% trans %}purchase_order.list.history{% endtrans %}
+                </a>
+            </li>
+        </ul>
+
+        <div class="btn-group" role="group" aria-label="{{ 'purchase_order.kind'|trans }}">
+            {% for filter_kind in ['all', 'elec', 'mech'] %}
+                <a class="btn btn-outline-secondary {{ kind == filter_kind ? 'active' : '' }}"
+                   href="{{ path('purchase_orders_list', {view: view, kind: filter_kind}) }}">
+                    {{ ('purchase_order.kind.' ~ filter_kind)|trans }}
+                </a>
             {% endfor %}
-            </tbody>
-        </table>
+        </div>
+    </div>
+
+    {% if view == 'history' %}
+        <h2 class="h5">{% trans %}purchase_order.fulfillment.received{% endtrans %}</h2>
+        {% if receivedOrders is empty %}
+            <p>{% trans %}purchase_order.list.empty{% endtrans %}</p>
+        {% else %}
+            {{ _self.order_table(receivedOrders) }}
+        {% endif %}
+    {% else %}
+        <h2 class="h5">{% trans %}purchase_order.fulfillment.open{% endtrans %}</h2>
+        {% if openOrders is empty %}
+            <p class="text-muted">{% trans %}purchase_order.list.empty{% endtrans %}</p>
+        {% else %}
+            {{ _self.order_table(openOrders) }}
+        {% endif %}
+
+        <h2 class="h5 mt-4">{% trans %}purchase_order.fulfillment.partial{% endtrans %}</h2>
+        {% if partialOrders is empty %}
+            <p class="text-muted">{% trans %}purchase_order.list.empty{% endtrans %}</p>
+        {% else %}
+            {{ _self.order_table(partialOrders) }}
+        {% endif %}
     {% endif %}
 {% endblock %}

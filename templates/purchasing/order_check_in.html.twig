@@ -15,7 +15,7 @@
         <input type="hidden" name="step" value="review">
 
         <div class="table-responsive">
-            <table class="table table-sm align-middle">
+            <table class="table align-middle">
                 <thead>
                 <tr>
                     <th>{% trans %}purchase_order.check_in.include{% endtrans %}</th>
@@ -30,38 +30,92 @@
                 <tbody>
                 {% for row in rows %}
                     {% set line = row.line %}
-                    <tr data-line-id="{{ line.id }}">
+                    {% set line_arrivals = arrivals[line.id]|default([]) %}
+                    <tr data-line-id="{{ line.id }}" {% if not line.inDatabase %}class="table-light text-muted"{% endif %}>
                         <td>
-                            <input class="form-check-input" type="checkbox" name="check[{{ line.id }}]" value="1"
-                                   data-check-in aria-label="{{ 'purchase_order.check_in.include'|trans }}">
-                        </td>
-                        <td>{{ line.part.name }}</td>
-                        <td>{{ line.quantity }}</td>
-                        <td>{{ line.quantityReceived }}</td>
-                        <td>{{ line.outstanding }}</td>
-                        <td>
-                            <input class="form-control" type="number" min="0" step="1"
-                                   name="qty[{{ line.id }}]" value="{{ line.outstanding }}"
-                                   data-check-qty data-outstanding="{{ line.outstanding }}">
-                        </td>
-                        <td>
-                            {% if row.lots|length == 1 %}
-                                <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lots[0].id }}">
-                                {{ row.lotLabels[row.lots[0].id] }}
-                            {% elseif row.lots|length > 1 %}
-                                <select class="form-select" name="lot[{{ line.id }}]">
-                                    <option value="">{% trans %}purchase_order.check_in.choose_lot_option{% endtrans %}</option>
-                                    {% for lot in row.lots %}
-                                        <option value="{{ lot.id }}">{{ row.lotLabels[lot.id] }}</option>
-                                    {% endfor %}
-                                </select>
+                            {% if line.inDatabase %}
+                                <input class="btn-check" id="check-in-line-{{ line.id }}" type="checkbox"
+                                       name="check[{{ line.id }}]" value="1" autocomplete="off"
+                                       data-check-in aria-label="{{ 'purchase_order.check_in.include'|trans }}">
+                                <label class="btn btn-outline-secondary btn-lg w-100 text-nowrap"
+                                       for="check-in-line-{{ line.id }}" data-check-in-toggle>
+                                    <span data-not-arrived>
+                                        <i class="fas fa-times me-1"></i>
+                                        {% trans %}purchase_order.check_in.not_arrived{% endtrans %}
+                                    </span>
+                                    <span class="d-none" data-arrived>
+                                        <i class="fas fa-check me-1"></i> {% trans %}purchase_order.check_in.include{% endtrans %}
+                                    </span>
+                                </label>
                             {% else %}
-                                <select class="form-select" name="location[{{ line.id }}]">
-                                    <option value="">{% trans %}purchase_order.check_in.choose_location_option{% endtrans %}</option>
-                                    {% for location in row.locations %}
-                                        <option value="{{ location.id }}">{{ location.name }}</option>
+                                <span class="btn btn-outline-secondary btn-lg w-100 disabled text-nowrap"
+                                      aria-disabled="true">
+                                    <i class="fas fa-database me-1"></i>
+                                    {% trans %}purchase_order.check_in.add_to_database_first{% endtrans %}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ line.label }}</strong>
+                            {% if not line.inDatabase %}
+                                <div class="small text-danger mt-1">
+                                    {% trans %}purchase_order.check_in.external_not_available{% endtrans %}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">{{ line.quantity }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success rounded-pill fs-6 px-3 py-2">{{ line.quantityReceived }}</span>
+                            {% if line_arrivals is not empty %}
+                                <div class="mt-2">
+                                    {% for arrival in line_arrivals %}
+                                        <div class="small text-muted text-nowrap">
+                                            <i class="fas fa-clock fa-fw"></i>
+                                            +{{ arrival.quantity }} · {{ arrival.at|format_datetime('medium', 'short') }}
+                                        </div>
                                     {% endfor %}
-                                </select>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-warning text-dark rounded-pill fs-6 px-3 py-2">{{ line.outstanding }}</span>
+                        </td>
+                        <td>
+                            {% if line.inDatabase %}
+                                <input class="form-control" type="number" min="0" step="1"
+                                       name="qty[{{ line.id }}]" value="{{ line.outstanding }}"
+                                       data-check-qty data-outstanding="{{ line.outstanding }}">
+                            {% else %}
+                                <input class="form-control" type="number" value="{{ line.outstanding }}" disabled>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if line.inDatabase %}
+                                {% if row.lots|length == 1 %}
+                                    <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lots[0].id }}">
+                                    {{ row.lotLabels[row.lots[0].id] }}
+                                {% elseif row.lots|length > 1 %}
+                                    <select class="form-select" name="lot[{{ line.id }}]">
+                                        <option value="">{% trans %}purchase_order.check_in.choose_lot_option{% endtrans %}</option>
+                                        {% for lot in row.lots %}
+                                            <option value="{{ lot.id }}">{{ row.lotLabels[lot.id] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <select class="form-select" name="location[{{ line.id }}]">
+                                        <option value="">{% trans %}purchase_order.check_in.choose_location_option{% endtrans %}</option>
+                                        {% for location in row.locations %}
+                                            <option value="{{ location.id }}">{{ location.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-danger fw-semibold">
+                                    <i class="fas fa-circle-exclamation me-1"></i>
+                                    {% trans %}purchase_order.check_in.add_to_database_first{% endtrans %}
+                                </span>
                             {% endif %}
                         </td>
                     </tr>
@@ -80,15 +134,26 @@
 
     <script>
         document.querySelectorAll('[data-check-in]').forEach((box) => {
-            box.addEventListener('change', () => {
-                const qty = box.closest('tr').querySelector('[data-check-qty]');
-                if (!qty || !box.checked) {
-                    return;
-                }
-                if (qty.value === '' || Number(qty.value) === 0) {
+            const updateToggle = () => {
+                const row = box.closest('tr');
+                const toggle = row.querySelector('[data-check-in-toggle]');
+                const notArrived = toggle.querySelector('[data-not-arrived]');
+                const arrived = toggle.querySelector('[data-arrived]');
+                const qty = row.querySelector('[data-check-qty]');
+
+                notArrived.classList.toggle('d-none', box.checked);
+                arrived.classList.toggle('d-none', !box.checked);
+                toggle.classList.toggle('btn-outline-secondary', !box.checked);
+                toggle.classList.toggle('btn-success', box.checked);
+                row.classList.toggle('table-success', box.checked);
+
+                if (qty && box.checked && (qty.value === '' || Number(qty.value) === 0)) {
                     qty.value = qty.dataset.outstanding;
                 }
-            });
+            };
+
+            box.addEventListener('change', updateToggle);
+            updateToggle();
         });
     </script>
 {% endblock %}

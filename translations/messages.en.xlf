@@ -15587,7 +15587,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.list.hint" name="purchase_order.list.hint">
       <segment state="translated">
         <source>purchase_order.list.hint</source>
-        <target>Create an order here, or select parts in the parts table and choose Make order. Open an order to mark when it was ordered, change quantities, check in deliveries, or download the DigiKey and Mouser files.</target>
+        <target>Create a named electrical or mechanical order here, or select parts in the parts table and choose Make order. Current orders are grouped by progress; completed orders are kept in History.</target>
       </segment>
     </unit>
     <unit id="purchase_order.list.empty" name="purchase_order.list.empty">
@@ -15623,7 +15623,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.hint" name="purchase_order.hint">
       <segment state="translated">
         <source>purchase_order.hint</source>
-        <target>The target is the minimum stock plus 10%, rounded up to the next 5. The order quantity is that target minus what is in stock. Change the target if you will need more in the next few days, then save before downloading the files. Set Ordered on when you place the order, and use Check in when parts arrive.</target>
+        <target>The target is the minimum stock plus 10%, rounded up to the next 5. The order quantity is that target minus what is in stock. Save changes before downloading a supplier file. Press Ordered today when you place the order, and use Check in when parts arrive.</target>
       </segment>
     </unit>
     <unit id="purchase_order.stock" name="purchase_order.stock">
@@ -15779,7 +15779,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.add.hint" name="purchase_order.add.hint">
       <segment state="translated">
         <source>purchase_order.add.hint</source>
-        <target>Choose an existing order, or leave New order selected and set a name.</target>
+        <target>Add the selected parts to an existing order, or create a named electrical or mechanical order.</target>
       </segment>
     </unit>
     <unit id="purchase_order.add.parts" name="purchase_order.add.parts">
@@ -15887,7 +15887,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.check_in.hint" name="purchase_order.check_in.hint">
       <segment state="translated">
         <source>purchase_order.check_in.hint</source>
-        <target>Tick the parts that arrived, enter how many you got, then review. Stock changes only after you confirm.</target>
+        <target>Mark the parts that arrived, enter how many you got, then review. Stock changes only after you confirm.</target>
       </segment>
     </unit>
     <unit id="purchase_order.check_in.include" name="purchase_order.check_in.include">
@@ -15977,7 +15977,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.check_in.none_selected" name="purchase_order.check_in.none_selected">
       <segment state="translated">
         <source>purchase_order.check_in.none_selected</source>
-        <target>Tick the parts that arrived.</target>
+        <target>Mark at least one part as arrived.</target>
       </segment>
     </unit>
     <unit id="purchase_order.check_in.invalid_quantity" name="purchase_order.check_in.invalid_quantity">
@@ -16176,6 +16176,174 @@ Buerklin-API Authentication server:
       <segment state="translated">
         <source>perm.group.unknown</source>
         <target>Unknown</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.number" name="purchase_order.number">
+      <segment state="translated">
+        <source>purchase_order.number</source>
+        <target>PO number</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.kind" name="purchase_order.kind">
+      <segment state="translated">
+        <source>purchase_order.kind</source>
+        <target>Order type</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.kind.all" name="purchase_order.kind.all">
+      <segment state="translated">
+        <source>purchase_order.kind.all</source>
+        <target>All</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.kind.elec" name="purchase_order.kind.elec">
+      <segment state="translated">
+        <source>purchase_order.kind.elec</source>
+        <target>Electrical</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.kind.mech" name="purchase_order.kind.mech">
+      <segment state="translated">
+        <source>purchase_order.kind.mech</source>
+        <target>Mechanical</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.list.current" name="purchase_order.list.current">
+      <segment state="translated">
+        <source>purchase_order.list.current</source>
+        <target>Current</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.list.history" name="purchase_order.list.history">
+      <segment state="translated">
+        <source>purchase_order.list.history</source>
+        <target>History</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.name_required" name="purchase_order.name_required">
+      <segment state="translated">
+        <source>purchase_order.name_required</source>
+        <target>Enter a name for the order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.mark_ordered" name="purchase_order.mark_ordered">
+      <segment state="translated">
+        <source>purchase_order.mark_ordered</source>
+        <target>Ordered today</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.supplier" name="purchase_order.supplier">
+      <segment state="translated">
+        <source>purchase_order.supplier</source>
+        <target>Supplier</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.download_supplier" name="purchase_order.download_supplier">
+      <segment state="translated">
+        <source>purchase_order.download_supplier</source>
+        <target>Download supplier file</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.supplier_missing" name="purchase_order.supplier_missing">
+      <segment state="translated">
+        <source>purchase_order.supplier_missing</source>
+        <target>Choose a supplier.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.supplier_part_number" name="purchase_order.supplier_part_number">
+      <segment state="translated">
+        <source>purchase_order.supplier_part_number</source>
+        <target>Supplier part number</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.not_in_database" name="purchase_order.not_in_database">
+      <segment state="translated">
+        <source>purchase_order.not_in_database</source>
+        <target>Not in database</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.database_part" name="purchase_order.add.database_part">
+      <segment state="translated">
+        <source>purchase_order.add.database_part</source>
+        <target>Add from the database</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.add.external_part" name="purchase_order.add.external_part">
+      <segment state="translated">
+        <source>purchase_order.add.external_part</source>
+        <target>Add a part not in the database</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.external_name" name="purchase_order.external_name">
+      <segment state="translated">
+        <source>purchase_order.external_name</source>
+        <target>Part name or description</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.name" name="purchase_order.create_part.name">
+      <segment state="translated">
+        <source>purchase_order.create_part.name</source>
+        <target>Part name</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.category_label" name="purchase_order.create_part.category_label">
+      <segment state="translated">
+        <source>purchase_order.create_part.category_label</source>
+        <target>Category</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.action" name="purchase_order.create_part.action">
+      <segment state="translated">
+        <source>purchase_order.create_part.action</source>
+        <target>Add to database</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.missing" name="purchase_order.create_part.missing">
+      <segment state="translated">
+        <source>purchase_order.create_part.missing</source>
+        <target>That external order line could not be found.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.category" name="purchase_order.create_part.category">
+      <segment state="translated">
+        <source>purchase_order.create_part.category</source>
+        <target>Choose a category for the new part.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.denied" name="purchase_order.create_part.denied">
+      <segment state="translated">
+        <source>purchase_order.create_part.denied</source>
+        <target>You cannot create parts.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.create_part.done" name="purchase_order.create_part.done">
+      <segment state="translated">
+        <source>purchase_order.create_part.done</source>
+        <target>The part was added to the database and linked to this order.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.not_arrived" name="purchase_order.check_in.not_arrived">
+      <segment state="translated">
+        <source>purchase_order.check_in.not_arrived</source>
+        <target>Not arrived</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.add_to_database_first" name="purchase_order.check_in.add_to_database_first">
+      <segment state="translated">
+        <source>purchase_order.check_in.add_to_database_first</source>
+        <target>Add to database first</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.external_not_available" name="purchase_order.check_in.external_not_available">
+      <segment state="translated">
+        <source>purchase_order.check_in.external_not_available</source>
+        <target>This external line cannot be checked in until it is added to the database.</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.not_in_database" name="purchase_order.check_in.not_in_database">
+      <segment state="translated">
+        <source>purchase_order.check_in.not_in_database</source>
+        <target>Add %part% to the database before checking it in.</target>
       </segment>
     </unit>
   </file>

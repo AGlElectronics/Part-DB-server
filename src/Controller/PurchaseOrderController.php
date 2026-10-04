@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Parts\Category;
 use App\Entity\Parts\Part;
 use App\Entity\Parts\PartLot;
+use App\Entity\Parts\Supplier;
+use App\Entity\PriceInformations\Orderdetail;
 use App\Entity\Purchasing\PurchaseOrder;
 use App\Entity\Purchasing\PurchaseOrderLine;
+use App\Repository\StructuralDBElementRepository;
 use App\Services\Purchasing\OrderCheckIn;
 use App\Services\Purchasing\OrderCheckInException;
 use App\Services\Purchasing\OrderCheckInLine;
+use App\Services\Purchasing\PurchaseOrderList;
 use App\Services\Purchasing\StockRefillCalculator;
 use App\Services\Purchasing\SupplierOrderCsv;
 use App\Services\Purchasing\SupplierPartNumberResolver;
@@ -30,17 +35,25 @@ final class PurchaseOrderController extends AbstractController
         private readonly SupplierOrderCsv $csv,
         private readonly StockRefillCalculator $stockRefill,
         private readonly OrderCheckIn $orderCheckIn,
+        private readonly PurchaseOrderList $orderList,
         private readonly TranslatorInterface $translator,
     ) {
     }
 
     #[Route('', name: 'purchase_orders_list', methods: ['GET'])]
-    public function list(): Response
+    public function list(Request $request): Response
     {
         $this->denyAccessUnlessGranted('@parts.read');
+        $kind = $request->query->get('kind');
+        $view = $request->query->get('view') === 'history' ? 'history' : 'current';
+        $grouped = $this->orderList->group($this->orders(), is_string($kind) && in_array($kind, [PurchaseOrder::KIND_ELEC, PurchaseOrder::KIND_MECH], true) ? $kind : 'all');
 
         return $this->render('purchasing/order_list.html.twig', [
-            'orders' => $this->orders(),
+            'openOrders' => $grouped['open'],
+            'partialOrders' => $grouped['partial'],
+            'receivedOrders' => $grouped['received'],
+            'kind' => is_string($kind) && in_array($kind, [PurchaseOrder::KIND_ELEC, PurchaseOrder::KIND_MECH], true) ? $kind : 'all',
+            'view' => $view,
         ]);
     }
 
@@ -51,7 +64,10 @@ final class PurchaseOrderController extends AbstractController
         $this->assertCsrf($request, 'purchase_order_create');
 
         $order = new PurchaseOrder();
-        $this->applyName($order, $request);
+        $order->setKind($this->kindFromRequest($request));
+        if (!$this->applyName($order, $request)) {
+            return $this->redirectToRoute('purchase_orders_list');
+        }
         $this->entityManager->persist($order);
         $this->entityManager->flush();
         $this->addFlash('success', 'purchase_order.flash.created');
@@ -73,6 +89,11 @@ final class PurchaseOrderController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $this->assertCsrf($request, 'purchase_order_add_part');
+            if ($this->intField($request, 'order') <= 0 && !$this->hasName($request)) {
+                $this->addFlash('error', 'purchase_order.name_required');
+
+                return $this->redirectToRoute('purchase_order_add_part', ['parts' => $request->request->get('parts')]);
+            }
 
             $order = $this->orderFromRequest($request);
             $added = 0;
@@ -111,10 +132,13 @@ final class PurchaseOrderController extends AbstractController
         if ($request->isMethod('POST')) {
             $this->denyAccessUnlessGranted('@parts.edit');
             $this->assertCsrf($request, 'purchase_order_'.$order->getId());
-            $this->applyName($order, $request);
+            if (!$this->applyName($order, $request)) {
+                return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+            }
             $this->applyOrderedAt($order, $request);
             $this->updateLines($request, $order);
             $this->addPostedPart($request, $order);
+            $this->addPostedExternal($request, $order);
             $this->entityManager->flush();
             $this->addFlash('success', 'purchase_order.saved');
 
@@ -126,17 +150,68 @@ final class PurchaseOrderController extends AbstractController
             $part = $line->getPart();
             $lines[] = [
                 'line' => $line,
-                'stock' => $part->getAmountSum(),
-                'minimum' => $part->getMinAmount(),
-                'digikey' => $this->partNumbers->digikey($part),
-                'mouser' => $this->partNumbers->mouser($part),
+                'stock' => $part?->getAmountSum(),
+                'minimum' => $part?->getMinAmount(),
+                'digikey' => $this->partNumbers->digikeyLine($line),
+                'mouser' => $this->partNumbers->mouserLine($line),
             ];
         }
 
         return $this->render('purchasing/order_show.html.twig', [
             'order' => $order,
             'lines' => $lines,
+            'suppliers' => $this->selectable(Supplier::class),
+            'categories' => $this->selectable(Category::class),
         ]);
+    }
+
+    #[Route('/{id}/lines/{lineId}/create-part', name: 'purchase_order_create_part', requirements: ['id' => '\d+', 'lineId' => '\d+'], methods: ['POST'])]
+    public function createPart(Request $request, PurchaseOrder $order, int $lineId): Response
+    {
+        $this->denyAccessUnlessGranted('@parts.edit');
+        $this->assertCsrf($request, 'purchase_order_create_part_'.$order->getId().'_'.$lineId);
+        $line = $this->lineById($order, $lineId);
+        if (!$line instanceof PurchaseOrderLine || $line->isInDatabase()) {
+            $this->addFlash('error', 'purchase_order.create_part.missing');
+
+            return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+        }
+
+        $postedName = $request->request->get('adopt_name');
+        $name = is_scalar($postedName) ? trim((string) $postedName) : '';
+        if ($name === '') {
+            $name = $line->getLabel();
+        }
+        $category = $this->entityManager->find(Category::class, $this->intField($request, 'category'));
+        if (!$category instanceof Category || $category->isNotSelectable()) {
+            $this->addFlash('error', 'purchase_order.create_part.category');
+
+            return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+        }
+
+        $part = new Part();
+        $part->setName(mb_substr($name, 0, 255));
+        $part->setCategory($category);
+        if (!$this->isGranted('create', $part)) {
+            $this->addFlash('error', 'purchase_order.create_part.denied');
+
+            return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+        }
+
+        $supplier = $line->getSupplier();
+        $number = trim((string) $line->getSupplierPartNumber());
+        if ($supplier instanceof Supplier && $number !== '') {
+            $detail = new Orderdetail();
+            $detail->setSupplier($supplier);
+            $detail->setSupplierpartnr($number);
+            $part->addOrderdetail($detail);
+        }
+        $this->entityManager->persist($part);
+        $line->setPart($part);
+        $this->entityManager->flush();
+        $this->addFlash('success', 'purchase_order.create_part.done');
+
+        return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
     }
 
     #[Route('/{id}/check-in', name: 'purchase_order_check_in', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -181,6 +256,7 @@ final class PurchaseOrderController extends AbstractController
         return $this->render('purchasing/order_check_in.html.twig', [
             'order' => $order,
             'rows' => $this->checkInRows($order),
+            'arrivals' => $this->arrivalsByLine($order),
             'comment' => $comment,
         ]);
     }
@@ -196,6 +272,20 @@ final class PurchaseOrderController extends AbstractController
         $this->addFlash('success', 'purchase_order.deleted');
 
         return $this->redirectToRoute('purchase_orders_list');
+    }
+
+    #[Route('/{id}/supplier.csv', name: 'purchase_order_supplier', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function supplierFile(Request $request, PurchaseOrder $order): Response
+    {
+        $this->denyAccessUnlessGranted('@parts.read');
+        $supplier = $this->entityManager->find(Supplier::class, $this->intValue($request->query->get('supplier')));
+        if (!$supplier instanceof Supplier) {
+            $this->addFlash('error', 'purchase_order.supplier_missing');
+
+            return $this->redirectToRoute('purchase_order_show', ['id' => $order->getId()]);
+        }
+
+        return $this->csvResponse($this->csv->forSupplier($order, $supplier), 'supplier-'.$supplier->getID().'-order-'.$order->getId().'.csv');
     }
 
     #[Route('/{id}/digikey.csv', name: 'purchase_order_digikey', requirements: ['id' => '\d+'], methods: ['GET'])]
@@ -240,6 +330,31 @@ final class PurchaseOrderController extends AbstractController
         }
     }
 
+    private function addPostedExternal(Request $request, PurchaseOrder $order): void
+    {
+        $value = $request->request->get('external_name');
+        if (!is_scalar($value)) {
+            return;
+        }
+        $name = trim((string) $value);
+        if ($name === '') {
+            return;
+        }
+
+        $line = new PurchaseOrderLine();
+        $line->setExternalName($name);
+        $line->setQuantity(max(1, $this->intField($request, 'external_quantity')));
+        $number = $request->request->get('external_supplier_part_number');
+        if (is_scalar($number)) {
+            $line->setSupplierPartNumber((string) $number);
+        }
+        $supplier = $this->entityManager->find(Supplier::class, $this->intField($request, 'external_supplier'));
+        if ($supplier instanceof Supplier) {
+            $line->setSupplier($supplier);
+        }
+        $order->addLine($line);
+    }
+
     private function addPostedPart(Request $request, PurchaseOrder $order): void
     {
         $partId = $this->intField($request, 'add_part');
@@ -271,6 +386,7 @@ final class PurchaseOrderController extends AbstractController
         }
 
         $order = new PurchaseOrder();
+        $order->setKind($this->kindFromRequest($request));
         $this->applyName($order, $request);
         $this->entityManager->persist($order);
 
@@ -279,19 +395,10 @@ final class PurchaseOrderController extends AbstractController
 
     private function applyOrderedAt(PurchaseOrder $order, Request $request): void
     {
-        if (!$request->request->has('ordered_on')) {
+        if ($request->request->get('mark_ordered') !== '1' || $order->getOrderedAt() instanceof \DateTimeImmutable) {
             return;
         }
-        $value = $request->request->get('ordered_on');
-        if (!is_scalar($value) || trim((string) $value) === '') {
-            $order->setOrderedAt(null);
-
-            return;
-        }
-        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', trim((string) $value));
-        if ($date instanceof \DateTimeImmutable) {
-            $order->setOrderedAt($date);
-        }
+        $order->setOrderedAt(new \DateTimeImmutable('today'));
     }
 
     /**
@@ -302,6 +409,15 @@ final class PurchaseOrderController extends AbstractController
         $rows = [];
         foreach ($order->getLines() as $line) {
             $part = $line->getPart();
+            if (!$part instanceof Part) {
+                $rows[] = [
+                    'line' => $line,
+                    'lots' => [],
+                    'lotLabels' => [],
+                    'locations' => [],
+                ];
+                continue;
+            }
             $lots = $this->orderCheckIn->usableLots($part);
             $labels = [];
             foreach ($lots as $lot) {
@@ -396,17 +512,97 @@ final class PurchaseOrderController extends AbstractController
         return mb_substr($comment, 0, 255);
     }
 
-    private function applyName(PurchaseOrder $order, Request $request): void
+    /**
+     * @return array<int, list<array{at: \DateTimeImmutable, quantity: int}>>
+     */
+    private function arrivalsByLine(PurchaseOrder $order): array
+    {
+        $events = [];
+        foreach ($order->getReceipts() as $receipt) {
+            foreach ($receipt->getLines() as $item) {
+                $lineId = $item->getOrderLine()?->getId();
+                if ($lineId === null) {
+                    continue;
+                }
+                $events[$lineId][] = [
+                    'at' => $receipt->getReceivedAt(),
+                    'quantity' => $item->getQuantity(),
+                ];
+            }
+        }
+
+        return $events;
+    }
+
+    private function applyName(PurchaseOrder $order, Request $request): bool
+    {
+        if (!$this->hasName($request)) {
+            $this->addFlash('error', 'purchase_order.name_required');
+
+            return false;
+        }
+        $value = $request->request->get('name');
+        $order->setName(mb_substr(trim((string) $value), 0, 255));
+
+        return true;
+    }
+
+    private function hasName(Request $request): bool
     {
         $value = $request->request->get('name');
-        if (!is_scalar($value)) {
-            return;
+
+        return is_scalar($value) && trim((string) $value) !== '';
+    }
+
+    private function kindFromRequest(Request $request): string
+    {
+        return $request->request->get('kind') === PurchaseOrder::KIND_MECH ? PurchaseOrder::KIND_MECH : PurchaseOrder::KIND_ELEC;
+    }
+
+    private function lineById(PurchaseOrder $order, int $lineId): ?PurchaseOrderLine
+    {
+        foreach ($order->getLines() as $line) {
+            if ($line->getId() === $lineId) {
+                return $line;
+            }
         }
-        $name = trim((string) $value);
-        if ($name === '') {
-            return;
+
+        return null;
+    }
+
+    /**
+     * @param class-string $class
+     *
+     * @return list<array{id: int, label: string}>
+     */
+    private function selectable(string $class): array
+    {
+        $repository = $this->entityManager->getRepository($class);
+        if (!$repository instanceof StructuralDBElementRepository) {
+            return [];
         }
-        $order->setName(mb_substr($name, 0, 255));
+        $options = [];
+        foreach ($repository->getFlatList() as $element) {
+            $id = $element->getID();
+            if ($element->isNotSelectable() || $id === null) {
+                continue;
+            }
+            $options[] = [
+                'id' => $id,
+                'label' => str_repeat('– ', $element->getLevel()).$element->getName(),
+            ];
+        }
+
+        return $options;
+    }
+
+    private function intValue(mixed $value): int
+    {
+        if (!is_scalar($value) || !preg_match('/^\d+$/', trim((string) $value))) {
+            return 0;
+        }
+
+        return (int) $value;
     }
 
     private function appendPart(PurchaseOrder $order, Part $part): bool

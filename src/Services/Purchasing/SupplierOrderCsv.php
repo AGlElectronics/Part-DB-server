@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Purchasing;
 
+use App\Entity\Parts\Supplier;
 use App\Entity\Purchasing\PurchaseOrder;
 
 /**
@@ -22,11 +23,11 @@ final class SupplierOrderCsv
             if ($line->getQuantity() < 1) {
                 continue;
             }
-            $number = $this->partNumbers->digikey($line->getPart());
+            $number = $this->partNumbers->digikeyLine($line);
             if ($number === null) {
                 continue;
             }
-            $rows[] = [$number, (string) $line->getQuantity(), $line->getPart()->getName()];
+            $rows[] = [$number, (string) $line->getQuantity(), $line->getLabel()];
         }
 
         return $this->render($rows);
@@ -39,11 +40,28 @@ final class SupplierOrderCsv
             if ($line->getQuantity() < 1) {
                 continue;
             }
-            $number = $this->partNumbers->mouser($line->getPart());
+            $number = $this->partNumbers->mouserLine($line);
             if ($number === null) {
                 continue;
             }
-            $rows[] = [$number, (string) $line->getQuantity(), mb_substr($line->getPart()->getName(), 0, 21)];
+            $rows[] = [$number, (string) $line->getQuantity(), mb_substr($line->getLabel(), 0, 21)];
+        }
+
+        return $this->render($rows);
+    }
+
+    public function forSupplier(PurchaseOrder $order, Supplier $supplier): string
+    {
+        $rows = [['Part Number', 'Quantity', 'Customer Reference']];
+        foreach ($order->getLines() as $line) {
+            if ($line->getQuantity() < 1) {
+                continue;
+            }
+            $number = $this->partNumbers->supplierLine($line, $supplier);
+            if ($number === null) {
+                continue;
+            }
+            $rows[] = [$number, (string) $line->getQuantity(), $line->getLabel()];
         }
 
         return $this->render($rows);
@@ -59,7 +77,7 @@ final class SupplierOrderCsv
             throw new \RuntimeException('Could not build the order file.');
         }
         foreach ($rows as $row) {
-            fputcsv($handle, $row);
+            fputcsv($handle, $row, ',', '"', '');
         }
         rewind($handle);
         $csv = stream_get_contents($handle);
