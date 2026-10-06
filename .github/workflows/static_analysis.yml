@@ -51,6 +51,11 @@ jobs:
     - name: Lint twig templates
       run: ./bin/console lint:twig templates --env=prod
 
+    - name: Check English translation catalog IDs
+      run: |
+        ./bin/console translation:touch-catalog messages en
+        git diff --exit-code -- translations/messages.en.xlf
+
     # This causes problems with emtpy language files
     #- name: Lint translations
     #  run: ./bin/console lint:xliff translations
