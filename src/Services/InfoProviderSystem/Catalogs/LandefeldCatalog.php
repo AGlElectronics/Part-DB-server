@@ -65,7 +65,7 @@ final class LandefeldCatalog
      */
     private const SERIES_KIND = [
         'IQSG' => ['Straight push-in fitting', ['straight', 'gerade', 'push-in', 'push in', 'steckanschluss', 'fitting']],
-        'IQSF' => ['Female push-in fitting', ['female', 'straight', 'gerade', 'push-in', 'push in', 'fitting']],
+        'IQSF' => ['Straight female push-in fitting', ['female', 'straight', 'gerade', 'push-in', 'push in', 'fitting']],
         'IQSSF' => ['Bulkhead female push-in fitting', ['bulkhead', 'female', 'push-in', 'push in', 'fitting']],
         'IQSL' => ['Elbow push-in fitting', ['elbow', 'angle', 'winkel', 'push-in', 'push in', 'fitting']],
         'IQSLL' => ['Long elbow push-in fitting', ['elbow', 'angle', 'long', 'winkel', 'push-in', 'push in', 'fitting']],
