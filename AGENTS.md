@@ -68,3 +68,16 @@ php bin/console translation:touch-catalog messages en
 ```
 
 Do this before finishing the task whenever you've added a translation key.
+
+## Container release tags
+
+Release images must use the Part-DB version from the repository's `VERSION` file followed by this
+fork's release number: `<upstream-version>-<fork-release>`.
+
+* For the first fork release based on Part-DB 2.19.2, use `2.19.2-1`.
+* Increment the suffix for further releases on the same upstream version (`2.19.2-2`, `2.19.2-3`, ...).
+* Reset the suffix to `1` after updating Part-DB (`2.19.3-1`).
+* Do not create new `mechanical-v*` release tags.
+* Build and publish release images with `.github/workflows/images.yml` on GitHub Actions; do not
+  build or push release images manually.
+* A release tag's upstream-version component must exactly match `VERSION`.

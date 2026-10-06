@@ -6,7 +6,7 @@ on:
     branches:
       - master
     tags:
-      - 'mechanical-v*'
+      - '[0-9]+.[0-9]+.[0-9]+-[1-9][0-9]*'
   workflow_dispatch:
     inputs:
       deploy:
@@ -19,7 +19,7 @@ on:
           - dev
           - prod
       image_tag:
-        description: Tag to deploy, such as master, sha-abc1234, or pr-12. Empty uses master.
+        description: Tag to build or deploy, such as 2.19.2-1, master, sha-abc1234, or pr-12. Empty uses master.
         required: false
         type: string
       rebuild:
@@ -84,12 +84,29 @@ jobs:
   release-image:
     name: Release image
     if: >-
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/mechanical-v'))) ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref_type == 'tag')) ||
       (github.event_name == 'workflow_dispatch' && (inputs.deploy == 'none' || inputs.rebuild))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Validate release image tag
+        if: github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && inputs.image_tag != '' && (inputs.deploy == 'none' || inputs.rebuild))
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.image_tag }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-([1-9][0-9]*)$ ]]; then
+            echo "::error::Release image tag '$RELEASE_TAG' must use <upstream-version>-<fork-release>, for example 2.19.2-1."
+            exit 1
+          fi
+
+          tag_upstream_version="${BASH_REMATCH[1]}"
+          upstream_version="$(tr -d '[:space:]' < VERSION)"
+          if [[ "$tag_upstream_version" != "$upstream_version" ]]; then
+            echo "::error::Release image tag '$RELEASE_TAG' claims upstream $tag_upstream_version, but VERSION contains $upstream_version."
+            exit 1
+          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -142,7 +159,7 @@ jobs:
       (
         (
           github.event_name == 'push' &&
-          (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/mechanical-v')) &&
+          (github.ref == 'refs/heads/master' || github.ref_type == 'tag') &&
           needs.release-image.result == 'success'
         ) ||
         (
