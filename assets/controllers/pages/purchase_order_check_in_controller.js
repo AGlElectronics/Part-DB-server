@@ -70,8 +70,6 @@ export default class extends Controller
         const qty = row.querySelector('[data-check-qty]');
 
         row.dataset.checkInState = box.checked ? 'arrived' : 'missing';
-        row.classList.toggle('table-success', box.checked);
-        row.classList.toggle('table-warning', !box.checked);
 
         missing.classList.toggle('btn-warning', !box.checked);
         missing.classList.toggle('btn-outline-warning', box.checked);
@@ -98,7 +96,7 @@ export default class extends Controller
 
     _refresh() {
         const rows = this._rows();
-        const counts = {all: rows.length, arrived: 0, missing: 0, unavailable: 0};
+        const counts = {all: rows.length, arrived: 0, missing: 0, completed: 0, unavailable: 0};
 
         rows.forEach((row) => {
             counts[row.dataset.checkInState] += 1;

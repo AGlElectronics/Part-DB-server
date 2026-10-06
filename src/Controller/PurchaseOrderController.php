@@ -434,6 +434,10 @@ final class PurchaseOrderController extends AbstractController
             ];
         }
 
+        usort($rows, static fn (array $left, array $right): int =>
+            (int) ($left['line']->getOutstanding() === 0) <=> (int) ($right['line']->getOutstanding() === 0)
+        );
+
         return $rows;
     }
 

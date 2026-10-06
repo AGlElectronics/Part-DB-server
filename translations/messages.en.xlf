@@ -15914,6 +15914,12 @@ Buerklin-API Authentication server:
         <target>Still missing</target>
       </segment>
     </unit>
+    <unit id="purchase_order.check_in.filter.completed" name="purchase_order.check_in.filter.completed">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.completed</source>
+        <target>Already received</target>
+      </segment>
+    </unit>
     <unit id="purchase_order.check_in.filter.unavailable" name="purchase_order.check_in.filter.unavailable">
       <segment state="translated">
         <source>purchase_order.check_in.filter.unavailable</source>
@@ -15954,6 +15960,12 @@ Buerklin-API Authentication server:
       <segment state="translated">
         <source>purchase_order.check_in.status.arrived</source>
         <target>Arrived</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.status.completed" name="purchase_order.check_in.status.completed">
+      <segment state="translated">
+        <source>purchase_order.check_in.status.completed</source>
+        <target>Already received</target>
       </segment>
     </unit>
     <unit id="purchase_order.check_in.include" name="purchase_order.check_in.include">

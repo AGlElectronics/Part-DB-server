@@ -41,6 +41,12 @@
                         {% trans %}purchase_order.check_in.filter.missing{% endtrans %}
                         <span class="badge text-bg-warning ms-1" data-check-in-count="missing">0</span>
                     </button>
+                    <button type="button" class="btn btn-outline-secondary" data-check-in-filter="completed"
+                            aria-pressed="false">
+                        <i class="fas fa-circle-check me-1"></i>
+                        {% trans %}purchase_order.check_in.filter.completed{% endtrans %}
+                        <span class="badge text-bg-secondary ms-1" data-check-in-count="completed">0</span>
+                    </button>
                     <button type="button" class="btn btn-outline-secondary" data-check-in-filter="unavailable"
                             aria-pressed="false">
                         <i class="fas fa-database me-1"></i>
@@ -84,11 +90,17 @@
                 {% for row in rows %}
                     {% set line = row.line %}
                     {% set line_arrivals = arrivals[line.id]|default([]) %}
+                    {% set complete = line.outstanding == 0 %}
                     <tr data-line-id="{{ line.id }}" data-check-in-row
-                        data-check-in-state="{{ line.inDatabase ? 'missing' : 'unavailable' }}"
-                        class="{{ line.inDatabase ? 'table-warning' : 'table-secondary text-muted' }}">
+                        data-check-in-state="{{ complete ? 'completed' : (line.inDatabase ? 'missing' : 'unavailable') }}"
+                        {% if complete or not line.inDatabase %}class="text-muted"{% endif %}>
                         <td style="min-width: 15rem">
-                            {% if line.inDatabase %}
+                            {% if complete %}
+                                <span class="badge border border-secondary text-body-secondary fs-6 w-100 py-3 text-wrap">
+                                    <i class="fas fa-circle-check me-1"></i>
+                                    {% trans %}purchase_order.check_in.status.completed{% endtrans %}
+                                </span>
+                            {% elseif line.inDatabase %}
                                 <input class="d-none" id="check-in-line-{{ line.id }}" type="checkbox"
                                        name="check[{{ line.id }}]" value="1" autocomplete="off"
                                        data-check-in tabindex="-1" aria-hidden="true">
@@ -114,7 +126,7 @@
                         </td>
                         <td>
                             <strong>{{ line.label }}</strong>
-                            {% if not line.inDatabase %}
+                            {% if not line.inDatabase and not complete %}
                                 <div class="small text-danger mt-1">
                                     {% trans %}purchase_order.check_in.external_not_available{% endtrans %}
                                 </div>
@@ -137,10 +149,14 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge bg-warning text-dark rounded-pill fs-6 px-3 py-2">{{ line.outstanding }}</span>
+                            <span class="badge {{ complete ? 'bg-secondary' : 'bg-warning text-dark' }} rounded-pill fs-6 px-3 py-2">
+                                {{ line.outstanding }}
+                            </span>
                         </td>
                         <td>
-                            {% if line.inDatabase %}
+                            {% if complete %}
+                                <input class="form-control" type="number" value="0" disabled>
+                            {% elseif line.inDatabase %}
                                 <input class="form-control" type="number" min="0" step="1"
                                        name="qty[{{ line.id }}]" value="{{ line.outstanding }}"
                                        data-check-qty data-check-in-detail data-outstanding="{{ line.outstanding }}">
@@ -149,7 +165,9 @@
                             {% endif %}
                         </td>
                         <td data-check-in-destination>
-                            {% if line.inDatabase %}
+                            {% if complete %}
+                                <span aria-hidden="true">—</span>
+                            {% elseif line.inDatabase %}
                                 {% if row.lots|length == 1 %}
                                     <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lots[0].id }}"
                                            data-check-in-detail>
