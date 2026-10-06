@@ -14,6 +14,58 @@
         <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_check_in_' ~ order.id) }}">
         <input type="hidden" name="step" value="review">
 
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 rounded border bg-body-tertiary p-3 mb-3"
+             data-check-in-toolbar>
+            <div>
+                <div class="small fw-semibold text-uppercase text-muted mb-1">
+                    {% trans %}purchase_order.check_in.filter.label{% endtrans %}
+                </div>
+                <div class="btn-group flex-wrap" role="group"
+                     aria-label="{{ 'purchase_order.check_in.filter.label'|trans }}">
+                    <button type="button" class="btn btn-outline-primary active" data-check-in-filter="all"
+                            aria-pressed="true">
+                        <i class="fas fa-list me-1"></i>
+                        {% trans %}purchase_order.check_in.filter.all{% endtrans %}
+                        <span class="badge text-bg-primary ms-1" data-check-in-count="all">0</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-success" data-check-in-filter="arrived"
+                            aria-pressed="false">
+                        <i class="fas fa-box-open me-1"></i>
+                        {% trans %}purchase_order.check_in.filter.arrived{% endtrans %}
+                        <span class="badge text-bg-success ms-1" data-check-in-count="arrived">0</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" data-check-in-filter="missing"
+                            aria-pressed="false">
+                        <i class="fas fa-hourglass-half me-1"></i>
+                        {% trans %}purchase_order.check_in.filter.missing{% endtrans %}
+                        <span class="badge text-bg-warning ms-1" data-check-in-count="missing">0</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-check-in-filter="unavailable"
+                            aria-pressed="false">
+                        <i class="fas fa-database me-1"></i>
+                        {% trans %}purchase_order.check_in.filter.unavailable{% endtrans %}
+                        <span class="badge text-bg-secondary ms-1" data-check-in-count="unavailable">0</span>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="small fw-semibold text-uppercase text-muted mb-1">
+                    {% trans %}purchase_order.check_in.bulk.label{% endtrans %}
+                </div>
+                <div class="btn-group" role="group"
+                     aria-label="{{ 'purchase_order.check_in.bulk.label'|trans }}">
+                    <button type="button" class="btn btn-outline-success" data-check-in-set-visible="arrived">
+                        <i class="fas fa-check-double me-1"></i>
+                        {% trans %}purchase_order.check_in.bulk.arrived{% endtrans %}
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" data-check-in-set-visible="missing">
+                        <i class="fas fa-rotate-left me-1"></i>
+                        {% trans %}purchase_order.check_in.bulk.missing{% endtrans %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
@@ -31,25 +83,29 @@
                 {% for row in rows %}
                     {% set line = row.line %}
                     {% set line_arrivals = arrivals[line.id]|default([]) %}
-                    <tr data-line-id="{{ line.id }}" {% if not line.inDatabase %}class="table-light text-muted"{% endif %}>
-                        <td>
+                    <tr data-line-id="{{ line.id }}" data-check-in-row
+                        data-check-in-state="{{ line.inDatabase ? 'missing' : 'unavailable' }}"
+                        class="{{ line.inDatabase ? 'table-warning' : 'table-secondary text-muted' }}">
+                        <td style="min-width: 15rem">
                             {% if line.inDatabase %}
-                                <input class="btn-check" id="check-in-line-{{ line.id }}" type="checkbox"
+                                <input class="d-none" id="check-in-line-{{ line.id }}" type="checkbox"
                                        name="check[{{ line.id }}]" value="1" autocomplete="off"
-                                       data-check-in aria-label="{{ 'purchase_order.check_in.include'|trans }}">
-                                <label class="btn btn-outline-secondary btn-lg w-100 text-nowrap"
-                                       for="check-in-line-{{ line.id }}" data-check-in-toggle>
-                                    <span data-not-arrived>
-                                        <i class="fas fa-times me-1"></i>
-                                        {% trans %}purchase_order.check_in.not_arrived{% endtrans %}
-                                    </span>
-                                    <span class="d-none" data-arrived>
-                                        <i class="fas fa-check me-1"></i> {% trans %}purchase_order.check_in.include{% endtrans %}
-                                    </span>
-                                </label>
+                                       data-check-in tabindex="-1" aria-hidden="true">
+                                <div class="btn-group w-100" role="group"
+                                     aria-label="{{ 'purchase_order.check_in.status.label'|trans }}">
+                                    <button type="button" class="btn btn-warning active text-nowrap"
+                                            data-check-in-choice="missing" aria-pressed="true">
+                                        <i class="fas fa-hourglass-half me-1"></i>
+                                        {% trans %}purchase_order.check_in.status.missing{% endtrans %}
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success text-nowrap"
+                                            data-check-in-choice="arrived" aria-pressed="false">
+                                        <i class="fas fa-check me-1"></i>
+                                        {% trans %}purchase_order.check_in.status.arrived{% endtrans %}
+                                    </button>
+                                </div>
                             {% else %}
-                                <span class="btn btn-outline-secondary btn-lg w-100 disabled text-nowrap"
-                                      aria-disabled="true">
+                                <span class="badge text-bg-secondary fs-6 w-100 py-3 text-wrap">
                                     <i class="fas fa-database me-1"></i>
                                     {% trans %}purchase_order.check_in.add_to_database_first{% endtrans %}
                                 </span>
@@ -86,25 +142,26 @@
                             {% if line.inDatabase %}
                                 <input class="form-control" type="number" min="0" step="1"
                                        name="qty[{{ line.id }}]" value="{{ line.outstanding }}"
-                                       data-check-qty data-outstanding="{{ line.outstanding }}">
+                                       data-check-qty data-check-in-detail data-outstanding="{{ line.outstanding }}">
                             {% else %}
                                 <input class="form-control" type="number" value="{{ line.outstanding }}" disabled>
                             {% endif %}
                         </td>
-                        <td>
+                        <td data-check-in-destination>
                             {% if line.inDatabase %}
                                 {% if row.lots|length == 1 %}
-                                    <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lots[0].id }}">
+                                    <input type="hidden" name="lot[{{ line.id }}]" value="{{ row.lots[0].id }}"
+                                           data-check-in-detail>
                                     {{ row.lotLabels[row.lots[0].id] }}
                                 {% elseif row.lots|length > 1 %}
-                                    <select class="form-select" name="lot[{{ line.id }}]">
+                                    <select class="form-select" name="lot[{{ line.id }}]" data-check-in-detail>
                                         <option value="">{% trans %}purchase_order.check_in.choose_lot_option{% endtrans %}</option>
                                         {% for lot in row.lots %}
                                             <option value="{{ lot.id }}">{{ row.lotLabels[lot.id] }}</option>
                                         {% endfor %}
                                     </select>
                                 {% else %}
-                                    <select class="form-select" name="location[{{ line.id }}]">
+                                    <select class="form-select" name="location[{{ line.id }}]" data-check-in-detail>
                                         <option value="">{% trans %}purchase_order.check_in.choose_location_option{% endtrans %}</option>
                                         {% for location in row.locations %}
                                             <option value="{{ location.id }}">{{ location.name }}</option>
@@ -129,31 +186,112 @@
             <textarea class="form-control" id="purchase-order-check-in-comment" name="comment" rows="2" maxlength="255">{{ comment }}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">{% trans %}purchase_order.check_in.review{% endtrans %}</button>
+        <button type="submit" class="btn btn-primary">
+            {% trans %}purchase_order.check_in.review{% endtrans %}
+            <span class="badge text-bg-light ms-1" data-check-in-selected-count>0</span>
+        </button>
     </form>
 
     <script>
+        (() => {
+        const checkInRows = Array.from(document.querySelectorAll('[data-check-in-row]'));
+        const checkInFilterButtons = Array.from(document.querySelectorAll('[data-check-in-filter]'));
+        let checkInFilter = 'all';
+
+        const refreshCheckInView = () => {
+            const counts = {all: checkInRows.length, arrived: 0, missing: 0, unavailable: 0};
+
+            checkInRows.forEach((row) => {
+                counts[row.dataset.checkInState] += 1;
+                row.classList.toggle('d-none', checkInFilter !== 'all' && row.dataset.checkInState !== checkInFilter);
+            });
+
+            Object.entries(counts).forEach(([state, count]) => {
+                const badge = document.querySelector(`[data-check-in-count="${state}"]`);
+                if (badge) {
+                    badge.textContent = count;
+                }
+                const filter = document.querySelector(`[data-check-in-filter="${state}"]`);
+                if (filter && state !== 'all') {
+                    filter.disabled = count === 0;
+                }
+            });
+
+            const selectedCount = document.querySelector('[data-check-in-selected-count]');
+            if (selectedCount) {
+                selectedCount.textContent = counts.arrived;
+            }
+        };
+
         document.querySelectorAll('[data-check-in]').forEach((box) => {
             const updateToggle = () => {
                 const row = box.closest('tr');
-                const toggle = row.querySelector('[data-check-in-toggle]');
-                const notArrived = toggle.querySelector('[data-not-arrived]');
-                const arrived = toggle.querySelector('[data-arrived]');
+                const missing = row.querySelector('[data-check-in-choice="missing"]');
+                const arrived = row.querySelector('[data-check-in-choice="arrived"]');
                 const qty = row.querySelector('[data-check-qty]');
 
-                notArrived.classList.toggle('d-none', box.checked);
-                arrived.classList.toggle('d-none', !box.checked);
-                toggle.classList.toggle('btn-outline-secondary', !box.checked);
-                toggle.classList.toggle('btn-success', box.checked);
+                row.dataset.checkInState = box.checked ? 'arrived' : 'missing';
                 row.classList.toggle('table-success', box.checked);
+                row.classList.toggle('table-warning', !box.checked);
+
+                missing.classList.toggle('btn-warning', !box.checked);
+                missing.classList.toggle('btn-outline-warning', box.checked);
+                missing.classList.toggle('active', !box.checked);
+                missing.setAttribute('aria-pressed', String(!box.checked));
+                arrived.classList.toggle('btn-success', box.checked);
+                arrived.classList.toggle('btn-outline-success', !box.checked);
+                arrived.classList.toggle('active', box.checked);
+                arrived.setAttribute('aria-pressed', String(box.checked));
+
+                row.querySelectorAll('[data-check-in-detail]').forEach((control) => {
+                    control.disabled = !box.checked;
+                });
+                const destination = row.querySelector('[data-check-in-destination]');
+                destination.classList.toggle('opacity-50', !box.checked);
 
                 if (qty && box.checked && (qty.value === '' || Number(qty.value) === 0)) {
                     qty.value = qty.dataset.outstanding;
                 }
+
+                refreshCheckInView();
             };
 
+            box.closest('tr').querySelectorAll('[data-check-in-choice]').forEach((choice) => {
+                choice.addEventListener('click', () => {
+                    box.checked = choice.dataset.checkInChoice === 'arrived';
+                    box.dispatchEvent(new Event('change', {bubbles: true}));
+                });
+            });
             box.addEventListener('change', updateToggle);
             updateToggle();
         });
+
+        checkInFilterButtons.forEach((filter) => {
+            filter.addEventListener('click', () => {
+                checkInFilter = filter.dataset.checkInFilter;
+                checkInFilterButtons.forEach((button) => {
+                    const active = button === filter;
+                    button.classList.toggle('active', active);
+                    button.setAttribute('aria-pressed', String(active));
+                });
+                refreshCheckInView();
+            });
+        });
+
+        document.querySelectorAll('[data-check-in-set-visible]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const arrived = button.dataset.checkInSetVisible === 'arrived';
+                checkInRows.filter((row) => !row.classList.contains('d-none')).forEach((row) => {
+                    const box = row.querySelector('[data-check-in]');
+                    if (box) {
+                        box.checked = arrived;
+                        box.dispatchEvent(new Event('change', {bubbles: true}));
+                    }
+                });
+            });
+        });
+
+        refreshCheckInView();
+        })();
     </script>
 {% endblock %}

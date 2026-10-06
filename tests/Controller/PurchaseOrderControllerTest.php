@@ -255,6 +255,14 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSame((string) $lotId, $this->namedField($crawler, 'lot['.$lineId.']')?->attr('value'));
         self::assertStringContainsString($created['location']->getName(), (string) $client->getResponse()->getContent());
+        self::assertCount(1, $crawler->filter('[data-check-in-toolbar]'));
+        self::assertCount(4, $crawler->filter('[data-check-in-filter]'));
+        self::assertCount(1, $crawler->filter('[data-check-in-filter="missing"]'));
+        self::assertCount(1, $crawler->filter('[data-check-in-set-visible="arrived"]'));
+        self::assertCount(1, $crawler->filter('tr[data-check-in-row][data-check-in-state="missing"]'));
+        self::assertCount(1, $crawler->filter('input[data-check-in][name="check['.$lineId.']"].d-none'));
+        self::assertCount(1, $crawler->filter('button[data-check-in-choice="missing"]'));
+        self::assertCount(1, $crawler->filter('button[data-check-in-choice="arrived"]'));
 
         $comment = 'Checked in from order '.$name;
         $crawler = $this->postCheckIn($client, $crawler, $orderId, [
