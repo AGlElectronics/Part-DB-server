@@ -435,7 +435,9 @@ final class PurchaseOrderController extends AbstractController
         }
 
         usort($rows, static fn (array $left, array $right): int =>
-            (int) ($left['line']->getOutstanding() === 0) <=> (int) ($right['line']->getOutstanding() === 0)
+            (int) ($left['line']->getQuantityReceived() > 0 && $left['line']->getOutstanding() === 0)
+            <=>
+            (int) ($right['line']->getQuantityReceived() > 0 && $right['line']->getOutstanding() === 0)
         );
 
         return $rows;

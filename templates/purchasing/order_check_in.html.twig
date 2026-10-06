@@ -92,7 +92,7 @@
                 {% for row in rows %}
                     {% set line = row.line %}
                     {% set line_arrivals = arrivals[line.id]|default([]) %}
-                    {% set complete = line.outstanding == 0 %}
+                    {% set complete = line.quantityReceived > 0 and line.outstanding == 0 %}
                     <tr data-line-id="{{ line.id }}" data-check-in-row
                         data-check-in-state="{{ complete ? 'completed' : (line.inDatabase ? 'missing' : 'unavailable') }}"
                         {% if complete or not line.inDatabase %}class="text-muted"{% endif %}>
