@@ -10,7 +10,8 @@
 {% block card_content %}
     <p class="text-muted">{% trans %}purchase_order.check_in.hint{% endtrans %}</p>
 
-    <form method="post" action="{{ path('purchase_order_check_in', {id: order.id}) }}">
+    <form method="post" action="{{ path('purchase_order_check_in', {id: order.id}) }}"
+          {{ stimulus_controller('pages/purchase_order_check_in') }}>
         <input type="hidden" name="_token" value="{{ csrf_token('purchase_order_check_in_' ~ order.id) }}">
         <input type="hidden" name="step" value="review">
 
@@ -191,107 +192,4 @@
             <span class="badge text-bg-light ms-1" data-check-in-selected-count>0</span>
         </button>
     </form>
-
-    <script>
-        (() => {
-        const checkInRows = Array.from(document.querySelectorAll('[data-check-in-row]'));
-        const checkInFilterButtons = Array.from(document.querySelectorAll('[data-check-in-filter]'));
-        let checkInFilter = 'all';
-
-        const refreshCheckInView = () => {
-            const counts = {all: checkInRows.length, arrived: 0, missing: 0, unavailable: 0};
-
-            checkInRows.forEach((row) => {
-                counts[row.dataset.checkInState] += 1;
-                row.classList.toggle('d-none', checkInFilter !== 'all' && row.dataset.checkInState !== checkInFilter);
-            });
-
-            Object.entries(counts).forEach(([state, count]) => {
-                const badge = document.querySelector(`[data-check-in-count="${state}"]`);
-                if (badge) {
-                    badge.textContent = count;
-                }
-                const filter = document.querySelector(`[data-check-in-filter="${state}"]`);
-                if (filter && state !== 'all') {
-                    filter.disabled = count === 0;
-                }
-            });
-
-            const selectedCount = document.querySelector('[data-check-in-selected-count]');
-            if (selectedCount) {
-                selectedCount.textContent = counts.arrived;
-            }
-        };
-
-        document.querySelectorAll('[data-check-in]').forEach((box) => {
-            const updateToggle = () => {
-                const row = box.closest('tr');
-                const missing = row.querySelector('[data-check-in-choice="missing"]');
-                const arrived = row.querySelector('[data-check-in-choice="arrived"]');
-                const qty = row.querySelector('[data-check-qty]');
-
-                row.dataset.checkInState = box.checked ? 'arrived' : 'missing';
-                row.classList.toggle('table-success', box.checked);
-                row.classList.toggle('table-warning', !box.checked);
-
-                missing.classList.toggle('btn-warning', !box.checked);
-                missing.classList.toggle('btn-outline-warning', box.checked);
-                missing.classList.toggle('active', !box.checked);
-                missing.setAttribute('aria-pressed', String(!box.checked));
-                arrived.classList.toggle('btn-success', box.checked);
-                arrived.classList.toggle('btn-outline-success', !box.checked);
-                arrived.classList.toggle('active', box.checked);
-                arrived.setAttribute('aria-pressed', String(box.checked));
-
-                row.querySelectorAll('[data-check-in-detail]').forEach((control) => {
-                    control.disabled = !box.checked;
-                });
-                const destination = row.querySelector('[data-check-in-destination]');
-                destination.classList.toggle('opacity-50', !box.checked);
-
-                if (qty && box.checked && (qty.value === '' || Number(qty.value) === 0)) {
-                    qty.value = qty.dataset.outstanding;
-                }
-
-                refreshCheckInView();
-            };
-
-            box.closest('tr').querySelectorAll('[data-check-in-choice]').forEach((choice) => {
-                choice.addEventListener('click', () => {
-                    box.checked = choice.dataset.checkInChoice === 'arrived';
-                    box.dispatchEvent(new Event('change', {bubbles: true}));
-                });
-            });
-            box.addEventListener('change', updateToggle);
-            updateToggle();
-        });
-
-        checkInFilterButtons.forEach((filter) => {
-            filter.addEventListener('click', () => {
-                checkInFilter = filter.dataset.checkInFilter;
-                checkInFilterButtons.forEach((button) => {
-                    const active = button === filter;
-                    button.classList.toggle('active', active);
-                    button.setAttribute('aria-pressed', String(active));
-                });
-                refreshCheckInView();
-            });
-        });
-
-        document.querySelectorAll('[data-check-in-set-visible]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const arrived = button.dataset.checkInSetVisible === 'arrived';
-                checkInRows.filter((row) => !row.classList.contains('d-none')).forEach((row) => {
-                    const box = row.querySelector('[data-check-in]');
-                    if (box) {
-                        box.checked = arrived;
-                        box.dispatchEvent(new Event('change', {bubbles: true}));
-                    }
-                });
-            });
-        });
-
-        refreshCheckInView();
-        })();
-    </script>
 {% endblock %}

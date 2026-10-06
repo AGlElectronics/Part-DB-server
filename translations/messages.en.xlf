@@ -15905,7 +15905,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.check_in.filter.arrived" name="purchase_order.check_in.filter.arrived">
       <segment state="translated">
         <source>purchase_order.check_in.filter.arrived</source>
-        <target>Here</target>
+        <target>Arrived</target>
       </segment>
     </unit>
     <unit id="purchase_order.check_in.filter.missing" name="purchase_order.check_in.filter.missing">
@@ -15953,7 +15953,7 @@ Buerklin-API Authentication server:
     <unit id="purchase_order.check_in.status.arrived" name="purchase_order.check_in.status.arrived">
       <segment state="translated">
         <source>purchase_order.check_in.status.arrived</source>
-        <target>Here</target>
+        <target>Arrived</target>
       </segment>
     </unit>
     <unit id="purchase_order.check_in.include" name="purchase_order.check_in.include">
