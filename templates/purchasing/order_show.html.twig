@@ -7,7 +7,9 @@
     <strong>{{ order.number }}</strong>
     <span class="badge bg-secondary">{{ ('purchase_order.kind.' ~ order.kind)|trans }}</span>
     <span class="ms-1">{{ order.name }}</span>
-    <a class="btn btn-outline-secondary btn-sm float-end" href="{{ path('purchase_orders_list') }}">{% trans %}purchase_order.back{% endtrans %}</a>
+    <a class="btn btn-outline-light btn-sm float-end" href="{{ path('purchase_orders_list') }}">
+        <i class="fas fa-arrow-left me-1"></i>{% trans %}purchase_order.back{% endtrans %}
+    </a>
 {% endblock %}
 
 {% block card_content %}

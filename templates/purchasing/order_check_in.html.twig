@@ -4,7 +4,9 @@
 
 {% block card_title %}
     <i class="fas fa-box-open"></i> {% trans %}purchase_order.check_in.title{% endtrans %}: {{ order.name }}
-    <a class="btn btn-outline-secondary btn-sm float-end" href="{{ path('purchase_order_show', {id: order.id}) }}">{% trans %}purchase_order.check_in.back{% endtrans %}</a>
+    <a class="btn btn-outline-light btn-sm float-end" href="{{ path('purchase_order_show', {id: order.id}) }}">
+        <i class="fas fa-arrow-left me-1"></i>{% trans %}purchase_order.check_in.back{% endtrans %}
+    </a>
 {% endblock %}
 
 {% block card_content %}
