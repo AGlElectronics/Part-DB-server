@@ -47,7 +47,7 @@ final class LandefeldCatalog
 {
     public const SHOP_SEARCH_URL = 'https://www.landefeld.com/search?q=';
 
-    /** @var array<string, string> IQS size prefix → thread */
+    /** @var array<int, string> IQS size prefix → thread */
     private const IQS_THREAD_PREFIXES = [
         '112' => '1 1/2"',
         '34' => '3/4"',
