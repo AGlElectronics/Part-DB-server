@@ -81,10 +81,15 @@ class HomepageController extends AbstractController
             }
         }
 
+        $buildVersion = getenv('PARTDB_BUILD_VERSION');
+        $buildCommit = getenv('PARTDB_BUILD_COMMIT');
+
         return $this->render('homepage.html.twig', [
             'banner' => $this->bannerHelper->getBanner(),
             'git_branch' => $versionInfo->getBranchName(),
             'git_commit' => $versionInfo->getCommitHash(),
+            'build_version' => is_string($buildVersion) && trim($buildVersion) !== '' ? trim($buildVersion) : null,
+            'build_commit' => is_string($buildCommit) && trim($buildCommit) !== '' ? trim($buildCommit) : null,
             'show_first_steps' => $show_first_steps,
             'datatable' => $table,
             'new_version_available' => $updateAvailableManager->isUpdateAvailable(),

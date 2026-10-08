@@ -81,6 +81,9 @@ jobs:
           push: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PARTDB_BUILD_VERSION=${{ steps.meta.outputs.version }}
+            PARTDB_BUILD_COMMIT=${{ github.sha }}
           cache-from: type=gha,scope=development-image
           cache-to: type=gha,mode=max,scope=development-image
 
@@ -150,6 +153,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PARTDB_BUILD_VERSION=${{ steps.meta.outputs.version }}
+            PARTDB_BUILD_COMMIT=${{ github.sha }}
           cache-from: type=gha,scope=prod-image
           cache-to: type=gha,mode=max,scope=prod-image
           provenance: mode=max
