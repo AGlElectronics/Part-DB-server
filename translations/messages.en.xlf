@@ -15890,6 +15890,84 @@ Buerklin-API Authentication server:
         <target>Mark the parts that arrived, enter how many you got, then review. Stock changes only after you confirm.</target>
       </segment>
     </unit>
+    <unit id="purchase_order.check_in.filter.label" name="purchase_order.check_in.filter.label">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.label</source>
+        <target>Show order lines</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.filter.all" name="purchase_order.check_in.filter.all">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.all</source>
+        <target>All</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.filter.arrived" name="purchase_order.check_in.filter.arrived">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.arrived</source>
+        <target>Arrived</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.filter.missing" name="purchase_order.check_in.filter.missing">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.missing</source>
+        <target>Still missing</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.filter.completed" name="purchase_order.check_in.filter.completed">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.completed</source>
+        <target>Already received</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.filter.unavailable" name="purchase_order.check_in.filter.unavailable">
+      <segment state="translated">
+        <source>purchase_order.check_in.filter.unavailable</source>
+        <target>Unavailable</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.bulk.label" name="purchase_order.check_in.bulk.label">
+      <segment state="translated">
+        <source>purchase_order.check_in.bulk.label</source>
+        <target>Mark shown lines</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.bulk.arrived" name="purchase_order.check_in.bulk.arrived">
+      <segment state="translated">
+        <source>purchase_order.check_in.bulk.arrived</source>
+        <target>All here</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.bulk.missing" name="purchase_order.check_in.bulk.missing">
+      <segment state="translated">
+        <source>purchase_order.check_in.bulk.missing</source>
+        <target>All missing</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.status.label" name="purchase_order.check_in.status.label">
+      <segment state="translated">
+        <source>purchase_order.check_in.status.label</source>
+        <target>Arrival status</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.status.missing" name="purchase_order.check_in.status.missing">
+      <segment state="translated">
+        <source>purchase_order.check_in.status.missing</source>
+        <target>Missing</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.status.arrived" name="purchase_order.check_in.status.arrived">
+      <segment state="translated">
+        <source>purchase_order.check_in.status.arrived</source>
+        <target>Arrived</target>
+      </segment>
+    </unit>
+    <unit id="purchase_order.check_in.status.completed" name="purchase_order.check_in.status.completed">
+      <segment state="translated">
+        <source>purchase_order.check_in.status.completed</source>
+        <target>Already received</target>
+      </segment>
+    </unit>
     <unit id="purchase_order.check_in.include" name="purchase_order.check_in.include">
       <segment state="translated">
         <source>purchase_order.check_in.include</source>

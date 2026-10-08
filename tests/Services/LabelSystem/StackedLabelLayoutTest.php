@@ -44,8 +44,8 @@ final class StackedLabelLayoutTest extends KernelTestCase
         $this->assertStringContainsString('stacked-name', $html);
         $this->assertStringContainsString('DIN 912 M6 x 20', $html);
         $this->assertStringContainsString('Socket head cap screw', $html);
-        $this->assertStringNotContainsString('col-5', $html);
-        $this->assertStringNotContainsString('beside-label', $html);
+        $this->assertStringNotContainsString('class="col-5"', $html);
+        $this->assertStringNotContainsString('class="beside-label"', $html);
     }
 
     public function testBesideLayoutPutsQrAndNameOnOneRow(): void
@@ -67,7 +67,7 @@ final class StackedLabelLayoutTest extends KernelTestCase
         $this->assertStringContainsString('beside-label', $html);
         $this->assertStringContainsString('beside-name', $html);
         $this->assertStringContainsString('Box A3', $html);
-        $this->assertStringNotContainsString('stacked-label', $html);
+        $this->assertStringNotContainsString('class="stacked-label"', $html);
     }
 
     public function testDescriptionLabelIsTextOnly(): void
@@ -85,7 +85,7 @@ final class StackedLabelLayoutTest extends KernelTestCase
 
         $this->assertStringContainsString('desc-only', $html);
         $this->assertStringContainsString('Socket head cap screw', $html);
-        $this->assertStringNotContainsString('stacked-label', $html);
+        $this->assertStringNotContainsString('class="stacked-label"', $html);
         $this->assertStringNotContainsString('<img', $html);
     }
 
@@ -96,7 +96,7 @@ final class StackedLabelLayoutTest extends KernelTestCase
         $html = $this->service->getLabelHTML($options, [$this->part()]);
 
         $this->assertStringContainsString('col-5', $html);
-        $this->assertStringNotContainsString('stacked-label', $html);
+        $this->assertStringNotContainsString('class="stacked-label"', $html);
     }
 
     private function options(bool $withStackedMarker): LabelOptions

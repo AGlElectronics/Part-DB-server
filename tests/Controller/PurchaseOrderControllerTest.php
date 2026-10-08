@@ -44,6 +44,7 @@ final class PurchaseOrderControllerTest extends WebTestCase
         $crawler = $client->followRedirect();
         self::assertResponseIsSuccessful();
         self::assertStringContainsString($name, (string) $client->getResponse()->getContent());
+        self::assertCount(1, $crawler->filter('a.btn-outline-light[href$="/orders"]'));
 
         $renamed = $name.'-renamed';
         $client->request('POST', '/en/orders/'.$orderId, [
@@ -253,8 +254,18 @@ final class PurchaseOrderControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
         self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('a.btn-outline-light[href$="/orders/'.$orderId.'"]'));
         self::assertSame((string) $lotId, $this->namedField($crawler, 'lot['.$lineId.']')?->attr('value'));
         self::assertStringContainsString($created['location']->getName(), (string) $client->getResponse()->getContent());
+        self::assertCount(1, $crawler->filter('form[data-controller~="pages--purchase-order-check-in"]'));
+        self::assertCount(1, $crawler->filter('[data-check-in-toolbar]'));
+        self::assertCount(5, $crawler->filter('[data-check-in-filter]'));
+        self::assertCount(1, $crawler->filter('[data-check-in-filter="missing"]'));
+        self::assertCount(1, $crawler->filter('[data-check-in-set-visible="arrived"]'));
+        self::assertCount(1, $crawler->filter('tr[data-check-in-row][data-check-in-state="missing"]'));
+        self::assertCount(1, $crawler->filter('input[data-check-in][name="check['.$lineId.']"].d-none'));
+        self::assertCount(1, $crawler->filter('button[data-check-in-choice="missing"]'));
+        self::assertCount(1, $crawler->filter('button[data-check-in-choice="arrived"]'));
 
         $comment = 'Checked in from order '.$name;
         $crawler = $this->postCheckIn($client, $crawler, $orderId, [
@@ -304,6 +315,11 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertSame('received', $order->getFulfillment());
         self::assertSame(14.0, $this->lotAmount($em, $lotId));
         self::assertCount(2, $order->getReceipts());
+
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        self::assertCount(1, $crawler->filter('tr[data-check-in-row][data-check-in-state="completed"]'));
+        self::assertCount(0, $crawler->filter('tr[data-check-in-state="completed"] input[data-check-in]'));
+        self::assertStringContainsString('Already received', $crawler->filter('tr[data-check-in-state="completed"]')->text());
 
         $crawler = $client->request('GET', '/en/orders?view=history');
         self::assertStringContainsString('Received', $this->orderRow($crawler, $name));
@@ -359,6 +375,35 @@ final class PurchaseOrderControllerTest extends WebTestCase
         self::assertSame(3.0, $lot->getAmount());
         self::assertSame($locationId, $lot->getStorageLocation()?->getID());
         self::assertTrue($this->stockCommentExists($em, (int) $lot->getID(), $comment));
+    }
+
+    public function testCheckInMovesCompletedLinesBelowOutstandingLines(): void
+    {
+        $client = $this->client();
+        $first = $this->partWithSingleLot($client, 0.0);
+        $second = $this->partWithSingleLot($client, 0.0);
+        $orderId = $this->createOrderWithParts(
+            $client,
+            'Sort-check-in-'.bin2hex(random_bytes(3)),
+            [$first['part'], $second['part']]
+        );
+
+        $em = $this->em($client);
+        $order = $em->find(PurchaseOrder::class, $orderId);
+        self::assertInstanceOf(PurchaseOrder::class, $order);
+        $lines = $order->getLines()->toArray();
+        self::assertCount(2, $lines);
+        $lines[0]->setQuantity(2);
+        $lines[0]->addQuantityReceived(2);
+        $lines[1]->setQuantity(2);
+        $em->flush();
+
+        $crawler = $client->request('GET', '/en/orders/'.$orderId.'/check-in');
+        $states = $crawler->filter('tr[data-check-in-row]')->each(
+            static fn (Crawler $row): ?string => $row->attr('data-check-in-state')
+        );
+
+        self::assertSame(['missing', 'completed'], $states);
     }
 
     public function testCheckInOfAMissingLocationLeavesStockUnchanged(): void

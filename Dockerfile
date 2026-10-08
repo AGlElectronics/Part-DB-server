@@ -182,6 +182,9 @@ COPY ./.docker/symfony.conf /etc/apache2/sites-available/symfony.conf
 
 FROM base
 ARG PHP_VERSION
+ARG PARTDB_BUILD_VERSION
+
+ENV PARTDB_BUILD_VERSION=${PARTDB_BUILD_VERSION}
 
 # Set working dir
 WORKDIR /var/www/html

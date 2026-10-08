@@ -47,7 +47,7 @@ final class LandefeldCatalog
 {
     public const SHOP_SEARCH_URL = 'https://www.landefeld.com/search?q=';
 
-    /** @var array<string, string> IQS size prefix → thread */
+    /** @var array<int, string> IQS size prefix → thread */
     private const IQS_THREAD_PREFIXES = [
         '112' => '1 1/2"',
         '34' => '3/4"',
@@ -65,7 +65,7 @@ final class LandefeldCatalog
      */
     private const SERIES_KIND = [
         'IQSG' => ['Straight push-in fitting', ['straight', 'gerade', 'push-in', 'push in', 'steckanschluss', 'fitting']],
-        'IQSF' => ['Female push-in fitting', ['female', 'straight', 'gerade', 'push-in', 'push in', 'fitting']],
+        'IQSF' => ['Straight female push-in fitting', ['female', 'straight', 'gerade', 'push-in', 'push in', 'fitting']],
         'IQSSF' => ['Bulkhead female push-in fitting', ['bulkhead', 'female', 'push-in', 'push in', 'fitting']],
         'IQSL' => ['Elbow push-in fitting', ['elbow', 'angle', 'winkel', 'push-in', 'push in', 'fitting']],
         'IQSLL' => ['Long elbow push-in fitting', ['elbow', 'angle', 'long', 'winkel', 'push-in', 'push in', 'fitting']],

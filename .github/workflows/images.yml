@@ -4,9 +4,9 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - '**'
     tags:
-      - 'mechanical-v*'
+      - '*.*.*-*'
   workflow_dispatch:
     inputs:
       deploy:
@@ -19,7 +19,7 @@ on:
           - dev
           - prod
       image_tag:
-        description: Tag to deploy, such as master, sha-abc1234, or pr-12. Empty uses master.
+        description: Tag to build or deploy, such as 2.19.2-1, master, sha-abc1234, or pr-12. Empty uses master.
         required: false
         type: string
       rebuild:
@@ -37,9 +37,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-image:
-    name: Test image
-    if: github.event_name == 'pull_request'
+  development-image:
+    name: Development image
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) ||
+      (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name != github.event.repository.default_branch)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,7 +51,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to GitHub Container Registry
-        if: github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -63,33 +65,53 @@ jobs:
           images: ghcr.io/aglelectronics/part-db-server
           tags: |
             type=sha,prefix=sha-,format=short
-            type=raw,value=pr-${{ github.event.pull_request.number }}
+            type=ref,event=branch,prefix=dev-
+            type=ref,event=pr
           labels: |
-            org.opencontainers.image.title=Part-DB test image
-            org.opencontainers.image.description=Part-DB image built to try a pull request
+            org.opencontainers.image.title=Part-DB development image
+            org.opencontainers.image.description=Part-DB image built from a development branch or pull request
             org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-      - name: Build and publish test image
+      - name: Build and publish development image
         uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
           platforms: linux/amd64
-          push: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+          push: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=test-image
-          cache-to: type=gha,mode=max,scope=test-image
+          build-args: |
+            PARTDB_BUILD_VERSION=${{ steps.meta.outputs.version }}
+          cache-from: type=gha,scope=development-image
+          cache-to: type=gha,mode=max,scope=development-image
 
   release-image:
     name: Release image
     if: >-
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/mechanical-v'))) ||
+      (github.event_name == 'push' && (github.ref_name == github.event.repository.default_branch || github.ref_type == 'tag')) ||
       (github.event_name == 'workflow_dispatch' && (inputs.deploy == 'none' || inputs.rebuild))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Validate release image tag
+        if: github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && inputs.image_tag != '' && (inputs.deploy == 'none' || inputs.rebuild))
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.image_tag }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-([1-9][0-9]*)$ ]]; then
+            echo "::error::Release image tag '$RELEASE_TAG' must use <upstream-version>-<fork-release>, for example 2.19.2-1."
+            exit 1
+          fi
+
+          tag_upstream_version="${BASH_REMATCH[1]}"
+          upstream_version="$(tr -d '[:space:]' < VERSION)"
+          if [[ "$tag_upstream_version" != "$upstream_version" ]]; then
+            echo "::error::Release image tag '$RELEASE_TAG' claims upstream $tag_upstream_version, but VERSION contains $upstream_version."
+            exit 1
+          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -111,8 +133,9 @@ jobs:
           images: ghcr.io/aglelectronics/part-db-server
           tags: |
             type=sha,prefix=sha-,format=short
-            type=raw,value=master,enable=${{ github.ref == 'refs/heads/master' }}
-            type=raw,value=mechanical-preview,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=master,enable=${{ github.ref_name == github.event.repository.default_branch }}
+            type=raw,value=production,enable=${{ github.ref_name == github.event.repository.default_branch }}
+            type=raw,value=mechanical-preview,enable=${{ github.ref_name == github.event.repository.default_branch }}
             type=ref,event=tag
             type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
           labels: |
@@ -129,6 +152,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PARTDB_BUILD_VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=gha,scope=prod-image
           cache-to: type=gha,mode=max,scope=prod-image
           provenance: mode=max
@@ -142,7 +167,7 @@ jobs:
       (
         (
           github.event_name == 'push' &&
-          (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/mechanical-v')) &&
+          github.ref_name == github.event.repository.default_branch &&
           needs.release-image.result == 'success'
         ) ||
         (
