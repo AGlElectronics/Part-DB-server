@@ -83,7 +83,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             PARTDB_BUILD_VERSION=${{ steps.meta.outputs.version }}
-            PARTDB_BUILD_COMMIT=${{ github.sha }}
           cache-from: type=gha,scope=development-image
           cache-to: type=gha,mode=max,scope=development-image
 
@@ -155,7 +154,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             PARTDB_BUILD_VERSION=${{ steps.meta.outputs.version }}
-            PARTDB_BUILD_COMMIT=${{ github.sha }}
           cache-from: type=gha,scope=prod-image
           cache-to: type=gha,mode=max,scope=prod-image
           provenance: mode=max

@@ -14,16 +14,12 @@
     <div class="rounded p-4 bg-body-secondary">
         <h1 class="display-3 mb-2">4QT Part database</h1>
         <p class="lead mb-1">For small electrical and mechanical parts</p>
-        <small class="text-body-secondary">
-            {% trans %}version.caption{% endtrans %} v1.5.4
-            {% if build_version is not empty %}
+        <small class="text-body-secondary" data-build-identity>
+            {% trans %}version.caption{% endtrans %} v{{ shivas_app_version }}
+            {% if build_label is not empty %}
                 <span class="badge text-bg-primary ms-1">
-                    <i class="fas fa-cube me-1" aria-hidden="true"></i>{{ 'project.info.builds.label'|trans }} {{ build_version }}
+                    <i class="fas fa-cube me-1" aria-hidden="true"></i>{{ 'project.info.builds.label'|trans }} {{ build_label }}
                 </span>
-                {% if build_commit is not empty %}
-                    <code class="ms-1 text-body-secondary"
-                          title="{{ 'update_manager.git_commit'|trans }}: {{ build_commit }}">@{{ build_commit|slice(0, 8) }}</code>
-                {% endif %}
             {% endif %}
         </small>
         {% if banner is not empty %}
